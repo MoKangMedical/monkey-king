@@ -16,14 +16,12 @@
   --ink-surface: #1a2430;
   --cinnabar: #c0392b;
   --jade: #1e8568;
-  --cloud-white: #e8dcc8;
+  --cloud: #e8dcc8;
   --text-warm: #f5efe0;
   --text-soft: #b8ad9a;
   --text-muted: #7a7062;
   --serif: 'Noto Serif SC', 'Source Han Serif SC', 'STSong', serif;
   --sans: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  --scene-h: 100vh;
-  --scene-h-dyn: 100dvh;
 }
 
 /* ===== Reset ===== */
@@ -33,9 +31,44 @@ body {
   font-family: var(--sans);
   background: var(--ink-deep);
   color: var(--text-warm);
-  overflow-x: hidden;
+  overflow: hidden;
   overscroll-behavior: none;
 }
+body.loaded { overflow: auto; }
+
+/* ===== Loading Screen ===== */
+#loadingScreen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--ink-deep);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.8s ease;
+}
+#loadingScreen.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+#loadingScreen canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.loading-text {
+  position: relative;
+  z-index: 1;
+  font-family: var(--serif);
+  font-size: 20px;
+  color: var(--gold-core);
+  opacity: 0;
+  transition: opacity 1s ease;
+  letter-spacing: 0.15em;
+}
+.loading-text.show { opacity: 0.8; }
 
 /* ===== Ink Paper Texture ===== */
 body::before {
@@ -57,7 +90,10 @@ body::before {
   scroll-behavior: smooth;
   position: relative;
   z-index: 1;
+  opacity: 0;
+  transition: opacity 0.5s ease;
 }
+body.loaded .scroll-container { opacity: 1; }
 .scroll-container::-webkit-scrollbar { width: 0; }
 
 /* ===== Scene ===== */
@@ -75,11 +111,16 @@ body::before {
   padding: 2rem;
 }
 
-/* ===== Scene Backgrounds ===== */
+/* ===== Canvas Background for Scenes ===== */
+.scene-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
 .scene-bg {
   position: absolute; inset: 0;
   z-index: 0;
-  transition: opacity 0.3s;
 }
 #scene1 .scene-bg {
   background: radial-gradient(ellipse at 30% 40%, rgba(232,168,32,0.08) 0%, transparent 60%),
@@ -112,7 +153,7 @@ body::before {
               var(--ink-mid);
 }
 
-/* ===== Content Layer ===== */
+/* ===== Content ===== */
 .scene-content {
   position: relative;
   z-index: 10;
@@ -120,8 +161,6 @@ body::before {
   max-width: 700px;
   width: 100%;
 }
-
-/* ===== Scene Number ===== */
 .scene-num {
   font-family: var(--serif);
   font-size: clamp(48px, 10vw, 96px);
@@ -135,8 +174,6 @@ body::before {
   line-height: 1;
   pointer-events: none;
 }
-
-/* ===== Silhouette ===== */
 .silhouette {
   position: absolute;
   font-size: clamp(80px, 20vw, 200px);
@@ -230,14 +267,9 @@ body::before {
   opacity: 0.5;
   animation: hint-pulse 2s ease-in-out infinite;
 }
-.scroll-hint span {
-  font-size: 11px;
-  color: var(--text-muted);
-  letter-spacing: 0.1em;
-}
+.scroll-hint span { font-size: 11px; color: var(--text-muted); letter-spacing: 0.1em; }
 .scroll-hint .arrow {
-  width: 1px;
-  height: 28px;
+  width: 1px; height: 28px;
   background: linear-gradient(180deg, var(--gold-core), transparent);
 }
 @keyframes hint-pulse {
@@ -245,7 +277,7 @@ body::before {
   50% { opacity: 0.7; transform: translateX(-50%) translateY(4px); }
 }
 
-/* ===== Chapter Navigation ===== */
+/* ===== Chapter Nav ===== */
 .chapter-nav {
   position: fixed;
   right: 1rem;
@@ -264,8 +296,7 @@ body::before {
   cursor: pointer;
 }
 .chapter-dot {
-  width: 8px;
-  height: 8px;
+  width: 8px; height: 8px;
   border-radius: 50%;
   background: rgba(184,141,10,0.25);
   border: 1px solid rgba(184,141,10,0.3);
@@ -296,36 +327,25 @@ body::before {
   opacity: 1;
   transform: translateX(0);
 }
-.chapter-dot-wrap:hover .chapter-dot {
-  background: var(--gold-core);
-  transform: scale(1.2);
-}
+.chapter-dot-wrap:hover .chapter-dot { background: var(--gold-core); transform: scale(1.2); }
 
 /* ===== Transition Overlay ===== */
 .transition-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 300;
-  pointer-events: none;
-  opacity: 0;
+  position: fixed; inset: 0; z-index: 300;
+  pointer-events: none; opacity: 0;
 }
 .transition-overlay.active { opacity: 1; }
 
-/* Ink splash transition */
 .ink-transition {
-  position: absolute;
-  border-radius: 50%;
+  position: absolute; border-radius: 50%;
   background: radial-gradient(circle, var(--ink-deep), var(--ink-mid));
   transform: scale(0);
   transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .ink-transition.expand { transform: scale(4); }
 
-/* Cloud sweep transition */
 .cloud-sweep {
-  position: absolute;
-  top: 0; bottom: 0;
-  width: 400px;
+  position: absolute; top:0; bottom:0; width:400px;
   background: linear-gradient(90deg, transparent, rgba(232,220,200,0.08), rgba(245,216,144,0.05), transparent);
   filter: blur(30px);
   transform: translateX(-100%);
@@ -333,54 +353,29 @@ body::before {
 }
 .cloud-sweep.sweep { transform: translateX(calc(100vw + 400px)); }
 
-/* Firefly converge */
 .firefly-converge {
   position: absolute;
-  width: 8px; height: 8px;
-  border-radius: 50%;
+  width:8px; height:8px; border-radius:50%;
   background: radial-gradient(circle, #fef3c7, var(--gold-core));
   box-shadow: 0 0 20px rgba(232,168,32,0.6);
   transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .firefly-converge.converge {
-  transform: translate(50vw, 50vh) scale(8) !important;
-  opacity: 1 !important;
+  transform: translate(50vw, 50vh) scale(8) !important; opacity:1 !important;
 }
 .firefly-converge.burst {
-  transform: scale(20);
-  opacity: 0;
+  transform: scale(20); opacity:0;
   transition: all 0.5s ease-out;
 }
 
-/* ===== Particle System (3-layer parallax) ===== */
+/* ===== Particle System ===== */
 .particle-layer {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
+  position: absolute; inset: 0;
+  pointer-events: none; z-index: 1;
 }
 .particle {
-  position: absolute;
-  border-radius: 50%;
-  pointer-events: none;
+  position: absolute; border-radius: 50%; pointer-events: none;
 }
-.particle-layer-near .particle  { width: 3-6px; height: 3-6px; }
-.particle-layer-mid .particle   { width: 2-4px; height: 2-4px; }
-.particle-layer-far .particle   { width: 1-2px; height: 1-2px; opacity: 0.5; }
-
-/* ===== Fireflies ===== */
-@keyframes firefly-float {
-  0%   { opacity: 0; transform: translate(0, 0) scale(0.8); }
-  15%  { opacity: 0.7; transform: translate(var(--drift-x), var(--drift-y)) scale(1.2); }
-  30%  { opacity: 0.3; transform: translate(calc(var(--drift-x)*2), -6px) scale(0.9); }
-  45%  { opacity: 0.8; transform: translate(calc(var(--drift-x)*0.3), -18px) scale(1.1); }
-  60%  { opacity: 0.2; transform: translate(calc(var(--drift-x)*-0.6), -3px) scale(0.85); }
-  75%  { opacity: 0.6; transform: translate(calc(var(--drift-x)*0.8), -14px) scale(1.0); }
-  90%  { opacity: 0.1; transform: translate(calc(var(--drift-x)*-1.2), -8px) scale(0.9); }
-  100% { opacity: 0; transform: translate(0, 2px) scale(0.7); }
-}
-
-/* ===== Gold Dust ===== */
 @keyframes golddust-float {
   0%   { opacity: 0; transform: translate(0, 0); }
   20%  { opacity: 0.5; }
@@ -389,13 +384,15 @@ body::before {
   80%  { opacity: 0.2; transform: translate(3px, -16px); }
   100% { opacity: 0; transform: translate(-2px, -8px); }
 }
-
-/* ===== Cloud Drift ===== */
-@keyframes cloud-drift {
-  0% { transform: translateX(-200px); opacity: 0; }
-  10% { opacity: 0.04; }
-  90% { opacity: 0.04; }
-  100% { transform: translateX(calc(100vw + 200px)); opacity: 0; }
+@keyframes firefly-float {
+  0%   { opacity:0; transform: translate(0,0) scale(0.8); }
+  15%  { opacity:0.7; transform: translate(var(--drift-x), var(--drift-y)) scale(1.2); }
+  30%  { opacity:0.3; transform: translate(calc(var(--drift-x)*2), -6px) scale(0.9); }
+  45%  { opacity:0.8; transform: translate(calc(var(--drift-x)*0.3), -18px) scale(1.1); }
+  60%  { opacity:0.2; transform: translate(calc(var(--drift-x)*-0.6), -3px) scale(0.85); }
+  75%  { opacity:0.6; transform: translate(calc(var(--drift-x)*0.8), -14px) scale(1); }
+  90%  { opacity:0.1; transform: translate(calc(var(--drift-x)*-1.2), -8px) scale(0.9); }
+  100% { opacity:0; transform: translate(0,2px) scale(0.7); }
 }
 
 /* ===== God Rays ===== */
@@ -404,64 +401,28 @@ body::before {
   50% { transform: rotate(-8deg) translateX(-50%); opacity: 0.06; }
 }
 .godray {
-  position: fixed;
-  width: 2px;
-  height: 50vh;
-  top: -5vh;
-  left: 50%;
+  position: fixed; width:2px; height:50vh; top:-5vh; left:50%;
   filter: blur(5px);
   background: linear-gradient(180deg, rgba(232,168,32,0.5), transparent);
-  pointer-events: none;
-  z-index: 0;
+  pointer-events: none; z-index: 0;
   transform-origin: top center;
 }
 
-/* ===== Scene-Specific Particle Effects ===== */
-.ink-splash-p {
-  position: absolute;
-  width: 200px; height: 200px;
-  background: radial-gradient(circle, rgba(232,168,32,0.15), transparent 70%);
-  filter: blur(15px);
-  border-radius: 50%;
-  pointer-events: none;
-  animation: ink-drift 8s ease-in-out infinite;
-}
-@keyframes ink-drift {
-  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
-  25% { transform: translate(30px, -20px) scale(1.3); opacity: 0.6; }
-  50% { transform: translate(-20px, -40px) scale(0.9); opacity: 0.4; }
-  75% { transform: translate(-30px, -10px) scale(1.4); opacity: 0.7; }
-}
-
-/* ===== Finale: Star Chart ===== */
-#scene-finale {
-  background: var(--ink-deep);
-}
+/* ===== Finale & Star Chart ===== */
 #scene-finale .scene-bg {
   background: radial-gradient(ellipse at 50% 50%, rgba(232,168,32,0.06) 0%, transparent 60%),
               radial-gradient(ellipse at 30% 30%, rgba(245,216,144,0.03) 0%, transparent 40%),
               var(--ink-deep);
 }
-
 .star-node {
-  position: absolute;
-  width: 44px; height: 44px;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  transition: all 0.4s ease;
-  z-index: 5;
+  position: absolute; width:44px; height:44px; border-radius:50%; cursor:pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; transition: all 0.4s ease; z-index: 5;
   border: 1px solid rgba(232,168,32,0.25);
   background: radial-gradient(circle at 30% 30%, rgba(232,168,32,0.12), transparent);
 }
 .star-node::before {
-  content: '';
-  position: absolute;
-  inset: -3px;
-  border-radius: 50%;
+  content: ''; position: absolute; inset: -3px; border-radius: 50%;
   border: 1px solid rgba(232,168,32,0.2);
   animation: star-pulse 3s ease-in-out infinite;
 }
@@ -478,16 +439,14 @@ body::before {
 
 /* ===== Speech Bubble ===== */
 @keyframes bubble-rise {
-  from { opacity: 0; transform: translateY(12px) scale(0.95); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from { opacity:0; transform: translateY(12px) scale(0.95); }
+  to { opacity:1; transform: translateY(0) scale(1); }
 }
 .speech-bubble {
-  position: fixed;
-  z-index: 400;
+  position: fixed; z-index: 400;
   background: rgba(10,15,20,0.97);
   border: 1px solid rgba(232,168,32,0.25);
-  border-radius: 4px;
-  padding: 16px 20px;
+  border-radius: 4px; padding: 16px 20px;
   max-width: 270px;
   animation: bubble-rise 0.4s ease-out;
   backdrop-filter: blur(20px);
@@ -496,96 +455,161 @@ body::before {
 .speech-bubble .haiku {
   font-family: var(--serif);
   color: var(--gold-core);
-  font-size: 15px;
-  line-height: 1.8;
-  margin-bottom: 8px;
-  white-space: pre-line;
+  font-size: 15px; line-height: 1.8;
+  margin-bottom: 8px; white-space: pre-line;
 }
-.speech-bubble .message {
-  font-size: 13px;
-  color: var(--text-soft);
-  line-height: 1.6;
-}
+.speech-bubble .message { font-size: 13px; color: var(--text-soft); line-height: 1.6; }
 .speech-bubble .feeling {
-  display: inline-block;
-  margin-top: 8px;
-  font-size: 10px;
-  color: var(--gold-light);
+  display: inline-block; margin-top: 8px;
+  font-size: 10px; color: var(--gold-light);
   padding: 2px 8px;
   border: 1px solid rgba(232,168,32,0.2);
   border-radius: 2px;
 }
 .speech-bubble .close-btn {
-  position: absolute;
-  top: 4px;
-  right: 6px;
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  cursor: pointer;
-  font-size: 14px;
-  padding: 4px;
+  position: absolute; top:4px; right:6px;
+  background: none; border: none;
+  color: var(--text-muted); cursor: pointer;
+  font-size: 14px; padding: 4px;
 }
 .speech-bubble .close-btn:hover { color: var(--gold-core); }
 
-/* ===== Connecting Lines SVG ===== */
+/* ===== Star Lines ===== */
 .star-lines {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 1;
-  opacity: 0.15;
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 1; opacity: 0.15;
 }
 .star-lines path { stroke: var(--gold-core); stroke-width: 1; fill: none; }
 
-/* ===== To Finale CTA ===== */
-.to-finale {
-  margin-top: 2rem;
-  font-family: var(--serif);
-  font-size: 14px;
-  color: var(--gold-core);
-  cursor: pointer;
-  letter-spacing: 0.1em;
-  opacity: 0.7;
-  transition: opacity 0.3s;
+/* ===== Chat Widget (Finale) ===== */
+.chat-widget {
+  position: absolute;
+  bottom: 4rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  width: min(90vw, 420px);
+  opacity: 0;
+  transition: opacity 0.5s ease;
 }
-.to-finale:hover { opacity: 1; }
-
-/* ===== Music Toggle ===== */
-.music-toggle {
-  position: fixed;
-  bottom: 1.5rem;
-  left: 1.5rem;
-  width: 40px; height: 40px;
-  border-radius: 50%;
+.chat-widget.show { opacity: 1; }
+.chat-input-wrap {
+  display: flex;
+  gap: 8px;
   background: rgba(20,28,36,0.9);
   border: 1px solid rgba(232,168,32,0.2);
-  color: var(--gold-core);
-  font-size: 16px;
+  border-radius: 24px;
+  padding: 6px 6px 6px 18px;
+  backdrop-filter: blur(12px);
+  transition: border-color 0.3s;
+}
+.chat-input-wrap:focus-within { border-color: var(--gold-core); }
+.chat-input {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--text-warm);
+  font-family: var(--serif);
+  font-size: 14px;
+  outline: none;
+  padding: 8px 0;
+}
+.chat-input::placeholder { color: var(--text-muted); }
+.chat-send {
+  background: var(--gold-core);
+  color: var(--ink-deep);
+  border: none;
+  width: 36px; height: 36px;
+  border-radius: 50%;
   cursor: pointer;
-  z-index: 200;
+  font-size: 16px;
+  flex-shrink: 0;
+  transition: all 0.3s;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.chat-send:hover { background: var(--gold-light); }
+.chat-send:disabled { opacity: 0.5; cursor: not-allowed; }
+.chat-hint {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 8px;
+  opacity: 0.7;
+}
+.chat-response {
+  margin-top: 12px;
+  background: rgba(10,15,20,0.95);
+  border: 1px solid rgba(232,168,32,0.15);
+  border-radius: 8px;
+  padding: 14px 16px;
+  animation: bubble-rise 0.4s ease-out;
+  display: none;
+}
+.chat-response.show { display: block; }
+.chat-response .chat-avatar {
+  font-size: 24px;
+  margin-bottom: 6px;
+}
+.chat-response .chat-text {
+  font-family: var(--serif);
+  font-size: 14px;
+  color: var(--text-soft);
+  line-height: 1.7;
+}
+.chat-response .chat-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+.chat-response.loading .chat-text { color: var(--text-muted); font-style: italic; }
+
+/* ===== Fade-out ===== */
+@keyframes fade-out { to { opacity:0; transform: translateY(-10px); } }
+.fading-out { animation: fade-out 2s ease-out forwards; }
+@keyframes node-spark {
+  0% { opacity:1; transform: rotate(var(--angle)) translateY(0) scale(1); }
+  100% { opacity:0; transform: rotate(var(--angle)) translateY(-30px) scale(0); }
+}
+
+/* ===== Enter animations ===== */
+.scene-content > * {
+  opacity: 0; transform: translateY(30px);
+  transition: all 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.scene.visible .scene-content > * {
+  opacity: 1; transform: translateY(0);
+}
+.scene.visible .scene-content > *:nth-child(1) { transition-delay: 0.1s; }
+.scene.visible .scene-content > *:nth-child(2) { transition-delay: 0.25s; }
+.scene.visible .scene-content > *:nth-child(3) { transition-delay: 0.4s; }
+.scene.visible .scene-content > *:nth-child(4) { transition-delay: 0.55s; }
+.scene.visible .scene-content > *:nth-child(5) { transition-delay: 0.7s; }
+
+/* ===== Music Toggle ===== */
+.music-toggle {
+  position: fixed; bottom:1.5rem; left:1.5rem;
+  width:40px; height:40px; border-radius:50%;
+  background: rgba(20,28,36,0.9);
+  border: 1px solid rgba(232,168,32,0.2);
+  color: var(--gold-core); font-size:16px;
+  cursor: pointer; z-index: 200;
+  display: flex; align-items: center; justify-content: center;
   transition: all 0.3s ease;
   backdrop-filter: blur(12px);
 }
 .music-toggle:hover { border-color: var(--gold-core); box-shadow: 0 0 20px rgba(232,168,32,0.3); }
 .music-toggle.muted { color: var(--text-muted); border-color: rgba(255,255,255,0.1); }
 
-/* ===== Fade-out for bubbles ===== */
-@keyframes fade-out {
-  to { opacity: 0; transform: translateY(-10px); }
+.to-finale {
+  margin-top: 2rem;
+  font-family: var(--serif); font-size: 14px;
+  color: var(--gold-core); cursor: pointer;
+  letter-spacing: 0.1em; opacity: 0.7;
+  transition: opacity 0.3s;
 }
-.fading-out { animation: fade-out 2s ease-out forwards; }
-
-/* ===== Spark burst ===== */
-@keyframes node-spark {
-  0% { opacity:1; transform: rotate(var(--angle)) translateY(0) scale(1); }
-  100% { opacity:0; transform: rotate(var(--angle)) translateY(-30px) scale(0); }
-}
+.to-finale:hover { opacity: 1; }
 
 /* ===== Mobile ===== */
 @media (max-width: 768px) {
@@ -597,23 +621,8 @@ body::before {
   .chapter-dot { width: 6px; height: 6px; }
   .star-node { width: 38px; height: 38px; font-size: 16px; }
   .scroll-hint { bottom: 1rem; }
+  .chat-widget { bottom: 3rem; width: 92vw; }
 }
-
-/* ===== Content enter animations ===== */
-.scene-content > * {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
-}
-.scene.visible .scene-content > * {
-  opacity: 1;
-  transform: translateY(0);
-}
-.scene.visible .scene-content > *:nth-child(1) { transition-delay: 0.1s; }
-.scene.visible .scene-content > *:nth-child(2) { transition-delay: 0.25s; }
-.scene.visible .scene-content > *:nth-child(3) { transition-delay: 0.4s; }
-.scene.visible .scene-content > *:nth-child(4) { transition-delay: 0.55s; }
-.scene.visible .scene-content > *:nth-child(5) { transition-delay: 0.7s; }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -621,13 +630,19 @@ body::before {
 </head>
 <body>
 
+<!-- ===== Loading Screen ===== -->
+<div id="loadingScreen">
+  <canvas id="loadingCanvas"></canvas>
+  <div class="loading-text" id="loadingText">大圣归来</div>
+</div>
+
 <!-- ===== Transition Overlay ===== -->
 <div class="transition-overlay" id="transitionOverlay"></div>
 
-<!-- ===== Chapter Navigation ===== -->
+<!-- ===== Chapter Nav ===== -->
 <nav class="chapter-nav" id="chapterNav"></nav>
 
-<!-- ===== Music Toggle ===== -->
+<!-- ===== Music ===== -->
 <button class="music-toggle muted" id="musicToggle" title="音乐">♪</button>
 
 <!-- ===== Scroll Container ===== -->
@@ -635,13 +650,13 @@ body::before {
 
   <!-- Scene 1: Chaos -->
   <section class="scene" id="scene1" data-scene="0">
+    <canvas class="scene-canvas" data-effect="lightning"></canvas>
     <div class="scene-bg"></div>
     <div class="scene-num">壹</div>
     <div class="silhouette" style="top:20%;left:10%;">🐒</div>
     <div class="particle-layer particle-layer-near" data-layer="near"></div>
     <div class="particle-layer particle-layer-mid" data-layer="mid"></div>
     <div class="particle-layer particle-layer-far" data-layer="far"></div>
-    <div class="ink-splash-p" style="top:30%;left:50%;"></div>
     <div class="scene-content">
       <h1 class="scene-title">石破天惊</h1>
       <p class="scene-subtitle">混沌初开，灵石迸裂。一只猴子从石头里跳出来，从此天地间多了一个大圣。</p>
@@ -653,6 +668,7 @@ body::before {
 
   <!-- Scene 2: Wisdom -->
   <section class="scene" id="scene2" data-scene="1">
+    <canvas class="scene-canvas" data-effect="clouds"></canvas>
     <div class="scene-bg"></div>
     <div class="scene-num">贰</div>
     <div class="silhouette" style="top:10%;right:5%;">☁️</div>
@@ -673,6 +689,7 @@ body::before {
 
   <!-- Scene 3: Respect -->
   <section class="scene" id="scene3" data-scene="2">
+    <canvas class="scene-canvas" data-effect="petals"></canvas>
     <div class="scene-bg"></div>
     <div class="scene-num">叁</div>
     <div class="silhouette" style="bottom:15%;left:5%;">🌸</div>
@@ -693,6 +710,7 @@ body::before {
 
   <!-- Scene 4: Philosophy -->
   <section class="scene" id="scene4" data-scene="3">
+    <canvas class="scene-canvas" data-effect="stars"></canvas>
     <div class="scene-bg"></div>
     <div class="scene-num">肆</div>
     <div class="silhouette" style="top:5%;right:10%;">⭐</div>
@@ -713,6 +731,7 @@ body::before {
 
   <!-- Scene 5: Warmth -->
   <section class="scene" id="scene5" data-scene="4">
+    <canvas class="scene-canvas" data-effect="fireflies"></canvas>
     <div class="scene-bg"></div>
     <div class="scene-num">伍</div>
     <div class="silhouette" style="bottom:10%;right:8%;">🦋</div>
@@ -733,6 +752,7 @@ body::before {
 
   <!-- Scene 6: Eternal -->
   <section class="scene" id="scene6" data-scene="5">
+    <canvas class="scene-canvas" data-effect="aurora"></canvas>
     <div class="scene-bg"></div>
     <div class="scene-num">陆</div>
     <div class="particle-layer particle-layer-near" data-layer="near"></div>
@@ -749,16 +769,31 @@ body::before {
     </div>
   </section>
 
-  <!-- Finale: Star Chart -->
+  <!-- Finale: Star Chart + Chat -->
   <section class="scene" id="scene-finale" data-scene="6">
     <div class="scene-bg"></div>
-    <div style="position:relative;z-index:10;text-align:center;">
+    <div style="position:relative;z-index:10;text-align:center;margin-top:3rem;">
       <h2 style="font-family:var(--serif);font-size:clamp(24px,5vw,40px);color:var(--gold-core);letter-spacing:0.08em;margin-bottom:0.5rem;">星辰画卷</h2>
-      <p style="color:var(--text-muted);font-size:14px;margin-bottom:2rem;">触碰星辰，聆听大圣的低语</p>
+      <p style="color:var(--text-muted);font-size:14px;">触碰星辰，聆听大圣的低语</p>
     </div>
     <div id="starContainer" style="position:absolute;inset:0;z-index:5;"></div>
     <svg class="star-lines" id="starLines"></svg>
-    <p style="position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);z-index:10;font-size:12px;color:var(--text-muted);cursor:pointer;" onclick="document.getElementById('scrollContainer').scrollTo({top:0,behavior:'smooth'})">↑ 重返影片 ↑</p>
+
+    <!-- Chat Widget -->
+    <div class="chat-widget" id="chatWidget">
+      <div class="chat-response" id="chatResponse">
+        <div class="chat-avatar">🐒</div>
+        <div class="chat-text"></div>
+        <div class="chat-label"></div>
+      </div>
+      <div class="chat-input-wrap">
+        <input type="text" class="chat-input" id="chatInput"
+          placeholder="向大圣提问...（如：何为自由？）"
+          maxlength="100">
+        <button class="chat-send" id="chatSend">→</button>
+      </div>
+      <p class="chat-hint">问大圣一个问题，他将亲自回答你</p>
+    </div>
   </section>
 
 </div>
@@ -766,31 +801,31 @@ body::before {
 <script>
 // ===== Data =====
 const CHAPTERS = [
-  { id: 'scene1', num: '壹', title: '石破天惊', emoji: '🌋', mood: 'chaos' },
-  { id: 'scene2', num: '贰', title: '克制的力量', emoji: '🏯', mood: 'wisdom' },
-  { id: 'scene3', num: '叁', title: '霞衣护花', emoji: '🌸', mood: 'respect' },
-  { id: 'scene4', num: '肆', title: '天地本不全', emoji: '⭐', mood: 'philosophy' },
-  { id: 'scene5', num: '伍', title: '大圣有泪', emoji: '🦋', mood: 'warmth' },
-  { id: 'scene6', num: '陆', title: '永恒大圣', emoji: '🐒', mood: 'eternal' },
-  { id: 'scene-finale', num: '终', title: '星辰画卷', emoji: '🌟', mood: 'finale' },
+  { id:'scene1', num:'壹', title:'石破天惊', emoji:'🌋', mood:'chaos' },
+  { id:'scene2', num:'贰', title:'克制的力量', emoji:'🏯', mood:'wisdom' },
+  { id:'scene3', num:'叁', title:'霞衣护花', emoji:'🌸', mood:'respect' },
+  { id:'scene4', num:'肆', title:'天地本不全', emoji:'⭐', mood:'philosophy' },
+  { id:'scene5', num:'伍', title:'大圣有泪', emoji:'🦋', mood:'warmth' },
+  { id:'scene6', num:'陆', title:'永恒大圣', emoji:'🐒', mood:'eternal' },
+  { id:'scene-finale', num:'终', title:'星辰画卷', emoji:'🌟', mood:'finale' },
 ];
 
 const STAR_DATA = [
-  { title: '石破天惊', emoji: '🌋', color: '#c0392b', desc: '混沌初开，灵石迸裂。大圣出世。' },
-  { title: '克制的力量', emoji: '🏯', color: '#e8a820', desc: '真正的强大是知道何时收手。' },
-  { title: '霞衣护花', emoji: '🌸', color: '#f5d890', desc: '比很多人更懂得尊重女性。' },
-  { title: '天地本不全', emoji: '⭐', color: '#1e8568', desc: '"灵山在脚下"——哲学从来不在经书里。' },
-  { title: '大圣有泪', emoji: '🦋', color: '#4a90b8', desc: '金刚怒目，亦有菩萨低眉。' },
-  { title: '永恒大圣', emoji: '🐒', color: '#e8a820', desc: '定海神针，民族图腾。' },
+  { title:'石破天惊', emoji:'🌋', color:'#c0392b' },
+  { title:'克制的力量', emoji:'🏯', color:'#e8a820' },
+  { title:'霞衣护花', emoji:'🌸', color:'#f5d890' },
+  { title:'天地本不全', emoji:'⭐', color:'#1e8568' },
+  { title:'大圣有泪', emoji:'🦋', color:'#4a90b8' },
+  { title:'永恒大圣', emoji:'🐒', color:'#e8a820' },
 ];
 
 const FALLBACK_QUOTES = {
-  '石破天惊': { haiku: '混沌开天地\n灵石迸裂出大圣\n从此不平凡', message: '每一个中国人心中，都有一只等待破石而出的猴子。那是我们与生俱来的反叛精神。', feeling: '觉醒' },
-  '克制的力量': { haiku: '可毁天灭地\n却选择收手停住\n真正的强大', message: '真正的力量不是摧毁一切的能力，而是摧毁一切之后选择不摧毁的克制。', feeling: '智慧' },
-  '霞衣护花': { haiku: '霞衣轻轻落\n护住人间清白身\n大圣也柔情', message: '一只猴子比许多正人君子更懂尊重，因为他从不以强者自居。', feeling: '尊重' },
-  '天地本不全': { haiku: '天地本不全\n经文残缺也圆满\n求人不如己', message: '孙悟空教会我们：路不在西天，在脚下。你不是要成为谁，你本来就是。', feeling: '觉悟' },
-  '大圣有泪': { haiku: '金箍能降妖\n却降不住一滴泪\n大圣也深情', message: '那些默默守护弱者的瞬间，让斗战胜佛比漫天神佛都更接近人性。', feeling: '温暖' },
-  '永恒大圣': { haiku: '七十二般变\n不变是赤子之心\n千年如一日', message: '定海神针沉在东海，大圣活在我们心里。每一次看到猴子，就看到了自己。', feeling: '永恒' },
+  '石破天惊': { haiku:'混沌开天地\n灵石迸裂出大圣\n从此不平凡', message:'每一个中国人心中，都有一只等待破石而出的猴子。', feeling:'觉醒' },
+  '克制的力量': { haiku:'可毁天灭地\n却选择收手停住\n真正的强大', message:'真正的力量不是摧毁一切的能力，而是摧毁一切之后选择不摧毁的克制。', feeling:'智慧' },
+  '霞衣护花': { haiku:'霞衣轻轻落\n护住人间清白身\n大圣也柔情', message:'一只猴子比许多正人君子更懂尊重，因为他从不以强者自居。', feeling:'尊重' },
+  '天地本不全': { haiku:'天地本不全\n经文残缺也圆满\n求人不如己', message:'路不在西天，在脚下。你不是要成为谁，你本来就是。', feeling:'觉悟' },
+  '大圣有泪': { haiku:'金箍能降妖\n却降不住一滴泪\n大圣也深情', message:'那些默默守护弱者的瞬间，让斗战胜佛比漫天神佛都更接近人性。', feeling:'温暖' },
+  '永恒大圣': { haiku:'七十二般变\n不变是赤子之心\n千年如一日', message:'定海神针沉在东海，大圣活在我们心里。', feeling:'永恒' },
 };
 
 // ===== State =====
@@ -799,24 +834,195 @@ let isTransitioning = false;
 let audioCtx = null;
 let isMusicPlaying = false;
 let activeSceneMusic = null;
+let canvasAnimFrames = {};
 
-// ===== DOM refs =====
+// ===== DOM =====
+const loadingScreen = document.getElementById('loadingScreen');
+const loadingText = document.getElementById('loadingText');
+const loadingCanvas = document.getElementById('loadingCanvas');
 const scrollContainer = document.getElementById('scrollContainer');
 const transitionOverlay = document.getElementById('transitionOverlay');
 const chapterNav = document.getElementById('chapterNav');
 const musicToggle = document.getElementById('musicToggle');
-const toFinale = document.getElementById('toFinale');
 const starContainer = document.getElementById('starContainer');
 const starLines = document.getElementById('starLines');
+const chatWidget = document.getElementById('chatWidget');
+const chatInput = document.getElementById('chatInput');
+const chatSend = document.getElementById('chatSend');
+const chatResponse = document.getElementById('chatResponse');
 
-// ===== Build Chapter Navigation =====
+// ===== A: Loading Animation =====
+(function runLoading() {
+  const ctx = loadingCanvas.getContext('2d');
+  const W = () => loadingCanvas.width = window.innerWidth;
+  const H = () => loadingCanvas.height = window.innerHeight;
+  W(); H();
+  window.addEventListener('resize', () => { W(); H(); });
+
+  let staffY = -100;
+  let staffTargetY = H() * 0.65;
+  let staffVelocity = 0;
+  let hasLanded = false;
+  let landTime = 0;
+  let cracks = [];
+  let particles = [];
+  let glowAlpha = 0;
+  let phase = 'falling'; // falling | landing | cracking | reveal
+
+  // Gold staff
+  const staffW = 8;
+  const staffH = 300;
+  const staffX = W() / 2;
+
+  function draw() {
+    if (!loadingScreen.classList.contains('hidden')) requestAnimationFrame(draw);
+    ctx.clearRect(0, 0, W(), H());
+
+    const now = performance.now();
+
+    // Background
+    ctx.fillStyle = '#0a0f14';
+    ctx.fillRect(0, 0, W(), H());
+
+    if (phase === 'falling') {
+      staffVelocity += 0.8;
+      staffY += staffVelocity;
+
+      if (staffY >= staffTargetY) {
+        staffY = staffTargetY;
+        phase = 'landing';
+        landTime = now;
+
+        // Spawn cracks
+        for (let i = 0; i < 12; i++) {
+          cracks.push({
+            angle: (i / 12) * Math.PI * 2 + (Math.random() - 0.5) * 0.3,
+            length: 0,
+            maxLen: 80 + Math.random() * 200,
+            speed: 2 + Math.random() * 4,
+            width: 1 + Math.random() * 2,
+          });
+        }
+        // Spawn spark particles
+        for (let i = 0; i < 40; i++) {
+          particles.push({
+            x: staffX, y: staffTargetY,
+            vx: (Math.random() - 0.5) * 8,
+            vy: (Math.random() - 0.5) * 8 - 2,
+            life: 1, decay: 0.01 + Math.random() * 0.03,
+            size: 1.5 + Math.random() * 3,
+          });
+        }
+      }
+    }
+
+    if (phase === 'landing') {
+      const elapsed = now - landTime;
+      if (elapsed > 600) { phase = 'cracking'; }
+      // Screen shake
+      const shake = Math.max(0, (600 - elapsed) / 600) * Math.sin(elapsed * 0.05) * 8;
+      ctx.save();
+      ctx.translate(shake, 0);
+    }
+
+    // Draw cracks
+    if (phase === 'landing' || phase === 'cracking' || phase === 'reveal') {
+      cracks.forEach(c => {
+        c.length = Math.min(c.maxLen, c.length + c.speed);
+        const endX = staffX + Math.cos(c.angle) * c.length;
+        const endY = staffTargetY + Math.sin(c.angle) * c.length;
+        ctx.beginPath();
+        ctx.moveTo(staffX, staffTargetY);
+        ctx.lineTo(endX, endY);
+        ctx.strokeStyle = `rgba(232,168,32,${0.3 * (1 - c.length / c.maxLen)})`;
+        ctx.lineWidth = c.width;
+        ctx.stroke();
+
+        // Branch cracks
+        if (c.length > c.maxLen * 0.4 && !c.branched) {
+          c.branched = true;
+          for (let j = 0; j < 2; j++) {
+            cracks.push({
+              angle: c.angle + (Math.random() - 0.5) * 0.8,
+              length: c.length * 0.6,
+              maxLen: c.maxLen * 0.5,
+              speed: c.speed * 0.7,
+              width: c.width * 0.6,
+              branched: true,
+            });
+          }
+        }
+      });
+    }
+
+    // Draw particles
+    particles = particles.filter(p => p.life > 0);
+    particles.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.05;
+      p.life -= p.decay;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(254,243,199,${p.life})`;
+      ctx.fill();
+      ctx.shadowColor = `rgba(232,168,32,${p.life})`;
+      ctx.shadowBlur = p.size * 3;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    });
+
+    // Draw staff
+    const grad = ctx.createLinearGradient(staffX, staffY - staffH / 2, staffX, staffY + staffH / 2);
+    grad.addColorStop(0, '#b8860b');
+    grad.addColorStop(0.3, '#e8a820');
+    grad.addColorStop(0.5, '#fef3c7');
+    grad.addColorStop(0.7, '#e8a820');
+    grad.addColorStop(1, '#b8860b');
+
+    ctx.fillStyle = grad;
+    ctx.shadowColor = 'rgba(232,168,32,0.6)';
+    ctx.shadowBlur = 20 + glowAlpha * 30;
+    ctx.fillRect(staffX - staffW / 2, staffY - staffH / 2, staffW, staffH);
+    ctx.shadowBlur = 0;
+
+    // Glow at tip
+    if (phase === 'falling' || phase === 'landing') {
+      glowAlpha = Math.min(1, glowAlpha + 0.03);
+      const glow = ctx.createRadialGradient(staffX, staffTargetY, 0, staffX, staffTargetY, 60);
+      glow.addColorStop(0, 'rgba(254,243,199,0.3)');
+      glow.addColorStop(1, 'rgba(232,168,32,0)');
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(staffX, staffTargetY, 60, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    if (phase === 'landing') ctx.restore();
+
+    // Reveal phase
+    if (phase === 'cracking') {
+      const elapsed2 = now - landTime - 600;
+      if (elapsed2 > 1200) {
+        phase = 'reveal';
+        loadingText.classList.add('show');
+        setTimeout(() => {
+          loadingScreen.classList.add('hidden');
+          document.body.classList.add('loaded');
+          setTimeout(() => loadingScreen.remove(), 800);
+        }, 1000);
+      }
+    }
+  }
+
+  requestAnimationFrame(draw);
+})();
+
+// ===== Build Chapter Nav =====
 CHAPTERS.forEach((ch, i) => {
   const wrap = document.createElement('div');
   wrap.className = 'chapter-dot-wrap';
-  wrap.innerHTML = `
-    <div class="chapter-dot${i === 0 ? ' active' : ''}" data-idx="${i}"></div>
-    <span class="chapter-label">${ch.num} · ${ch.title}</span>
-  `;
+  wrap.innerHTML = `<div class="chapter-dot${i===0?' active':''}" data-idx="${i}"></div><span class="chapter-label">${ch.num} · ${ch.title}</span>`;
   wrap.addEventListener('click', () => navigateToScene(i));
   chapterNav.appendChild(wrap);
 });
@@ -826,513 +1032,573 @@ for (let i = 0; i < 3; i++) {
   const ray = document.createElement('div');
   ray.className = 'godray';
   ray.style.left = (25 + i * 25) + '%';
-  ray.style.animationDuration = (14 + i * 5) + 's';
-  ray.style.animationDelay = (i * 4) + 's';
-  ray.style.animation = `godray-sway ${14 + i * 5}s ${i * 4}s infinite ease-in-out`;
+  ray.style.animation = `godray-sway ${14+i*5}s ${i*4}s infinite ease-in-out`;
   document.body.appendChild(ray);
 }
 
-// ===== Clouds =====
-for (let i = 0; i < 3; i++) {
-  const cloud = document.createElement('div');
-  cloud.style.cssText = `
-    position:fixed; top:${15 + i * 25}%; width:250px; height:70px;
-    background:radial-gradient(ellipse at center, rgba(232,220,200,0.03), transparent 70%);
-    border-radius:50%; filter:blur(20px);
-    animation:cloud-drift ${55 + i * 25}s ${i * 18}s infinite linear;
-    pointer-events:none; z-index:0;
-  `;
-  document.body.appendChild(cloud);
+// ===== B: Canvas Background Effects =====
+const effectDrawers = {
+  lightning(ctx, w, h, t) {
+    // Dark stormy sky with occasional lightning
+    const flicker = Math.pow(Math.sin(t * 0.003), 20) * (Math.random() > 0.95 ? 1 : 0);
+
+    // Storm clouds
+    ctx.fillStyle = `rgba(10,15,20,${0.92 + flicker * 0.08})`;
+    ctx.fillRect(0, 0, w, h);
+
+    // Lightning bolts
+    if (flicker > 0.01) {
+      for (let i = 0; i < 3; i++) {
+        ctx.strokeStyle = `rgba(254,243,199,${flicker * 0.4})`;
+        ctx.lineWidth = 1.5;
+        ctx.shadowColor = `rgba(232,168,32,${flicker})`;
+        ctx.shadowBlur = 15;
+        ctx.beginPath();
+        let x = w * 0.3 + i * w * 0.2 + Math.random() * 40;
+        let y = 0;
+        ctx.moveTo(x, y);
+        for (let j = 0; j < 8; j++) {
+          x += (Math.random() - 0.5) * 60;
+          y += h / 8;
+          ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      }
+    }
+
+    // Subtle cloud drift lines
+    for (let i = 0; i < 4; i++) {
+      const cx = ((t * 0.02 + i * 300) % (w + 400)) - 200;
+      ctx.fillStyle = 'rgba(255,255,255,0.01)';
+      ctx.beginPath();
+      ctx.ellipse(cx, h * (0.2 + i * 0.2), 180, 25, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  },
+
+  clouds(ctx, w, h, t) {
+    ctx.fillStyle = '#0d1a28';
+    ctx.fillRect(0, 0, w, h);
+
+    // Golden clouds drifting
+    for (let i = 0; i < 5; i++) {
+      const cx = ((t * (0.015 + i * 0.008) + i * 250) % (w + 400)) - 200;
+      const cy = h * (0.1 + i * 0.18);
+      const r = 40 + i * 15;
+
+      ctx.fillStyle = `rgba(232,168,32,${0.015 + i * 0.005})`;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.arc(cx + r * 0.7, cy - r * 0.3, r * 0.7, 0, Math.PI * 2);
+      ctx.arc(cx - r * 0.5, cy - r * 0.2, r * 0.6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  },
+
+  petals(ctx, w, h, t) {
+    ctx.fillStyle = '#0a0f14';
+    ctx.fillRect(0, 0, w, h);
+
+    // Cherry blossom petals
+    const petalCount = 20;
+    for (let i = 0; i < petalCount; i++) {
+      const seed = i * 137.5;
+      const px = ((seed * 17 + t * 0.3) % w);
+      const py = ((seed * 23 + t * 0.5) % (h + 100)) - 50;
+      const rot = (t * 0.001 + i) % (Math.PI * 2);
+      const size = 4 + (i % 3) * 3;
+
+      ctx.save();
+      ctx.translate(px, py);
+      ctx.rotate(rot);
+      ctx.fillStyle = `rgba(245,216,144,${0.06 + (i%3)*0.03})`;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, size, size * 0.4, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  },
+
+  stars(ctx, w, h, t) {
+    ctx.fillStyle = '#0d1a28';
+    ctx.fillRect(0, 0, w, h);
+
+    // Twinkling stars
+    const starCount = 80;
+    for (let i = 0; i < starCount; i++) {
+      const sx = (i * 137.508) % w;
+      const sy = (i * 73.159) % h;
+      const twinkle = 0.3 + 0.7 * Math.abs(Math.sin(t * 0.002 + i * 0.7));
+      const size = 0.5 + (i % 3) * 1;
+
+      ctx.fillStyle = `rgba(254,243,199,${twinkle * 0.4})`;
+      ctx.beginPath();
+      ctx.arc(sx, sy, size, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Glow on some
+      if (i % 7 === 0 && twinkle > 0.8) {
+        ctx.shadowColor = 'rgba(245,216,144,0.3)';
+        ctx.shadowBlur = 4;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+    }
+
+    // Shooting star occasionally
+    if (Math.random() > 0.997) {
+      const sx = Math.random() * w;
+      ctx.strokeStyle = 'rgba(254,243,199,0.5)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(sx, 0);
+      ctx.lineTo(sx - 80, 40);
+      ctx.stroke();
+    }
+  },
+
+  fireflies(ctx, w, h, t) {
+    ctx.fillStyle = '#0a0f14';
+    ctx.fillRect(0, 0, w, h);
+
+    // Fireflies
+    for (let i = 0; i < 15; i++) {
+      const seed = i * 97;
+      const fx = w * 0.2 + Math.sin(t * 0.001 + seed) * w * 0.35;
+      const fy = h * 0.1 + ((seed * 21 + t * 0.4) % (h * 0.8));
+      const pulse = 0.4 + 0.6 * Math.abs(Math.sin(t * 0.003 + seed));
+      const size = 3 + (i % 3) * 2;
+
+      const glow = ctx.createRadialGradient(fx, fy, 0, fx, fy, size * 4);
+      glow.addColorStop(0, `rgba(254,243,199,${pulse * 0.6})`);
+      glow.addColorStop(0.5, `rgba(232,168,32,${pulse * 0.2})`);
+      glow.addColorStop(1, 'rgba(232,168,32,0)');
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(fx, fy, size * 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  },
+
+  aurora(ctx, w, h, t) {
+    ctx.fillStyle = '#0d1a28';
+    ctx.fillRect(0, 0, w, h);
+
+    // Aurora-like golden waves
+    for (let band = 0; band < 3; band++) {
+      ctx.beginPath();
+      const baseY = h * (0.2 + band * 0.15);
+      for (let x = 0; x <= w; x += 20) {
+        const y = baseY + Math.sin(x * 0.008 + t * 0.001 + band) * 40
+          + Math.sin(x * 0.015 + t * 0.002 + band * 2) * 20;
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.lineTo(w, h);
+      ctx.lineTo(0, h);
+      ctx.closePath();
+
+      const grad = ctx.createLinearGradient(0, baseY - 40, 0, baseY + 40);
+      grad.addColorStop(0, `rgba(232,168,32,0)`);
+      grad.addColorStop(0.4, `rgba(232,168,32,${0.02 + band * 0.01})`);
+      grad.addColorStop(0.6, `rgba(245,216,144,${0.03 + band * 0.01})`);
+      grad.addColorStop(1, 'rgba(232,168,32,0)');
+      ctx.fillStyle = grad;
+      ctx.fill();
+    }
+  },
+};
+
+// Start canvas animations
+function startCanvasAnim(sceneEl) {
+  const canvas = sceneEl.querySelector('.scene-canvas');
+  if (!canvas) return;
+  const effect = canvas.dataset.effect;
+  const drawer = effectDrawers[effect];
+  if (!drawer) return;
+
+  const sceneId = sceneEl.id;
+  if (canvasAnimFrames[sceneId]) return;
+
+  const ctx = canvas.getContext('2d');
+
+  function resize() {
+    canvas.width = sceneEl.offsetWidth;
+    canvas.height = sceneEl.offsetHeight;
+  }
+  resize();
+  const ro = new ResizeObserver(resize);
+  ro.observe(sceneEl);
+
+  function frame(ts) {
+    if (!sceneEl.isConnected) { delete canvasAnimFrames[sceneId]; ro.disconnect(); return; }
+    drawer(ctx, canvas.width, canvas.height, ts);
+    canvasAnimFrames[sceneId] = requestAnimationFrame(frame);
+  }
+  canvasAnimFrames[sceneId] = requestAnimationFrame(frame);
 }
 
-// ===== 3-Layer Parallax Particle System =====
+// Stop canvas animations for hidden scenes
+function manageCanvasAnims() {
+  document.querySelectorAll('.scene').forEach(scene => {
+    const rect = scene.getBoundingClientRect();
+    const vh = window.innerHeight;
+    const visible = rect.top > -vh && rect.top < vh;
+
+    if (visible) {
+      startCanvasAnim(scene);
+    } else {
+      const sid = scene.id;
+      if (canvasAnimFrames[sid]) {
+        cancelAnimationFrame(canvasAnimFrames[sid]);
+        delete canvasAnimFrames[sid];
+      }
+    }
+  });
+}
+scrollContainer.addEventListener('scroll', manageCanvasAnims);
+window.addEventListener('resize', manageCanvasAnims);
+
+// ===== Particles =====
 function initParticles(scene) {
   const layers = scene.querySelectorAll('.particle-layer');
   layers.forEach(layer => {
     layer.innerHTML = '';
-    const layerClass = layer.dataset.layer;
-    let count, sizeRange, opacityRange;
-
-    switch(layerClass) {
-      case 'near': count = 15; sizeRange = [3, 7]; opacityRange = [0.3, 0.7]; break;
-      case 'mid':  count = 25; sizeRange = [2, 4]; opacityRange = [0.2, 0.5]; break;
-      case 'far':  count = 10; sizeRange = [1, 2]; opacityRange = [0.1, 0.3]; break;
-    }
+    const lc = layer.dataset.layer;
+    const count = lc === 'near' ? 12 : lc === 'mid' ? 20 : 8;
+    const sizeR = lc === 'near' ? [3,7] : lc === 'mid' ? [2,4] : [1,2];
+    const opR = lc === 'near' ? [0.3,0.7] : lc === 'mid' ? [0.2,0.5] : [0.1,0.3];
 
     for (let i = 0; i < count; i++) {
       const p = document.createElement('div');
       p.className = 'particle';
-      const size = sizeRange[0] + Math.random() * (sizeRange[1] - sizeRange[0]);
-      const isGold = Math.random() > 0.4;
+      const sz = sizeR[0] + Math.random() * (sizeR[1] - sizeR[0]);
+      const g = Math.random() > 0.4;
       p.style.cssText = `
-        width:${size}px; height:${size}px;
-        left:${5 + Math.random() * 90}%;
-        top:${5 + Math.random() * 90}%;
-        background:${isGold
-          ? `radial-gradient(circle, rgba(254,243,199,${opacityRange[1]}), rgba(232,168,32,${opacityRange[0]}))`
-          : `radial-gradient(circle, rgba(245,216,144,${opacityRange[1]*0.7}), rgba(184,141,10,${opacityRange[0]}))`};
-        box-shadow: 0 0 ${size*2}px rgba(232,168,32,${opacityRange[0]*0.5});
-        animation: ${Math.random() > 0.5 ? 'golddust-float' : 'golddust-float'} ${4 + Math.random() * 6}s ${Math.random() * 4}s ease-in-out infinite;
+        width:${sz}px; height:${sz}px;
+        left:${5+Math.random()*90}%; top:${5+Math.random()*90}%;
+        background:${g ? `radial-gradient(circle, rgba(254,243,199,${opR[1]}), rgba(232,168,32,${opR[0]}))` : `radial-gradient(circle, rgba(245,216,144,${opR[1]*0.7}), rgba(184,141,10,${opR[0]}))`};
+        box-shadow:0 0 ${sz*2}px rgba(232,168,32,${opR[0]*0.5});
+        animation:golddust-float ${4+Math.random()*6}s ${Math.random()*4}s ease-in-out infinite;
       `;
       layer.appendChild(p);
     }
   });
-
-  // Fireflies on scenes 3-5 (respect, philosophy, warmth)
-  const sceneIdx = parseInt(scene.dataset.scene);
-  if (sceneIdx >= 2 && sceneIdx <= 4) {
-    createFireflies(scene, 12);
-  }
 }
+document.querySelectorAll('.scene').forEach(s => initParticles(s));
 
-function createFireflies(scene, count) {
-  for (let i = 0; i < count; i++) {
-    const f = document.createElement('div');
-    const size = 3 + Math.random() * 4;
-    const drx = (Math.random() - 0.5) * 50;
-    const dry = -8 - Math.random() * 12;
-    f.style.cssText = `
-      position:absolute; z-index:2; pointer-events:none;
-      width:${size}px; height:${size}px; border-radius:50%;
-      background:radial-gradient(circle at 40% 40%, #fef3c7, var(--gold-core));
-      left:${10 + Math.random() * 80}%;
-      top:${15 + Math.random() * 75}%;
-      animation:firefly-float ${6 + Math.random() * 10}s ${Math.random() * 8}s infinite ease-in-out;
-      --drift-x:${drx}px; --drift-y:${dry}px;
-      box-shadow:0 0 ${size*3}px rgba(232,168,32,0.3), 0 0 ${size*6}px rgba(232,168,32,0.1);
-    `;
-    scene.appendChild(f);
-  }
-}
-
-// Initialize all scenes
-document.querySelectorAll('.scene').forEach(scene => initParticles(scene));
-
-// ===== Build Star Chart =====
+// ===== Star Chart =====
 function buildStarChart() {
   starContainer.innerHTML = '';
   starLines.innerHTML = '';
-
-  const positions = [
-    { x: 18, y: 28 }, { x: 72, y: 22 }, { x: 25, y: 62 },
-    { x: 70, y: 58 }, { x: 50, y: 42 }, { x: 48, y: 75 }
+  const pos = [
+    {x:18,y:28},{x:72,y:22},{x:25,y:62},
+    {x:70,y:58},{x:50,y:40},{x:48,y:75}
   ];
-
-  // Draw lines
-  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  const path = document.createElementNS('http://www.w3.org/2000/svg','path');
   let d = '';
-  positions.forEach((p, i) => {
-    d += i === 0 ? `M${p.x}% ${p.y}%` : ` L${p.x}% ${p.y}%`;
-  });
-  d += ` L${positions[0].x}% ${positions[0].y}%`;
+  pos.forEach((p,i) => { d += i===0 ? `M${p.x}% ${p.y}%` : ` L${p.x}% ${p.y}%`; });
+  d += ` L${pos[0].x}% ${pos[0].y}%`;
   path.setAttribute('d', d);
   starLines.appendChild(path);
 
-  // Create nodes
-  STAR_DATA.forEach((star, i) => {
-    const node = document.createElement('div');
-    node.className = 'star-node';
-    node.style.left = positions[i].x + '%';
-    node.style.top = positions[i].y + '%';
-    node.style.borderColor = star.color;
-    node.style.boxShadow = `0 0 20px ${star.color}20`;
-    node.style.animationDelay = (i * 0.12) + 's';
-    node.textContent = star.emoji;
-
-    node.addEventListener('click', (e) => {
+  STAR_DATA.forEach((star,i) => {
+    const n = document.createElement('div');
+    n.className = 'star-node';
+    n.style.left = pos[i].x+'%';
+    n.style.top = pos[i].y+'%';
+    n.style.borderColor = star.color;
+    n.style.boxShadow = `0 0 20px ${star.color}20`;
+    n.style.animationDelay = (i*0.12)+'s';
+    n.textContent = star.emoji;
+    n.addEventListener('click', (e) => {
       e.stopPropagation();
-      showStarDetail(star, e.clientX, e.clientY);
-      // Particle burst
-      const rect = node.getBoundingClientRect();
-      createSparkBurst(rect.left + 22, rect.top + 22);
+      showBubble(star, e.clientX, e.clientY);
     });
-
-    starContainer.appendChild(node);
+    starContainer.appendChild(n);
   });
 }
 
-// ===== Spark Burst =====
-function createSparkBurst(cx, cy) {
-  for (let i = 0; i < 8; i++) {
-    const angle = (i / 8) * Math.PI * 2;
-    const s = document.createElement('div');
-    s.style.cssText = `
-      position:fixed; z-index:300; pointer-events:none;
-      width:3px; height:3px; border-radius:50%;
-      background:radial-gradient(circle, #fef3c7, var(--gold-core));
-      left:${cx}px; top:${cy}px;
-      animation:node-spark ${0.7 + Math.random()*0.8}s ease-out forwards;
-      --angle:${angle}rad;
-      box-shadow:0 0 6px rgba(232,168,32,0.6);
-    `;
-    document.body.appendChild(s);
-    setTimeout(() => s.remove(), 1600);
-  }
-}
-
 // ===== Speech Bubble =====
-function showStarDetail(star, x, y) {
+function showBubble(star, x, y) {
   document.querySelectorAll('.speech-bubble').forEach(b => b.remove());
-
-  const quote = FALLBACK_QUOTES[star.title] || FALLBACK_QUOTES['永恒大圣'];
-  const bubble = document.createElement('div');
-  bubble.className = 'speech-bubble';
-  bubble.style.left = Math.min(x - 135, window.innerWidth - 290) + 'px';
-  bubble.style.top = Math.max(y - 190, 20) + 'px';
-  bubble.innerHTML = `
-    <button class="close-btn" onclick="this.parentElement.remove()">✕</button>
-    <div class="haiku">${quote.haiku}</div>
-    <div class="message">${quote.message}</div>
-    <span class="feeling">${quote.feeling}</span>
-  `;
-  document.body.appendChild(bubble);
-
-  setTimeout(() => {
-    bubble.classList.add('fading-out');
-    setTimeout(() => bubble.remove(), 2000);
-  }, 8000);
+  const q = FALLBACK_QUOTES[star.title] || FALLBACK_QUOTES['永恒大圣'];
+  const b = document.createElement('div');
+  b.className = 'speech-bubble';
+  b.style.left = Math.min(x-135, innerWidth-290)+'px';
+  b.style.top = Math.max(y-190, 20)+'px';
+  b.innerHTML = `<button class="close-btn" onclick="this.parentElement.remove()">✕</button><div class="haiku">${q.haiku}</div><div class="message">${q.message}</div><span class="feeling">${q.feeling}</span>`;
+  document.body.appendChild(b);
+  setTimeout(() => { b.classList.add('fading-out'); setTimeout(()=>b.remove(),2000); }, 8000);
 }
 
-// ===== Transition Animations =====
+// ===== C: Chat with Monkey King =====
+const WUKONG_PRESET = {
+  '自由': '俺老孙一个筋斗十万八千里，但真正的自由不在翻多远，在你想翻就翻、想停就停。',
+  '力量': '力量不是拿来炫耀的，是拿来保护的。你看俺老孙，大闹天宫是逞强，护送师父才是真本事。',
+  '孤独': '五百年压在五行山下，只有风声和雨声。但那五百年，俺学会了最难的功夫——等待。',
+  '人生': '人生如取经，九九八十一难，一难也不会少。但每一难过后，你都比之前强了一分。',
+  '坚持': '俺老孙从不半途而废。说好了保师父取经，就算被念紧箍咒、被赶回花果山，俺也会回来。',
+  '命运': '俺生来就是石头里蹦出来的，没人给我安排命运。你呢，也一样——你的命，自己写。',
+  '勇气': '怕不怕？当然怕。天兵天将十万，金箍棒再厉害也只是一根棍子。但怕归怕，打还是要打。',
+  '友谊': '八戒贪吃，沙僧老实，师父啰嗦。但这条西行路上，没他们，俺老孙走不下来。',
+  '成长': '闹天宫时俺觉得自己天下无敌。五百年后，才知道真正的成长是学会低头——不是怕，是明白什么值得。',
+  '爱': '你看那紫霞，至死都信我。俺老孙翻得过五指山，翻不过她那一滴泪。',
+};
+
+function getWukongReply(question) {
+  const q = question.toLowerCase();
+  let bestKey = '', bestScore = 0;
+  for (const [key, reply] of Object.entries(WUKONG_PRESET)) {
+    let score = 0;
+    if (q.includes(key)) score = 100;
+    for (const ch of key) {
+      if (q.includes(ch)) score += 1;
+    }
+    if (score > bestScore) { bestScore = score; bestKey = key; }
+  }
+  if (bestKey && bestScore > 2) {
+    return WUKONG_PRESET[bestKey];
+  }
+  // Default responses
+  const defaults = [
+    '你问得好。俺老孙活了千年，有些答案不是想出来的，是打出来的。再多走几步路，答案自然就有了。',
+    '哈哈，这个问题让俺想起当年在花果山的日子。世间事，看透不如看开，看开不如看淡。',
+    '俺老孙见识过天庭、闯过地府、走过西天。你的问题，答案不在我这里，在你心里。',
+  ];
+  return defaults[Math.floor(Math.random() * defaults.length)];
+}
+
+chatSend.addEventListener('click', sendChat);
+chatInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') sendChat();
+});
+
+function sendChat() {
+  const q = chatInput.value.trim();
+  if (!q) return;
+
+  chatInput.value = '';
+  chatSend.disabled = true;
+  chatResponse.classList.add('show', 'loading');
+  chatResponse.querySelector('.chat-text').textContent = '大圣正在思索...';
+  chatResponse.querySelector('.chat-label').textContent = '';
+  chatResponse.querySelector('.chat-avatar').textContent = '🐒';
+
+  // Simulate thinking delay
+  setTimeout(() => {
+    const reply = getWukongReply(q);
+    chatResponse.classList.remove('loading');
+    chatResponse.querySelector('.chat-text').textContent = reply;
+    chatResponse.querySelector('.chat-label').textContent = '孙悟空 · 答';
+    chatSend.disabled = false;
+    chatInput.focus();
+  }, 600 + Math.random() * 800);
+}
+
+// ===== C2: AI Chat (DeepSeek, tries in background) =====
+// Skip for now — preset responses are fast and reliable
+
+// ===== Transitions =====
 function triggerTransition(fromIdx, toIdx) {
   const overlay = transitionOverlay;
   overlay.innerHTML = '';
   overlay.classList.add('active');
-
-  // Pick transition type based on scene pair
-  const type = pickTransition(fromIdx, toIdx);
+  const type = (toIdx === 6) ? 'firefly' : (fromIdx === 0) ? 'cloud' : (fromIdx === 4) ? 'firefly' : ((fromIdx + toIdx) % 2 === 0) ? 'ink' : 'cloud';
 
   if (type === 'ink') {
     const ink = document.createElement('div');
     ink.className = 'ink-transition';
-    ink.style.left = '50%';
-    ink.style.top = '50%';
-    ink.style.width = '200px';
-    ink.style.height = '200px';
-    ink.style.marginLeft = '-100px';
-    ink.style.marginTop = '-100px';
+    Object.assign(ink.style, { left:'50%', top:'50%', width:'200px', height:'200px', marginLeft:'-100px', marginTop:'-100px' });
     overlay.appendChild(ink);
-    requestAnimationFrame(() => { ink.classList.add('expand'); });
+    requestAnimationFrame(() => ink.classList.add('expand'));
     setTimeout(() => { overlay.classList.remove('active'); isTransitioning = false; }, 1200);
-
   } else if (type === 'cloud') {
     const cloud = document.createElement('div');
     cloud.className = 'cloud-sweep';
     overlay.appendChild(cloud);
-    requestAnimationFrame(() => { cloud.classList.add('sweep'); });
+    requestAnimationFrame(() => cloud.classList.add('sweep'));
     setTimeout(() => { overlay.classList.remove('active'); isTransitioning = false; }, 800);
-
-  } else if (type === 'firefly') {
-    // Create converging fireflies
+  } else {
     for (let i = 0; i < 8; i++) {
       const ff = document.createElement('div');
       ff.className = 'firefly-converge';
-      ff.style.left = (10 + Math.random() * 80) + '%';
-      ff.style.top = (10 + Math.random() * 80) + '%';
-      ff.style.animationDelay = (i * 0.05) + 's';
+      ff.style.left = (10+Math.random()*80)+'%';
+      ff.style.top = (10+Math.random()*80)+'%';
       overlay.appendChild(ff);
     }
-    requestAnimationFrame(() => {
-      overlay.querySelectorAll('.firefly-converge').forEach(ff => ff.classList.add('converge'));
-    });
-    setTimeout(() => {
-      overlay.querySelectorAll('.firefly-converge').forEach(ff => ff.classList.add('burst'));
-    }, 1000);
+    requestAnimationFrame(() => overlay.querySelectorAll('.firefly-converge').forEach(f => f.classList.add('converge')));
+    setTimeout(() => overlay.querySelectorAll('.firefly-converge').forEach(f => f.classList.add('burst')), 1000);
     setTimeout(() => { overlay.classList.remove('active'); isTransitioning = false; }, 1500);
-
-  } else {
-    // Simple fade
-    setTimeout(() => { overlay.classList.remove('active'); isTransitioning = false; }, 300);
   }
-}
-
-function pickTransition(from, to) {
-  if (to === 6) return 'firefly'; // Transition to finale
-  if (from === 0) return 'cloud';  // Scene 1→2
-  if (from === 4) return 'firefly'; // Scene 5→6
-  if ((from + to) % 2 === 0) return 'ink';
-  return 'cloud';
 }
 
 // ===== Navigation =====
 function navigateToScene(idx) {
-  if (isTransitioning || idx === currentSceneIdx) return;
-  if (idx < 0 || idx >= CHAPTERS.length) return;
-
-  const prevIdx = currentSceneIdx;
+  if (isTransitioning || idx === currentSceneIdx || idx < 0 || idx >= CHAPTERS.length) return;
+  const prev = currentSceneIdx;
   currentSceneIdx = idx;
-
-  // Trigger transition
-  if (Math.abs(idx - prevIdx) > 1) {
-    isTransitioning = true;
-    triggerTransition(prevIdx, idx);
-  }
-
-  // Scroll to scene
-  const targetEl = document.getElementById(CHAPTERS[idx].id);
-  if (targetEl) {
-    targetEl.scrollIntoView({ behavior: 'smooth' });
-  }
-
-  // Update chapter nav dots
-  updateChapterDots(idx);
-
-  // Change music mood
-  changeMusicMood(idx);
-
-  // Build star chart when reaching finale
-  if (idx === 6) buildStarChart();
+  if (Math.abs(idx - prev) > 1) { isTransitioning = true; triggerTransition(prev, idx); }
+  document.getElementById(CHAPTERS[idx].id)?.scrollIntoView({ behavior: 'smooth' });
+  updateDots(idx);
+  changeMusic(idx);
+  if (idx === 6) { buildStarChart(); chatWidget.classList.add('show'); }
+  else chatWidget.classList.remove('show');
 }
-
-function updateChapterDots(idx) {
-  chapterNav.querySelectorAll('.chapter-dot').forEach((dot, i) => {
-    dot.classList.toggle('active', i === idx);
-  });
+function updateDots(idx) {
+  chapterNav.querySelectorAll('.chapter-dot').forEach((d,i) => d.classList.toggle('active', i === idx));
 }
 
 // ===== Scroll Observer =====
 const sceneObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
-      const sceneEl = entry.target;
-      const idx = parseInt(sceneEl.dataset.scene);
+      const idx = parseInt(entry.target.dataset.scene);
       if (idx !== currentSceneIdx) {
         currentSceneIdx = idx;
-        updateChapterDots(idx);
-        changeMusicMood(idx);
-        if (idx === 6) buildStarChart();
+        updateDots(idx);
+        changeMusic(idx);
+        if (idx === 6) { buildStarChart(); chatWidget.classList.add('show'); }
+        else chatWidget.classList.remove('show');
       }
-      sceneEl.classList.add('visible');
+      entry.target.classList.add('visible');
     }
   });
 }, { threshold: 0.5 });
-
-document.querySelectorAll('.scene').forEach(scene => {
-  sceneObserver.observe(scene);
-  // Mark first scene as visible immediately
-  if (parseInt(scene.dataset.scene) === 0) scene.classList.add('visible');
+document.querySelectorAll('.scene').forEach(s => {
+  sceneObserver.observe(s);
+  if (parseInt(s.dataset.scene) === 0) s.classList.add('visible');
 });
 
-// ===== Scroll-driven Parallax =====
+// ===== Parallax =====
 scrollContainer.addEventListener('scroll', () => {
   document.querySelectorAll('.scene').forEach(scene => {
-    const rect = scene.getBoundingClientRect();
-    const sceneH = scene.offsetHeight;
-    // How far this scene is from center (0 = centered, -0.5 = one scene above, 0.5 = one below)
-    const progress = -rect.top / sceneH;
-
+    const progress = -scene.getBoundingClientRect().top / scene.offsetHeight;
     if (progress >= -0.5 && progress <= 1.5) {
-      // Move particle layers at different speeds
-      const nearLayer = scene.querySelector('.particle-layer-near');
-      const midLayer = scene.querySelector('.particle-layer-mid');
-      const farLayer = scene.querySelector('.particle-layer-far');
-
-      if (nearLayer) nearLayer.style.transform = `translateY(${progress * -60}px)`;
-      if (midLayer) midLayer.style.transform = `translateY(${progress * -30}px)`;
-      if (farLayer) farLayer.style.transform = `translateY(${progress * -10}px)`;
+      const n = scene.querySelector('.particle-layer-near');
+      const m = scene.querySelector('.particle-layer-mid');
+      const f = scene.querySelector('.particle-layer-far');
+      if (n) n.style.transform = `translateY(${progress * -60}px)`;
+      if (m) m.style.transform = `translateY(${progress * -30}px)`;
+      if (f) f.style.transform = `translateY(${progress * -10}px)`;
     }
   });
 });
 
-// ===== Keyboard Navigation =====
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
-    e.preventDefault();
-    if (currentSceneIdx < CHAPTERS.length - 1) {
-      navigateToScene(currentSceneIdx + 1);
-    }
-  } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
-    e.preventDefault();
-    if (currentSceneIdx > 0) {
-      navigateToScene(currentSceneIdx - 1);
-    }
-  } else if (e.key === 'Home') {
-    e.preventDefault();
-    navigateToScene(0);
-  } else if (e.key === 'End') {
-    e.preventDefault();
-    navigateToScene(6);
-  }
-});
+// ===== Music =====
+const SCENE_MOODS = ['chaos','wisdom','respect','philosophy','warmth','eternal','finale'];
+function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
 
-// ===== Touch gestures (mobile swipe) =====
-let touchStartY = 0;
-document.addEventListener('touchstart', (e) => {
-  touchStartY = e.touches[0].clientY;
-}, { passive: true });
-
-document.addEventListener('touchend', (e) => {
-  if (isTransitioning) return;
-  const deltaY = touchStartY - e.changedTouches[0].clientY;
-  if (Math.abs(deltaY) > 60) {
-    if (deltaY > 0 && currentSceneIdx < CHAPTERS.length - 1) {
-      navigateToScene(currentSceneIdx + 1);
-    } else if (deltaY < 0 && currentSceneIdx > 0) {
-      navigateToScene(currentSceneIdx - 1);
-    }
-  }
-});
-
-// ===== Wheel with debounce for transitions =====
-let wheelDebounce = 0;
-scrollContainer.addEventListener('wheel', (e) => {
-  const now = Date.now();
-  if (Math.abs(e.deltaY) > 100 && now - wheelDebounce > 1500 && !isTransitioning) {
-    wheelDebounce = now;
-    const prevIdx = currentSceneIdx;
-    const nextIdx = e.deltaY > 0
-      ? Math.min(currentSceneIdx + 1, CHAPTERS.length - 1)
-      : Math.max(currentSceneIdx - 1, 0);
-    if (nextIdx !== prevIdx && Math.abs(nextIdx - prevIdx) === 1) {
-      isTransitioning = true;
-      triggerTransition(prevIdx, nextIdx);
-    }
-  }
-}, { passive: true });
-
-// ===== Music System =====
-const SCENE_MUSIC_MOODS = [
-  'chaos', 'wisdom', 'respect', 'philosophy', 'warmth', 'eternal', 'finale'
-];
-
-function initAudio() {
-  if (audioCtx) return;
-  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-}
-
-function changeMusicMood(sceneIdx) {
+function changeMusic(idx) {
   if (!audioCtx || !isMusicPlaying) return;
-
-  // Clear existing scene music
   if (activeSceneMusic) {
     try { activeSceneMusic.gain.gain.value = 0; } catch(e) {}
-    setTimeout(() => {
-      try { activeSceneMusic.osc.forEach(o => o.stop()); } catch(e) {}
-      activeSceneMusic = null;
-    }, 200);
+    setTimeout(() => { try { activeSceneMusic.osc.forEach(o => o.stop()); } catch(e){}; activeSceneMusic = null; }, 200);
   }
-
-  playSceneMusic(sceneIdx);
+  playSceneMusic(idx);
 }
 
-function playSceneMusic(sceneIdx) {
+function playSceneMusic(idx) {
   if (!audioCtx) return;
-
-  const mood = SCENE_MUSIC_MOODS[sceneIdx];
+  const mood = SCENE_MOODS[idx];
   const masterGain = audioCtx.createGain();
   masterGain.gain.value = 0.05;
   masterGain.connect(audioCtx.destination);
 
-  // Different pentatonic bases per mood
-  const baseNote = { chaos: 261.63, wisdom: 293.66, respect: 329.63, philosophy: 392.00, warmth: 440.00, eternal: 523.25, finale: 293.66 }[mood] || 329.63;
-
-  const pentatonic = [0, 2, 4, 7, 9].map(s => baseNote * Math.pow(2, s/12));
-  const allNotes = [...pentatonic, ...pentatonic.map(n => n * 2)];
+  const baseNote = { chaos:261.63, wisdom:293.66, respect:329.63, philosophy:392.00, warmth:440.00, eternal:523.25, finale:293.66 }[mood] || 329.63;
+  const penta = [0,2,4,7,9].map(s => baseNote * Math.pow(2, s/12));
+  const allNotes = [...penta, ...penta.map(n => n*2)];
 
   const oscs = [];
-  let noteIdx = 0;
-
-  const melodyPatterns = {
-    chaos: [4, 2, 0, 3, 5, 7, 4, 2],
-    wisdom: [0, 2, 3, 5, 3, 2, 0, 2],
-    respect: [3, 5, 7, 5, 3, 2, 0, 3],
-    philosophy: [7, 5, 4, 5, 7, 5, 3, 2],
-    warmth: [0, 3, 5, 7, 5, 3, 0, 3],
-    eternal: [4, 7, 5, 7, 4, 7, 5, 2],
-    finale: [3, 5, 7, 5, 3, 2, 0, 3],
+  let ni = 0;
+  const patterns = {
+    chaos: [4,2,0,3,5,7,4,2], wisdom: [0,2,3,5,3,2,0,2],
+    respect: [3,5,7,5,3,2,0,3], philosophy: [7,5,4,5,7,5,3,2],
+    warmth: [0,3,5,7,5,3,0,3], eternal: [4,7,5,7,4,7,5,2],
+    finale: [3,5,7,5,3,2,0,3],
   };
-
-  const durations = {
-    chaos: [0.5, 0.3, 0.6, 0.4, 0.8, 0.5, 0.6, 0.7],
-    wisdom: [0.8, 0.6, 0.4, 0.6, 0.8, 0.6, 0.4, 0.6],
-    respect: [0.6, 0.4, 0.5, 0.6, 0.4, 0.5, 0.6, 0.5],
-    philosophy: [0.7, 0.5, 0.6, 0.4, 0.7, 0.5, 0.6, 0.5],
-    warmth: [0.9, 0.6, 0.7, 0.5, 0.9, 0.6, 0.7, 0.6],
-    eternal: [0.6, 0.5, 0.7, 0.5, 0.6, 0.5, 0.7, 0.5],
-    finale: [0.8, 0.6, 0.5, 0.7, 0.8, 0.6, 0.5, 0.6],
+  const durs = {
+    chaos: [0.5,0.3,0.6,0.4,0.8,0.5,0.6,0.7], wisdom: [0.8,0.6,0.4,0.6,0.8,0.6,0.4,0.6],
+    respect: [0.6,0.4,0.5,0.6,0.4,0.5,0.6,0.5], philosophy: [0.7,0.5,0.6,0.4,0.7,0.5,0.6,0.5],
+    warmth: [0.9,0.6,0.7,0.5,0.9,0.6,0.7,0.6], eternal: [0.6,0.5,0.7,0.5,0.6,0.5,0.7,0.5],
+    finale: [0.8,0.6,0.5,0.7,0.8,0.6,0.5,0.6],
   };
+  const pat = patterns[mood] || patterns.wisdom;
+  const durArr = durs[mood] || durs.wisdom;
 
-  const pattern = melodyPatterns[mood] || melodyPatterns.wisdom;
-  const durs = durations[mood] || durations.wisdom;
-
-  function playNote() {
+  function play() {
     if (!isMusicPlaying || !audioCtx || activeSceneMusic?.gain?.gain?.value === 0) {
-      oscs.forEach(o => { try { o.stop(); } catch(e) {} });
-      return;
+      oscs.forEach(o => { try { o.stop(); } catch(e){} }); return;
     }
-
-    const note = pattern[noteIdx % pattern.length];
-    const dur = durs[noteIdx % durs.length];
-
+    const note = pat[ni % pat.length];
+    const dur = durArr[ni % durArr.length];
     const osc = audioCtx.createOscillator();
-    const noteGain = audioCtx.createGain();
-    osc.type = mood === 'chaos' || mood === 'eternal' ? 'sawtooth' : 'triangle';
+    const g = audioCtx.createGain();
+    osc.type = (mood === 'chaos' || mood === 'eternal') ? 'sawtooth' : 'triangle';
     osc.frequency.value = allNotes[note];
-    noteGain.gain.setValueAtTime(0.02, audioCtx.currentTime);
-    noteGain.gain.linearRampToValueAtTime(0.06, audioCtx.currentTime + 0.08);
-    noteGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + dur);
-    osc.connect(noteGain);
-    noteGain.connect(masterGain);
-    osc.start(audioCtx.currentTime);
-    osc.stop(audioCtx.currentTime + dur);
+    g.gain.setValueAtTime(0.02, audioCtx.currentTime);
+    g.gain.linearRampToValueAtTime(0.06, audioCtx.currentTime + 0.08);
+    g.gain.linearRampToValueAtTime(0, audioCtx.currentTime + dur);
+    osc.connect(g); g.connect(masterGain);
+    osc.start(); osc.stop(audioCtx.currentTime + dur);
     oscs.push(osc);
-
-    // Echo for ambiance
-    if (Math.random() > 0.5) {
-      const echo = audioCtx.createOscillator();
-      const echoGain = audioCtx.createGain();
-      echo.type = 'sine';
-      echo.frequency.value = allNotes[note] * 1.5;
-      echoGain.gain.setValueAtTime(0.01, audioCtx.currentTime + 0.05);
-      echoGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + dur * 0.6);
-      echo.connect(echoGain);
-      echoGain.connect(masterGain);
-      echo.start(audioCtx.currentTime);
-      echo.stop(audioCtx.currentTime + dur * 0.6);
-      oscs.push(echo);
-    }
-
-    noteIdx++;
-    setTimeout(playNote, dur * 900);
+    ni++;
+    setTimeout(play, dur * 900);
   }
-
-  playNote();
+  play();
   activeSceneMusic = { gain: masterGain, osc: oscs };
 }
 
 musicToggle.addEventListener('click', () => {
-  if (!audioCtx) {
-    initAudio();
-    isMusicPlaying = true;
-    musicToggle.classList.remove('muted');
-    musicToggle.textContent = '♪';
-    playSceneMusic(currentSceneIdx);
-  } else if (isMusicPlaying) {
-    audioCtx.suspend();
-    isMusicPlaying = false;
-    musicToggle.classList.add('muted');
-    musicToggle.textContent = '♪';
-  } else {
-    audioCtx.resume();
-    isMusicPlaying = true;
-    musicToggle.classList.remove('muted');
-    musicToggle.textContent = '♪';
-    playSceneMusic(currentSceneIdx);
+  if (!audioCtx) { initAudio(); isMusicPlaying = true; musicToggle.classList.remove('muted'); musicToggle.textContent = '♪'; playSceneMusic(currentSceneIdx); }
+  else if (isMusicPlaying) { audioCtx.suspend(); isMusicPlaying = false; musicToggle.classList.add('muted'); musicToggle.textContent = '♪'; }
+  else { audioCtx.resume(); isMusicPlaying = true; musicToggle.classList.remove('muted'); musicToggle.textContent = '♪'; playSceneMusic(currentSceneIdx); }
+});
+
+// ===== Keyboard =====
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT') return;
+  if (['ArrowDown','ArrowRight',' '].includes(e.key)) { e.preventDefault(); if (currentSceneIdx < CHAPTERS.length-1) navigateToScene(currentSceneIdx+1); }
+  else if (['ArrowUp','ArrowLeft'].includes(e.key)) { e.preventDefault(); if (currentSceneIdx > 0) navigateToScene(currentSceneIdx-1); }
+  else if (e.key === 'Home') { e.preventDefault(); navigateToScene(0); }
+  else if (e.key === 'End') { e.preventDefault(); navigateToScene(6); }
+});
+
+// ===== Touch =====
+let touchY = 0;
+document.addEventListener('touchstart', e => { touchY = e.touches[0].clientY; }, { passive:true });
+document.addEventListener('touchend', e => {
+  if (isTransitioning) return;
+  const dy = touchY - e.changedTouches[0].clientY;
+  if (Math.abs(dy) > 60) {
+    if (dy > 0 && currentSceneIdx < CHAPTERS.length-1) navigateToScene(currentSceneIdx+1);
+    else if (dy < 0 && currentSceneIdx > 0) navigateToScene(currentSceneIdx-1);
   }
 });
 
-// ===== To Finale (click on Scene 6 CTA) =====
-toFinale.addEventListener('click', () => navigateToScene(6));
+// ===== To Finale =====
+document.getElementById('toFinale').addEventListener('click', () => navigateToScene(6));
 
-// ===== Initial State =====
+// ===== Wheel Debounce =====
+let wd = 0;
+scrollContainer.addEventListener('wheel', (e) => {
+  const now = Date.now();
+  if (Math.abs(e.deltaY) > 100 && now - wd > 1500 && !isTransitioning) {
+    wd = now;
+    const prev = currentSceneIdx;
+    const next = e.deltaY > 0 ? Math.min(prev+1, CHAPTERS.length-1) : Math.max(prev-1, 0);
+    if (next !== prev && Math.abs(next-prev) === 1) { isTransitioning = true; triggerTransition(prev, next); }
+  }
+}, { passive:true });
+
+// ===== Init =====
 buildStarChart();
-updateChapterDots(0);
+updateDots(0);
+manageCanvasAnims();
 
-console.log('🐒 孙悟空 · 永恒大圣 v2 — 滚动驱动叙事');
-console.log('   滚动/↓键 → 前进 | ↑键 → 后退 | Home/End → 首/尾');
-console.log('   右侧圆点 → 跳转章节 | 右下角 → 音乐');
-console.log('   触摸滑动 → 切换场景');
+console.log('🐒 孙悟空 · 永恒大圣 v3');
+console.log('   A: 金箍棒开场动画 | B: Canvas视频背景 | C: 大圣对话');
 </script>
-
 </body>
 </html>
