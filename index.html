@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>孙悟空 · 永恒大圣</title>
 <style>
-/* ===== CSS Custom Properties ===== */
+/* ===== Design Tokens ===== */
 :root {
   --gold-core: #e8a820;
   --gold-light: #f5d890;
@@ -20,19 +20,21 @@
   --text-warm: #f5efe0;
   --text-soft: #b8ad9a;
   --text-muted: #7a7062;
-  --serif: 'Noto Serif SC', 'Source Han Serif SC', 'STSong', 'SimSun', serif;
+  --serif: 'Noto Serif SC', 'Source Han Serif SC', 'STSong', serif;
   --sans: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --scene-h: 100vh;
+  --scene-h-dyn: 100dvh;
 }
 
-/* ===== Reset & Base ===== */
+/* ===== Reset ===== */
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
+html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; -webkit-overflow-scrolling: touch; }
 body {
   font-family: var(--sans);
   background: var(--ink-deep);
   color: var(--text-warm);
   overflow-x: hidden;
-  min-height: 100dvh;
+  overscroll-behavior: none;
 }
 
 /* ===== Ink Paper Texture ===== */
@@ -46,89 +48,102 @@ body::before {
   mix-blend-mode: overlay;
 }
 
-/* ===== Scene Container ===== */
-#app {
+/* ===== Scroll Container ===== */
+.scroll-container {
+  height: 100vh;
+  height: 100dvh;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
   position: relative;
   z-index: 1;
-  width: 100%;
-  min-height: 100vh;
 }
+.scroll-container::-webkit-scrollbar { width: 0; }
 
-/* ===== Scene System ===== */
+/* ===== Scene ===== */
 .scene {
-  position: fixed;
-  inset: 0;
+  height: 100vh;
+  height: 100dvh;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 1.2s ease-in-out;
-  z-index: 10;
+  overflow: hidden;
   padding: 2rem;
 }
-.scene.active {
-  opacity: 1;
-  pointer-events: auto;
-}
-.scene.fading {
-  opacity: 0;
-}
 
-/* ===== Scene-Specific Backgrounds ===== */
+/* ===== Scene Backgrounds ===== */
 .scene-bg {
   position: absolute; inset: 0;
-  z-index: -1;
-  transition: background 1.5s ease;
+  z-index: 0;
+  transition: opacity 0.3s;
 }
-
-/* Scene 1: Chaos */
 #scene1 .scene-bg {
-  background:
-    radial-gradient(ellipse at 30% 40%, rgba(232,168,32,0.06) 0%, transparent 60%),
-    radial-gradient(ellipse at 70% 60%, rgba(192,57,43,0.04) 0%, transparent 50%),
-    var(--ink-deep);
+  background: radial-gradient(ellipse at 30% 40%, rgba(232,168,32,0.08) 0%, transparent 60%),
+              radial-gradient(ellipse at 70% 60%, rgba(192,57,43,0.05) 0%, transparent 50%),
+              var(--ink-deep);
 }
-
-/* Scene 2: Wisdom */
 #scene2 .scene-bg {
-  background:
-    radial-gradient(ellipse at 50% 30%, rgba(232,168,32,0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 80%, rgba(30,133,104,0.03) 0%, transparent 40%),
-    var(--ink-mid);
+  background: radial-gradient(ellipse at 50% 30%, rgba(232,168,32,0.1) 0%, transparent 50%),
+              radial-gradient(ellipse at 50% 80%, rgba(30,133,104,0.04) 0%, transparent 40%),
+              var(--ink-mid);
 }
-
-/* Scene 3: Respect */
 #scene3 .scene-bg {
-  background:
-    radial-gradient(ellipse at 40% 50%, rgba(245,216,144,0.05) 0%, transparent 50%),
-    radial-gradient(ellipse at 60% 30%, rgba(232,168,32,0.04) 0%, transparent 40%),
-    var(--ink-deep);
+  background: radial-gradient(ellipse at 40% 50%, rgba(245,216,144,0.06) 0%, transparent 50%),
+              radial-gradient(ellipse at 60% 30%, rgba(232,168,32,0.05) 0%, transparent 40%),
+              var(--ink-deep);
 }
-
-/* Scene 4: Philosophy */
 #scene4 .scene-bg {
-  background:
-    radial-gradient(ellipse at 50% 20%, rgba(245,216,144,0.03) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 70%, rgba(30,133,104,0.04) 0%, transparent 40%),
-    var(--ink-mid);
+  background: radial-gradient(ellipse at 50% 20%, rgba(245,216,144,0.04) 0%, transparent 50%),
+              radial-gradient(ellipse at 50% 70%, rgba(30,133,104,0.05) 0%, transparent 40%),
+              var(--ink-mid);
 }
-
-/* Scene 5: Warmth */
 #scene5 .scene-bg {
-  background:
-    radial-gradient(ellipse at 30% 40%, rgba(232,168,32,0.06) 0%, transparent 50%),
-    radial-gradient(ellipse at 70% 60%, rgba(245,216,144,0.04) 0%, transparent 40%),
-    var(--ink-deep);
+  background: radial-gradient(ellipse at 30% 40%, rgba(232,168,32,0.07) 0%, transparent 50%),
+              radial-gradient(ellipse at 70% 60%, rgba(245,216,144,0.05) 0%, transparent 40%),
+              var(--ink-deep);
+}
+#scene6 .scene-bg {
+  background: radial-gradient(ellipse at 50% 30%, rgba(232,168,32,0.12) 0%, transparent 40%),
+              radial-gradient(ellipse at 50% 80%, rgba(245,216,144,0.08) 0%, transparent 40%),
+              var(--ink-mid);
 }
 
-/* Scene 6: Eternal */
-#scene6 .scene-bg {
-  background:
-    radial-gradient(ellipse at 50% 30%, rgba(232,168,32,0.1) 0%, transparent 40%),
-    radial-gradient(ellipse at 50% 80%, rgba(245,216,144,0.06) 0%, transparent 40%),
-    var(--ink-mid);
+/* ===== Content Layer ===== */
+.scene-content {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  max-width: 700px;
+  width: 100%;
+}
+
+/* ===== Scene Number ===== */
+.scene-num {
+  font-family: var(--serif);
+  font-size: clamp(48px, 10vw, 96px);
+  font-weight: 900;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(232,168,32,0.12);
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 5;
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* ===== Silhouette ===== */
+.silhouette {
+  position: absolute;
+  font-size: clamp(80px, 20vw, 200px);
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(3px);
 }
 
 /* ===== Typography ===== */
@@ -138,166 +153,231 @@ body::before {
   font-weight: 900;
   color: var(--gold-core);
   text-shadow: 0 0 60px rgba(232,168,32,0.3), 0 0 120px rgba(232,168,32,0.1);
-  margin-bottom: 1.5rem;
-  letter-spacing: 0.08em;
-  text-align: center;
-  line-height: 1.3;
+  margin-bottom: 1.2rem;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
 }
 .scene-subtitle {
   font-family: var(--serif);
-  font-size: clamp(16px, 3vw, 24px);
+  font-size: clamp(15px, 2.5vw, 22px);
   color: var(--text-soft);
-  text-align: center;
-  max-width: 600px;
+  max-width: 560px;
+  margin: 0 auto 1.5rem;
   line-height: 1.8;
-  margin-bottom: 2rem;
 }
 .scene-quote {
   font-family: var(--serif);
-  font-size: clamp(14px, 2.5vw, 20px);
+  font-size: clamp(13px, 2vw, 18px);
   color: var(--gold-light);
-  text-align: center;
   font-style: italic;
-  opacity: 0.8;
-  margin-top: 1rem;
-  padding: 0 1rem;
+  opacity: 0.75;
+  margin-top: 0.8rem;
   line-height: 1.7;
+  padding: 0 1rem;
 }
 .scene-detail {
-  font-size: clamp(13px, 2vw, 16px);
+  font-size: clamp(12px, 1.8vw, 15px);
   color: var(--text-muted);
-  text-align: center;
-  max-width: 480px;
-  line-height: 1.7;
-  margin-top: 0.8rem;
+  max-width: 440px;
+  margin: 0 auto;
+  line-height: 1.8;
 }
 
-/* ===== Scene Number Badge ===== */
-.scene-num {
-  font-family: var(--serif);
-  font-size: clamp(48px, 10vw, 96px);
-  font-weight: 900;
-  color: transparent;
-  -webkit-text-stroke: 1px rgba(232,168,32,0.15);
+/* ===== Gold Frame ===== */
+.gold-frame {
+  border: 1px solid rgba(232,168,32,0.1);
+  border-radius: 2px;
+  padding: 1.5rem 2rem;
+  max-width: 520px;
+  width: 100%;
+  margin: 1rem auto;
+  position: relative;
+  background: rgba(10,15,20,0.4);
+  backdrop-filter: blur(8px);
+  text-align: left;
+}
+.gold-frame::before {
+  content: '';
   position: absolute;
-  top: 2rem;
-  right: 2rem;
+  inset: -1px;
+  border-radius: 2px;
+  background: linear-gradient(135deg, rgba(232,168,32,0.06), transparent 50%, transparent 80%, rgba(232,168,32,0.04));
   z-index: -1;
-  line-height: 1;
 }
-
-/* ===== Progress Bar ===== */
-.progress-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--gold-deep), var(--gold-core), var(--gold-light));
-  z-index: 100;
-  transition: width 0.3s ease;
-  box-shadow: 0 0 10px rgba(232,168,32,0.5);
-}
-
-/* ===== Progress Dots ===== */
-.progress-dots {
-  position: fixed;
-  right: 1.5rem;
-  top: 50%;
-  transform: translateY(-50%);
+.gold-frame .frame-item {
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  z-index: 100;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 6px 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-soft);
 }
-.progress-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: rgba(184,141,10,0.3);
-  border: 1px solid rgba(184,141,10,0.4);
-  transition: all 0.4s ease;
-  cursor: pointer;
-}
-.progress-dot.active {
-  background: var(--gold-core);
-  border-color: var(--gold-light);
-  box-shadow: 0 0 12px rgba(232,168,32,0.6);
-  transform: scale(1.3);
-}
+.gold-frame .frame-emoji { font-size: 18px; flex-shrink: 0; }
+.gold-frame .frame-highlight { color: var(--gold-core); }
 
-/* ===== Skip Hint ===== */
-.skip-hint {
-  position: fixed;
+/* ===== Scroll Hint ===== */
+.scroll-hint {
+  position: absolute;
   bottom: 2rem;
   left: 50%;
   transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.5;
+  animation: hint-pulse 2s ease-in-out infinite;
+}
+.scroll-hint span {
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+}
+.scroll-hint .arrow {
+  width: 1px;
+  height: 28px;
+  background: linear-gradient(180deg, var(--gold-core), transparent);
+}
+@keyframes hint-pulse {
+  0%, 100% { opacity: 0.3; transform: translateX(-50%) translateY(0); }
+  50% { opacity: 0.7; transform: translateX(-50%) translateY(4px); }
+}
+
+/* ===== Chapter Navigation ===== */
+.chapter-nav {
+  position: fixed;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.chapter-dot-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  cursor: pointer;
+}
+.chapter-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(184,141,10,0.25);
+  border: 1px solid rgba(184,141,10,0.3);
+  transition: all 0.4s ease;
+  flex-shrink: 0;
+}
+.chapter-dot.active {
+  background: var(--gold-core);
+  border-color: var(--gold-light);
+  box-shadow: 0 0 14px rgba(232,168,32,0.6);
+  transform: scale(1.4);
+}
+.chapter-label {
+  position: absolute;
+  right: 20px;
+  white-space: nowrap;
+  font-family: var(--serif);
   font-size: 12px;
   color: var(--text-muted);
-  z-index: 100;
   opacity: 0;
-  transition: opacity 0.5s ease;
-  cursor: pointer;
-  letter-spacing: 0.05em;
-}
-.skip-hint.visible { opacity: 0.5; }
-.skip-hint:hover { opacity: 1; color: var(--gold-core); }
-
-/* ===== Ink Splash Effect ===== */
-@keyframes ink-splash {
-  0% { transform: scale(0); opacity: 0.8; border-radius: 50%; }
-  40% { transform: scale(1.8); opacity: 0.6; border-radius: 45% 55% 60% 40%; }
-  70% { transform: scale(2.5); opacity: 0.3; border-radius: 40% 60% 55% 45%; }
-  100% { transform: scale(4); opacity: 0; border-radius: 48% 52% 50% 50%; }
-}
-.ink-splash {
-  position: absolute;
-  width: 300px;
-  height: 300px;
-  background: radial-gradient(circle, var(--gold-core), transparent);
-  filter: blur(20px);
-  animation: ink-splash 2s ease-out forwards;
+  transform: translateX(8px);
+  transition: all 0.3s ease;
   pointer-events: none;
 }
-
-/* ===== Celestial Particles ===== */
-@keyframes particle-float {
-  0% { transform: translateY(0) translateX(0) scale(1); opacity: 0; }
-  10% { opacity: 0.7; }
-  50% { transform: translateY(-60px) translateX(20px) scale(1.5); opacity: 0.4; }
-  90% { opacity: 0.1; }
-  100% { transform: translateY(-120px) translateX(-10px) scale(0.5); opacity: 0; }
+.chapter-dot-wrap:hover .chapter-label,
+.chapter-dot.active ~ .chapter-label,
+.chapter-dot-wrap:has(.active) .chapter-label {
+  opacity: 1;
+  transform: translateX(0);
 }
-@keyframes particle-float-reverse {
-  0% { transform: translateY(0) translateX(0) scale(1); opacity: 0; }
-  10% { opacity: 0.7; }
-  50% { transform: translateY(-60px) translateX(-20px) scale(1.5); opacity: 0.4; }
-  90% { opacity: 0.1; }
-  100% { transform: translateY(-120px) translateX(10px) scale(0.5); opacity: 0; }
+.chapter-dot-wrap:hover .chapter-dot {
+  background: var(--gold-core);
+  transform: scale(1.2);
+}
+
+/* ===== Transition Overlay ===== */
+.transition-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  pointer-events: none;
+  opacity: 0;
+}
+.transition-overlay.active { opacity: 1; }
+
+/* Ink splash transition */
+.ink-transition {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--ink-deep), var(--ink-mid));
+  transform: scale(0);
+  transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.ink-transition.expand { transform: scale(4); }
+
+/* Cloud sweep transition */
+.cloud-sweep {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 400px;
+  background: linear-gradient(90deg, transparent, rgba(232,220,200,0.08), rgba(245,216,144,0.05), transparent);
+  filter: blur(30px);
+  transform: translateX(-100%);
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.cloud-sweep.sweep { transform: translateX(calc(100vw + 400px)); }
+
+/* Firefly converge */
+.firefly-converge {
+  position: absolute;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fef3c7, var(--gold-core));
+  box-shadow: 0 0 20px rgba(232,168,32,0.6);
+  transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.firefly-converge.converge {
+  transform: translate(50vw, 50vh) scale(8) !important;
+  opacity: 1 !important;
+}
+.firefly-converge.burst {
+  transform: scale(20);
+  opacity: 0;
+  transition: all 0.5s ease-out;
+}
+
+/* ===== Particle System (3-layer parallax) ===== */
+.particle-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
 }
 .particle {
   position: absolute;
   border-radius: 50%;
   pointer-events: none;
 }
+.particle-layer-near .particle  { width: 3-6px; height: 3-6px; }
+.particle-layer-mid .particle   { width: 2-4px; height: 2-4px; }
+.particle-layer-far .particle   { width: 1-2px; height: 1-2px; opacity: 0.5; }
 
 /* ===== Fireflies ===== */
 @keyframes firefly-float {
   0%   { opacity: 0; transform: translate(0, 0) scale(0.8); }
-  15%  { opacity: 0.7; transform: translate(var(--drift), -12px) scale(1.2); }
-  30%  { opacity: 0.3; transform: translate(calc(var(--drift) * 2), -6px) scale(0.9); }
-  45%  { opacity: 0.8; transform: translate(calc(var(--drift) * 0.5), -18px) scale(1.1); }
-  60%  { opacity: 0.2; transform: translate(calc(var(--drift) * -0.8), -3px) scale(0.85); }
-  75%  { opacity: 0.6; transform: translate(calc(var(--drift) * 1.2), -14px) scale(1.0); }
-  90%  { opacity: 0.15; transform: translate(calc(var(--drift) * -1.5), -8px) scale(0.9); }
+  15%  { opacity: 0.7; transform: translate(var(--drift-x), var(--drift-y)) scale(1.2); }
+  30%  { opacity: 0.3; transform: translate(calc(var(--drift-x)*2), -6px) scale(0.9); }
+  45%  { opacity: 0.8; transform: translate(calc(var(--drift-x)*0.3), -18px) scale(1.1); }
+  60%  { opacity: 0.2; transform: translate(calc(var(--drift-x)*-0.6), -3px) scale(0.85); }
+  75%  { opacity: 0.6; transform: translate(calc(var(--drift-x)*0.8), -14px) scale(1.0); }
+  90%  { opacity: 0.1; transform: translate(calc(var(--drift-x)*-1.2), -8px) scale(0.9); }
   100% { opacity: 0; transform: translate(0, 2px) scale(0.7); }
-}
-
-/* ===== Cloud Drift ===== */
-@keyframes cloud-drift {
-  0% { transform: translateX(-100px); opacity: 0; }
-  10% { opacity: 0.04; }
-  90% { opacity: 0.04; }
-  100% { transform: translateX(calc(100vw + 100px)); opacity: 0; }
 }
 
 /* ===== Gold Dust ===== */
@@ -310,146 +390,91 @@ body::before {
   100% { opacity: 0; transform: translate(-2px, -8px); }
 }
 
+/* ===== Cloud Drift ===== */
+@keyframes cloud-drift {
+  0% { transform: translateX(-200px); opacity: 0; }
+  10% { opacity: 0.04; }
+  90% { opacity: 0.04; }
+  100% { transform: translateX(calc(100vw + 200px)); opacity: 0; }
+}
+
 /* ===== God Rays ===== */
 @keyframes godray-sway {
-  0%, 100% { transform: rotate(-12deg) translateX(-50%); opacity: 0.03; }
-  50% { transform: rotate(-8deg) translateX(-50%); opacity: 0.08; }
+  0%, 100% { transform: rotate(-12deg) translateX(-50%); opacity: 0.02; }
+  50% { transform: rotate(-8deg) translateX(-50%); opacity: 0.06; }
 }
 .godray {
   position: fixed;
-  width: 3px;
-  height: 60vh;
-  top: -10vh;
+  width: 2px;
+  height: 50vh;
+  top: -5vh;
   left: 50%;
-  filter: blur(6px);
-  background: linear-gradient(180deg, rgba(232,168,32,0.6), transparent);
+  filter: blur(5px);
+  background: linear-gradient(180deg, rgba(232,168,32,0.5), transparent);
   pointer-events: none;
   z-index: 0;
   transform-origin: top center;
 }
 
-/* ===== Scene Enter Animations ===== */
-@keyframes slide-up-fade {
-  from { opacity: 0; transform: translateY(40px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.anim-slide-up {
-  animation: slide-up-fade 1s ease-out both;
-}
-.anim-delay-1 { animation-delay: 0.3s; }
-.anim-delay-2 { animation-delay: 0.6s; }
-.anim-delay-3 { animation-delay: 0.9s; }
-.anim-delay-4 { animation-delay: 1.2s; }
-
-/* ===== Character Silhouette ===== */
-.silhouette {
+/* ===== Scene-Specific Particle Effects ===== */
+.ink-splash-p {
   position: absolute;
-  font-size: clamp(80px, 20vw, 200px);
-  opacity: 0.03;
-  pointer-events: none;
-  z-index: -1;
-  transition: all 1.5s ease;
-  filter: blur(2px);
-}
-
-/* ===== Gold Border Frame ===== */
-.gold-frame {
-  border: 1px solid rgba(232,168,32,0.12);
-  border-radius: 2px;
-  padding: 2rem;
-  max-width: 600px;
-  width: 100%;
-  text-align: center;
-  position: relative;
-  background: rgba(10,15,20,0.5);
-  backdrop-filter: blur(10px);
-}
-.gold-frame::before {
-  content: '';
-  position: absolute;
-  inset: -1px;
-  border-radius: 2px;
-  background: linear-gradient(135deg, rgba(232,168,32,0.08), transparent 40%, transparent 60%, rgba(232,168,32,0.05));
-  z-index: -1;
-}
-
-/* ===== Music Toggle ===== */
-.music-toggle {
-  position: fixed;
-  bottom: 2rem;
-  left: 2rem;
-  width: 44px;
-  height: 44px;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(232,168,32,0.15), transparent 70%);
+  filter: blur(15px);
   border-radius: 50%;
-  background: rgba(20,28,36,0.9);
-  border: 1px solid rgba(232,168,32,0.2);
-  color: var(--gold-core);
-  font-size: 18px;
-  cursor: pointer;
-  z-index: 200;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(12px);
+  pointer-events: none;
+  animation: ink-drift 8s ease-in-out infinite;
 }
-.music-toggle:hover {
-  border-color: var(--gold-core);
-  box-shadow: 0 0 20px rgba(232,168,32,0.3);
-}
-.music-toggle.muted {
-  color: var(--text-muted);
-  border-color: rgba(255,255,255,0.1);
+@keyframes ink-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+  25% { transform: translate(30px, -20px) scale(1.3); opacity: 0.6; }
+  50% { transform: translate(-20px, -40px) scale(0.9); opacity: 0.4; }
+  75% { transform: translate(-30px, -10px) scale(1.4); opacity: 0.7; }
 }
 
-/* ===== Finale: Interactive Star Chart ===== */
-#finale {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 1.5s ease;
+/* ===== Finale: Star Chart ===== */
+#scene-finale {
+  background: var(--ink-deep);
 }
-#finale.active {
-  opacity: 1;
-  pointer-events: auto;
+#scene-finale .scene-bg {
+  background: radial-gradient(ellipse at 50% 50%, rgba(232,168,32,0.06) 0%, transparent 60%),
+              radial-gradient(ellipse at 30% 30%, rgba(245,216,144,0.03) 0%, transparent 40%),
+              var(--ink-deep);
 }
+
 .star-node {
   position: absolute;
-  width: 48px;
-  height: 48px;
+  width: 44px; height: 44px;
   border-radius: 50%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--serif);
-  font-size: 14px;
-  color: var(--gold-core);
+  font-size: 18px;
   transition: all 0.4s ease;
-  z-index: 55;
+  z-index: 5;
+  border: 1px solid rgba(232,168,32,0.25);
+  background: radial-gradient(circle at 30% 30%, rgba(232,168,32,0.12), transparent);
 }
 .star-node::before {
   content: '';
   position: absolute;
-  inset: -4px;
+  inset: -3px;
   border-radius: 50%;
-  border: 1px solid rgba(232,168,32,0.3);
+  border: 1px solid rgba(232,168,32,0.2);
   animation: star-pulse 3s ease-in-out infinite;
 }
 @keyframes star-pulse {
-  0%, 100% { transform: scale(1); opacity: 0.3; }
-  50% { transform: scale(1.4); opacity: 0.7; }
+  0%, 100% { transform: scale(1); opacity: 0.2; }
+  50% { transform: scale(1.5); opacity: 0.6; }
 }
 .star-node:hover {
   transform: scale(1.5);
   box-shadow: 0 0 40px rgba(232,168,32,0.4);
-}
-.star-node:hover::before {
   border-color: var(--gold-core);
-  box-shadow: 0 0 30px rgba(232,168,32,0.3);
 }
+.star-node:hover::before { border-color: var(--gold-core); box-shadow: 0 0 30px rgba(232,168,32,0.3); }
 
 /* ===== Speech Bubble ===== */
 @keyframes bubble-rise {
@@ -458,12 +483,12 @@ body::before {
 }
 .speech-bubble {
   position: fixed;
-  z-index: 300;
+  z-index: 400;
   background: rgba(10,15,20,0.97);
   border: 1px solid rgba(232,168,32,0.25);
   border-radius: 4px;
   padding: 16px 20px;
-  max-width: 280px;
+  max-width: 270px;
   animation: bubble-rise 0.4s ease-out;
   backdrop-filter: blur(20px);
   box-shadow: 0 8px 40px rgba(0,0,0,0.5);
@@ -471,9 +496,10 @@ body::before {
 .speech-bubble .haiku {
   font-family: var(--serif);
   color: var(--gold-core);
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.8;
   margin-bottom: 8px;
+  white-space: pre-line;
 }
 .speech-bubble .message {
   font-size: 13px;
@@ -483,7 +509,7 @@ body::before {
 .speech-bubble .feeling {
   display: inline-block;
   margin-top: 8px;
-  font-size: 11px;
+  font-size: 10px;
   color: var(--gold-light);
   padding: 2px 8px;
   border: 1px solid rgba(232,168,32,0.2);
@@ -491,45 +517,103 @@ body::before {
 }
 .speech-bubble .close-btn {
   position: absolute;
-  top: 6px;
-  right: 8px;
+  top: 4px;
+  right: 6px;
   background: none;
   border: none;
   color: var(--text-muted);
   cursor: pointer;
   font-size: 14px;
+  padding: 4px;
 }
 .speech-bubble .close-btn:hover { color: var(--gold-core); }
 
-/* ===== Connecting Lines ===== */
-.star-line {
-  position: fixed;
-  z-index: 51;
+/* ===== Connecting Lines SVG ===== */
+.star-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
-  opacity: 0.08;
+  z-index: 1;
+  opacity: 0.15;
 }
-.star-line line {
-  stroke: var(--gold-core);
-  stroke-width: 1;
-}
+.star-lines path { stroke: var(--gold-core); stroke-width: 1; fill: none; }
 
-/* ===== Mobile Adjustments ===== */
-@media (max-width: 768px) {
-  .progress-dots { right: 0.5rem; gap: 0.7rem; }
-  .progress-dot { width: 6px; height: 6px; }
-  .scene { padding: 1.5rem; }
-  .gold-frame { padding: 1.5rem; }
-  .scene-num { font-size: 60px; top: 1rem; right: 1rem; }
-  .star-node { width: 40px; height: 40px; font-size: 12px; }
+/* ===== To Finale CTA ===== */
+.to-finale {
+  margin-top: 2rem;
+  font-family: var(--serif);
+  font-size: 14px;
+  color: var(--gold-core);
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  opacity: 0.7;
+  transition: opacity 0.3s;
 }
+.to-finale:hover { opacity: 1; }
 
-/* ===== Fade-out animation for bubbles ===== */
+/* ===== Music Toggle ===== */
+.music-toggle {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: rgba(20,28,36,0.9);
+  border: 1px solid rgba(232,168,32,0.2);
+  color: var(--gold-core);
+  font-size: 16px;
+  cursor: pointer;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(12px);
+}
+.music-toggle:hover { border-color: var(--gold-core); box-shadow: 0 0 20px rgba(232,168,32,0.3); }
+.music-toggle.muted { color: var(--text-muted); border-color: rgba(255,255,255,0.1); }
+
+/* ===== Fade-out for bubbles ===== */
 @keyframes fade-out {
   to { opacity: 0; transform: translateY(-10px); }
 }
-.fading-out {
-  animation: fade-out 2s ease-out forwards;
+.fading-out { animation: fade-out 2s ease-out forwards; }
+
+/* ===== Spark burst ===== */
+@keyframes node-spark {
+  0% { opacity:1; transform: rotate(var(--angle)) translateY(0) scale(1); }
+  100% { opacity:0; transform: rotate(var(--angle)) translateY(-30px) scale(0); }
 }
+
+/* ===== Mobile ===== */
+@media (max-width: 768px) {
+  .scene { padding: 1.5rem; }
+  .gold-frame { padding: 1rem 1.2rem; }
+  .gold-frame .frame-item { font-size: 13px; }
+  .scene-num { font-size: 56px; top: 0.8rem; right: 0.8rem; }
+  .chapter-nav { right: 0.3rem; gap: 8px; }
+  .chapter-dot { width: 6px; height: 6px; }
+  .star-node { width: 38px; height: 38px; font-size: 16px; }
+  .scroll-hint { bottom: 1rem; }
+}
+
+/* ===== Content enter animations ===== */
+.scene-content > * {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.scene.visible .scene-content > * {
+  opacity: 1;
+  transform: translateY(0);
+}
+.scene.visible .scene-content > *:nth-child(1) { transition-delay: 0.1s; }
+.scene.visible .scene-content > *:nth-child(2) { transition-delay: 0.25s; }
+.scene.visible .scene-content > *:nth-child(3) { transition-delay: 0.4s; }
+.scene.visible .scene-content > *:nth-child(4) { transition-delay: 0.55s; }
+.scene.visible .scene-content > *:nth-child(5) { transition-delay: 0.7s; }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -537,443 +621,161 @@ body::before {
 </head>
 <body>
 
-<div id="app">
+<!-- ===== Transition Overlay ===== -->
+<div class="transition-overlay" id="transitionOverlay"></div>
 
-  <!-- ===== Scene 1: Chaos ===== -->
-  <section class="scene active" id="scene1" data-scene="1">
+<!-- ===== Chapter Navigation ===== -->
+<nav class="chapter-nav" id="chapterNav"></nav>
+
+<!-- ===== Music Toggle ===== -->
+<button class="music-toggle muted" id="musicToggle" title="音乐">♪</button>
+
+<!-- ===== Scroll Container ===== -->
+<div class="scroll-container" id="scrollContainer">
+
+  <!-- Scene 1: Chaos -->
+  <section class="scene" id="scene1" data-scene="0">
     <div class="scene-bg"></div>
     <div class="scene-num">壹</div>
     <div class="silhouette" style="top:20%;left:10%;">🐒</div>
-    <div class="anim-slide-up">
+    <div class="particle-layer particle-layer-near" data-layer="near"></div>
+    <div class="particle-layer particle-layer-mid" data-layer="mid"></div>
+    <div class="particle-layer particle-layer-far" data-layer="far"></div>
+    <div class="ink-splash-p" style="top:30%;left:50%;"></div>
+    <div class="scene-content">
       <h1 class="scene-title">石破天惊</h1>
-    </div>
-    <div class="anim-slide-up anim-delay-1">
-      <p class="scene-subtitle">混沌初开，灵石迸裂。<br>一只猴子从石头里跳出来，<br>从此天地间多了一个大圣。</p>
-    </div>
-    <div class="anim-slide-up anim-delay-2">
+      <p class="scene-subtitle">混沌初开，灵石迸裂。一只猴子从石头里跳出来，从此天地间多了一个大圣。</p>
       <p class="scene-quote">"我老孙来也！"</p>
+      <p class="scene-detail">大闹天宫，不过是想要一个答案——凭什么有人天生就是神仙，而我只能当弼马温？</p>
     </div>
-    <div class="anim-slide-up anim-delay-3">
-      <p class="scene-detail">大闹天宫，不过是想要一个答案——<br>凭什么有人天生就是神仙，<br>而我只能当弼马温？</p>
-    </div>
+    <div class="scroll-hint"><span>向下滚动</span><div class="arrow"></div></div>
   </section>
 
-  <!-- ===== Scene 2: Wisdom ===== -->
-  <section class="scene" id="scene2" data-scene="2">
+  <!-- Scene 2: Wisdom -->
+  <section class="scene" id="scene2" data-scene="1">
     <div class="scene-bg"></div>
     <div class="scene-num">贰</div>
     <div class="silhouette" style="top:10%;right:5%;">☁️</div>
-    <div class="anim-slide-up">
+    <div class="particle-layer particle-layer-near" data-layer="near"></div>
+    <div class="particle-layer particle-layer-mid" data-layer="mid"></div>
+    <div class="particle-layer particle-layer-far" data-layer="far"></div>
+    <div class="scene-content">
       <h1 class="scene-title">克制的力量</h1>
-    </div>
-    <div class="anim-slide-up anim-delay-1">
-      <p class="scene-subtitle">真正的强大不是毁天灭地，<br>而是明明可以，却选择不。</p>
-    </div>
-    <div class="gold-frame anim-slide-up anim-delay-2">
-      <p class="scene-detail" style="text-align:left;line-height:2;font-size:15px;">
-        🏯 大闹天宫时醉酒，<span style="color:var(--gold-core)">未毁天宫</span><br>
-        🍑 定住七仙女后，<span style="color:var(--gold-core)">仅吃桃子</span><br>
-        ⛰️ 五行山下五百年，<span style="color:var(--gold-core)">未曾黑化</span>
-      </p>
-    </div>
-    <div class="anim-slide-up anim-delay-3">
-      <p class="scene-quote">"大圣这一生，最难的不是闹天宫，<br>而是闹完之后还能收得住。"</p>
+      <p class="scene-subtitle">真正的强大不是毁天灭地，而是明明可以，却选择不。</p>
+      <div class="gold-frame">
+        <div class="frame-item"><span class="frame-emoji">🏯</span>大闹天宫时醉酒，<span class="frame-highlight">未毁天宫</span></div>
+        <div class="frame-item"><span class="frame-emoji">🍑</span>定住七仙女后，<span class="frame-highlight">仅吃桃子</span></div>
+        <div class="frame-item"><span class="frame-emoji">⛰️</span>五行山下五百年，<span class="frame-highlight">未曾黑化</span></div>
+      </div>
+      <p class="scene-quote">"大圣这一生，最难的不是闹天宫，而是闹完之后还能收得住。"</p>
     </div>
   </section>
 
-  <!-- ===== Scene 3: Respect ===== -->
-  <section class="scene" id="scene3" data-scene="3">
+  <!-- Scene 3: Respect -->
+  <section class="scene" id="scene3" data-scene="2">
     <div class="scene-bg"></div>
     <div class="scene-num">叁</div>
     <div class="silhouette" style="bottom:15%;left:5%;">🌸</div>
-    <div class="anim-slide-up">
+    <div class="particle-layer particle-layer-near" data-layer="near"></div>
+    <div class="particle-layer particle-layer-mid" data-layer="mid"></div>
+    <div class="particle-layer particle-layer-far" data-layer="far"></div>
+    <div class="scene-content">
       <h1 class="scene-title">霞衣护花</h1>
-    </div>
-    <div class="anim-slide-up anim-delay-1">
-      <p class="scene-subtitle">一只猴子，比很多人更懂得<br>如何尊重女性。</p>
-    </div>
-    <div class="gold-frame anim-slide-up anim-delay-2">
-      <p class="scene-detail" style="text-align:left;line-height:2;font-size:15px;">
-        👑 救金圣宫娘娘时，<span style="color:var(--gold-core)">让国王见证真相</span><br>
-        🧥 用霞衣保护女性清白，<span style="color:var(--gold-core)">超前意识</span><br>
-        💧 化身女性救投河者，<span style="color:var(--gold-core)">深刻共情</span>
-      </p>
-    </div>
-    <div class="anim-slide-up anim-delay-3">
-      <p class="scene-quote">"妖精也有好妖精，<br>人也有坏人。"</p>
+      <p class="scene-subtitle">一只猴子，比很多人更懂得如何尊重女性。</p>
+      <div class="gold-frame">
+        <div class="frame-item"><span class="frame-emoji">👑</span>救金圣宫娘娘时，<span class="frame-highlight">让国王见证真相</span></div>
+        <div class="frame-item"><span class="frame-emoji">🧥</span>用霞衣保护女性清白，<span class="frame-highlight">超越时代</span></div>
+        <div class="frame-item"><span class="frame-emoji">💧</span>化身女性救投河者，<span class="frame-highlight">深刻共情</span></div>
+      </div>
+      <p class="scene-quote">"妖精也有好妖精，人也有坏人。"</p>
     </div>
   </section>
 
-  <!-- ===== Scene 4: Philosophy ===== -->
-  <section class="scene" id="scene4" data-scene="4">
+  <!-- Scene 4: Philosophy -->
+  <section class="scene" id="scene4" data-scene="3">
     <div class="scene-bg"></div>
     <div class="scene-num">肆</div>
     <div class="silhouette" style="top:5%;right:10%;">⭐</div>
-    <div class="anim-slide-up">
+    <div class="particle-layer particle-layer-near" data-layer="near"></div>
+    <div class="particle-layer particle-layer-mid" data-layer="mid"></div>
+    <div class="particle-layer particle-layer-far" data-layer="far"></div>
+    <div class="scene-content">
       <h1 class="scene-title">天地本不全</h1>
-    </div>
-    <div class="anim-slide-up anim-delay-1">
-      <p class="scene-subtitle">一只猴子的哲学领悟，<br>比许多修行千年的神仙都深。</p>
-    </div>
-    <div class="gold-frame anim-slide-up anim-delay-2">
-      <p class="scene-detail" style="text-align:left;line-height:2;font-size:15px;">
-        🔥 "求仙问卜，<span style="color:var(--gold-core)">不如自己做主</span>"<br>
-        📜 "天地本不全，<span style="color:var(--gold-core)">经文残缺也应不全</span>"<br>
-        🛤️ 对唐僧说："<span style="color:var(--gold-core)">灵山在脚下</span>"
-      </p>
-    </div>
-    <div class="anim-slide-up anim-delay-3">
-      <p class="scene-quote">"只要你见性志诚，<br>念念回首处，即是灵山。"</p>
+      <p class="scene-subtitle">一只猴子的哲学领悟，比许多修行千年的神仙都深。</p>
+      <div class="gold-frame">
+        <div class="frame-item"><span class="frame-emoji">🔥</span>"求仙问卜，<span class="frame-highlight">不如自己做主</span>"</div>
+        <div class="frame-item"><span class="frame-emoji">📜</span>"天地本不全，<span class="frame-highlight">经文残缺也应不全</span>"</div>
+        <div class="frame-item"><span class="frame-emoji">🛤️</span>对唐僧说："<span class="frame-highlight">灵山在脚下</span>"</div>
+      </div>
+      <p class="scene-quote">"只要你见性志诚，念念回首处，即是灵山。"</p>
     </div>
   </section>
 
-  <!-- ===== Scene 5: Warmth ===== -->
-  <section class="scene" id="scene5" data-scene="5">
+  <!-- Scene 5: Warmth -->
+  <section class="scene" id="scene5" data-scene="4">
     <div class="scene-bg"></div>
     <div class="scene-num">伍</div>
     <div class="silhouette" style="bottom:10%;right:8%;">🦋</div>
-    <div class="anim-slide-up">
+    <div class="particle-layer particle-layer-near" data-layer="near"></div>
+    <div class="particle-layer particle-layer-mid" data-layer="mid"></div>
+    <div class="particle-layer particle-layer-far" data-layer="far"></div>
+    <div class="scene-content">
       <h1 class="scene-title">大圣有泪</h1>
-    </div>
-    <div class="anim-slide-up anim-delay-1">
-      <p class="scene-subtitle">金刚怒目，亦有菩萨低眉。<br>大圣心中最柔软的地方，<br>藏着对众生的深情。</p>
-    </div>
-    <div class="gold-frame anim-slide-up anim-delay-2">
-      <p class="scene-detail" style="text-align:left;line-height:2;font-size:15px;">
-        🪓 默默帮助山中的<span style="color:var(--gold-core)">樵夫</span><br>
-        🙏 铭记菩提祖师，<span style="color:var(--gold-core)">终身不忘师恩</span><br>
-        🐂 保护放牛的<span style="color:var(--gold-core)">牧童</span>，不让妖怪靠近
-      </p>
-    </div>
-    <div class="anim-slide-up anim-delay-3">
-      <p class="scene-quote">"我无性。人若骂我，我也不恼；<br>若打我，我也不嗔。"</p>
+      <p class="scene-subtitle">金刚怒目，亦有菩萨低眉。大圣心中最柔软的地方，藏着对众生的深情。</p>
+      <div class="gold-frame">
+        <div class="frame-item"><span class="frame-emoji">🪓</span>默默帮助山中的<span class="frame-highlight">樵夫</span></div>
+        <div class="frame-item"><span class="frame-emoji">🙏</span>铭记菩提祖师，<span class="frame-highlight">终身不忘师恩</span></div>
+        <div class="frame-item"><span class="frame-emoji">🐂</span>保护放牛的<span class="frame-highlight">牧童</span>，不让妖怪靠近</div>
+      </div>
+      <p class="scene-quote">"我无性。人若骂我，我也不恼；若打我，我也不嗔。"</p>
     </div>
   </section>
 
-  <!-- ===== Scene 6: Eternal ===== -->
-  <section class="scene" id="scene6" data-scene="6">
+  <!-- Scene 6: Eternal -->
+  <section class="scene" id="scene6" data-scene="5">
     <div class="scene-bg"></div>
     <div class="scene-num">陆</div>
-    <div class="anim-slide-up">
+    <div class="particle-layer particle-layer-near" data-layer="near"></div>
+    <div class="particle-layer particle-layer-mid" data-layer="mid"></div>
+    <div class="particle-layer particle-layer-far" data-layer="far"></div>
+    <div class="scene-content">
       <h1 class="scene-title" style="font-size:clamp(36px,10vw,80px);">永恒大圣</h1>
-    </div>
-    <div class="anim-slide-up anim-delay-1">
-      <p class="scene-subtitle">
-        86版、动画、游戏、网文、短视频……<br>
-        七十二变的大圣，<br>
-        在不同时代换着不同的面孔，<br>
-        守护着同一颗心。
+      <p class="scene-subtitle">86版、动画、游戏、网文、短视频……七十二变的大圣，在不同时代换着不同的面孔，守护着同一颗心。</p>
+      <p style="font-family:var(--serif);font-size:16px;color:var(--gold-light);line-height:2.2;text-align:center;">
+        定海神针 · 民族图腾<br>正义必胜 · 集体信念<br>传统英雄 · 现代价值
       </p>
-    </div>
-    <div class="anim-slide-up anim-delay-2" style="text-align:center;">
-      <p style="font-family:var(--serif);font-size:18px;color:var(--gold-light);line-height:2;">
-        定海神针 · 民族图腾<br>
-        正义必胜 · 集体信念<br>
-        传统英雄 · 现代价值
-      </p>
-    </div>
-    <div class="anim-slide-up anim-delay-3">
-      <p class="scene-quote">"中国人会在不同人生阶段，<br>反复爱上孙悟空。"</p>
-    </div>
-    <div class="anim-slide-up anim-delay-4" style="margin-top:2rem;">
-      <p style="color:var(--gold-core);font-size:14px;cursor:pointer;letter-spacing:0.1em;" id="toFinale">
-        探索六大篇章 →
-      </p>
+      <p class="scene-quote">"中国人会在不同人生阶段，反复爱上孙悟空。"</p>
+      <p class="to-finale" id="toFinale">探索星辰画卷 →</p>
     </div>
   </section>
 
-  <!-- ===== Finale: Interactive Star Chart ===== -->
-  <div id="finale">
-    <div class="scene-bg" style="background:
-      radial-gradient(ellipse at 50% 50%, rgba(232,168,32,0.04) 0%, transparent 60%),
-      radial-gradient(ellipse at 30% 30%, rgba(245,216,144,0.02) 0%, transparent 40%),
-      var(--ink-deep);">
+  <!-- Finale: Star Chart -->
+  <section class="scene" id="scene-finale" data-scene="6">
+    <div class="scene-bg"></div>
+    <div style="position:relative;z-index:10;text-align:center;">
+      <h2 style="font-family:var(--serif);font-size:clamp(24px,5vw,40px);color:var(--gold-core);letter-spacing:0.08em;margin-bottom:0.5rem;">星辰画卷</h2>
+      <p style="color:var(--text-muted);font-size:14px;margin-bottom:2rem;">触碰星辰，聆听大圣的低语</p>
     </div>
-    <div style="position:absolute;top:3rem;left:50%;transform:translateX(-50%);z-index:55;text-align:center;">
-      <h2 style="font-family:var(--serif);font-size:clamp(24px,5vw,40px);color:var(--gold-core);letter-spacing:0.08em;">星辰画卷</h2>
-      <p style="color:var(--text-muted);font-size:14px;margin-top:0.5rem;">触碰星辰，聆听大圣的低语</p>
-    </div>
-
-    <!-- Star nodes will be injected by JS -->
-    <div id="starContainer"></div>
-
-    <!-- SVG connecting lines -->
-    <svg class="star-line" id="starLines" style="position:fixed;inset:0;width:100%;height:100%;"></svg>
-
-    <!-- Back button -->
-    <button id="backToFilm" style="position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);z-index:200;
-      background:rgba(20,28,36,0.9);border:1px solid rgba(232,168,32,0.3);color:var(--gold-core);
-      padding:10px 24px;border-radius:20px;cursor:pointer;font-family:var(--serif);font-size:14px;
-      backdrop-filter:blur(12px);transition:all 0.3s ease;"
-      onmouseover="this.style.borderColor='var(--gold-core)';this.style.boxShadow='0 0 20px rgba(232,168,32,0.3)'"
-      onmouseout="this.style.borderColor='rgba(232,168,32,0.3)';this.style.boxShadow='none'">
-      重返影片
-    </button>
-  </div>
+    <div id="starContainer" style="position:absolute;inset:0;z-index:5;"></div>
+    <svg class="star-lines" id="starLines"></svg>
+    <p style="position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);z-index:10;font-size:12px;color:var(--text-muted);cursor:pointer;" onclick="document.getElementById('scrollContainer').scrollTo({top:0,behavior:'smooth'})">↑ 重返影片 ↑</p>
+  </section>
 
 </div>
 
-<!-- ===== Progress Bar ===== -->
-<div class="progress-bar" id="progressBar"></div>
-
-<!-- ===== Progress Dots ===== -->
-<div class="progress-dots" id="progressDots"></div>
-
-<!-- ===== Skip Hint ===== -->
-<div class="skip-hint" id="skipHint">跳过观影 →</div>
-
-<!-- ===== Music Toggle ===== -->
-<button class="music-toggle muted" id="musicToggle" title="开启音乐">♪</button>
-
-<!-- ===== Inline Audio (generated via Web Audio API) ===== -->
-
 <script>
-// ===== Scene Manager =====
-const SCENES = [
-  { id: 'scene1', duration: 8000, title: '石破天惊', emoji: '🌋', content: '混沌初开，灵石迸裂。大圣出世，天地为之震动。' },
-  { id: 'scene2', duration: 10000, title: '克制的力量', emoji: '🏯', content: '醉未毁天宫，定七仙女仅吃桃。五行山下五百年未黑化——真正的强大是克制。' },
-  { id: 'scene3', duration: 10000, title: '霞衣护花', emoji: '🌸', content: '用霞衣保护女性清白，化身女性救投河者。一只猴子比很多人更懂得尊重。' },
-  { id: 'scene4', duration: 10000, title: '天地本不全', emoji: '⭐', content: '"求仙问卜不如自己做主"。对唐僧说灵山在脚下——超越时代的哲思。' },
-  { id: 'scene5', duration: 10000, title: '大圣有泪', emoji: '🦋', content: '默默帮助樵夫，铭记恩师，保护牧童。金刚怒目，亦有菩萨低眉。' },
-  { id: 'scene6', duration: 12000, title: '永恒大圣', emoji: '🐒', content: '定海神针成为民族图腾。不同时代不同面孔，守护同一颗心。' },
+// ===== Data =====
+const CHAPTERS = [
+  { id: 'scene1', num: '壹', title: '石破天惊', emoji: '🌋', mood: 'chaos' },
+  { id: 'scene2', num: '贰', title: '克制的力量', emoji: '🏯', mood: 'wisdom' },
+  { id: 'scene3', num: '叁', title: '霞衣护花', emoji: '🌸', mood: 'respect' },
+  { id: 'scene4', num: '肆', title: '天地本不全', emoji: '⭐', mood: 'philosophy' },
+  { id: 'scene5', num: '伍', title: '大圣有泪', emoji: '🦋', mood: 'warmth' },
+  { id: 'scene6', num: '陆', title: '永恒大圣', emoji: '🐒', mood: 'eternal' },
+  { id: 'scene-finale', num: '终', title: '星辰画卷', emoji: '🌟', mood: 'finale' },
 ];
 
-let currentScene = 0;
-let sceneTimer = null;
-let isViewing = true;
-let sceneStartTime = 0;
-
-// ===== DOM Elements =====
-const progressBar = document.getElementById('progressBar');
-const progressDots = document.getElementById('progressDots');
-const skipHint = document.getElementById('skipHint');
-const finale = document.getElementById('finale');
-const toFinale = document.getElementById('toFinale');
-const backToFilm = document.getElementById('backToFilm');
-const musicToggle = document.getElementById('musicToggle');
-
-// ===== Build Progress Dots =====
-SCENES.forEach((scene, i) => {
-  const dot = document.createElement('div');
-  dot.className = 'progress-dot';
-  dot.title = scene.title;
-  dot.addEventListener('click', () => skipToScene(i));
-  progressDots.appendChild(dot);
-});
-
-// ===== Show Scene =====
-function showScene(index) {
-  // Hide all scenes
-  document.querySelectorAll('.scene').forEach(s => {
-    s.classList.remove('active', 'fading');
-  });
-
-  const scene = document.getElementById(SCENES[index].id);
-  if (!scene) return;
-
-  // Reset animations
-  scene.querySelectorAll('.anim-slide-up').forEach(el => {
-    el.style.animation = 'none';
-    el.offsetHeight;
-    el.style.animation = '';
-  });
-
-  scene.classList.add('active');
-  currentScene = index;
-
-  // Update dots
-  document.querySelectorAll('.progress-dot').forEach((d, i) => {
-    d.classList.toggle('active', i === index);
-  });
-
-  // Update progress bar
-  const progress = ((index + 1) / SCENES.length) * 100;
-  progressBar.style.width = progress + '%';
-
-  // Scene-specific effects
-  triggerSceneEffects(index);
-
-  // Auto-advance timer
-  sceneStartTime = Date.now();
-  clearTimeout(sceneTimer);
-
-  if (index < SCENES.length - 1) {
-    sceneTimer = setTimeout(() => {
-      showScene(index + 1);
-    }, SCENES[index].duration);
-  } else {
-    // Last scene: show skip-to-finale button
-    sceneTimer = setTimeout(() => {
-      showFinale();
-    }, SCENES[index].duration);
-  }
-
-  // Show skip hint after 2s
-  skipHint.classList.remove('visible');
-  setTimeout(() => {
-    if (isViewing && currentScene === index) {
-      skipHint.classList.add('visible');
-    }
-  }, 2000);
-}
-
-// ===== Skip to Scene =====
-function skipToScene(index) {
-  if (index < 0 || index >= SCENES.length) return;
-  clearTimeout(sceneTimer);
-  showScene(index);
-}
-
-// ===== Scene-Specific Effects =====
-function triggerSceneEffects(index) {
-  const scene = document.getElementById(SCENES[index].id);
-  if (!scene) return;
-
-  // Clear existing particles
-  scene.querySelectorAll('.particle,.ink-splash,.godray-inner').forEach(el => el.remove());
-
-  // Ink splash on first 3 scenes
-  if (index <= 2) {
-    createInkSplash(scene);
-  }
-
-  // Particles on all scenes
-  createParticles(scene, 20);
-
-  // Gold dust on scenes 2,4,5
-  if ([1,3,4].includes(index)) {
-    createGoldDust(scene, 15);
-  }
-
-  // Fireflies on scene 5
-  if (index === 4) {
-    createFireflies(scene, 12);
-  }
-}
-
-// ===== Ink Splash =====
-function createInkSplash(container) {
-  const splash = document.createElement('div');
-  splash.className = 'ink-splash';
-  splash.style.left = (20 + Math.random() * 60) + '%';
-  splash.style.top = (20 + Math.random() * 60) + '%';
-  splash.style.background = Math.random() > 0.5
-    ? 'radial-gradient(circle, rgba(232,168,32,0.4), transparent)'
-    : 'radial-gradient(circle, rgba(245,216,144,0.3), transparent)';
-  container.appendChild(splash);
-  setTimeout(() => splash.remove(), 2000);
-}
-
-// ===== Floating Particles =====
-function createParticles(container, count) {
-  for (let i = 0; i < count; i++) {
-    const p = document.createElement('div');
-    p.className = 'particle';
-    p.style.left = (5 + Math.random() * 90) + '%';
-    p.style.top = (10 + Math.random() * 80) + '%';
-    p.style.width = (2 + Math.random() * 5) + 'px';
-    p.style.height = p.style.width;
-    p.style.background = Math.random() > 0.5
-      ? `radial-gradient(circle, rgba(232,168,32,${0.5 + Math.random() * 0.5}), transparent)`
-      : `radial-gradient(circle, rgba(245,216,144,${0.4 + Math.random() * 0.5}), transparent)`;
-    p.style.animation = Math.random() > 0.5
-      ? `particle-float ${3 + Math.random() * 5}s ${Math.random() * 3}s ease-in infinite`
-      : `particle-float-reverse ${3 + Math.random() * 5}s ${Math.random() * 3}s ease-in infinite`;
-    container.appendChild(p);
-    setTimeout(() => p.remove(), 8000);
-  }
-}
-
-// ===== Gold Dust =====
-function createGoldDust(container, count) {
-  for (let i = 0; i < count; i++) {
-    const d = document.createElement('div');
-    d.style.cssText = `
-      position:absolute;
-      width:${1 + Math.random() * 2}px;
-      height:${1 + Math.random() * 2}px;
-      border-radius:50%;
-      background:radial-gradient(circle, #fef3c7, ${Math.random() > 0.5 ? '#e8a820' : '#f5d890'});
-      left:${10 + Math.random() * 80}%;
-      top:${20 + Math.random() * 70}%;
-      animation:golddust-float ${4 + Math.random() * 6}s ${Math.random() * 4}s ease-in-out infinite;
-      pointer-events:none;
-      box-shadow:0 0 ${2 + Math.random() * 4}px rgba(232,168,32,0.5);
-    `;
-    container.appendChild(d);
-    setTimeout(() => d.remove(), 10000);
-  }
-}
-
-// ===== Fireflies =====
-function createFireflies(container, count) {
-  for (let i = 0; i < count; i++) {
-    const f = document.createElement('div');
-    const size = 3 + Math.random() * 4;
-    const drift = (Math.random() - 0.5) * 40;
-    f.style.cssText = `
-      position:absolute;
-      width:${size}px;
-      height:${size}px;
-      border-radius:50%;
-      background:radial-gradient(circle at 40% 40%, #fef3c7, #e8a820);
-      left:${10 + Math.random() * 80}%;
-      top:${15 + Math.random() * 75}%;
-      animation:firefly-float ${6 + Math.random() * 10}s ${Math.random() * 8}s infinite ease-in-out;
-      --drift:${drift}px;
-      pointer-events:none;
-      box-shadow:0 0 ${size*3}px rgba(232,168,32,${0.15 + Math.random()*0.35}), 0 0 ${size*6}px rgba(232,168,32,${0.08 + Math.random()*0.15});
-    `;
-    container.appendChild(f);
-  }
-}
-
-// ===== God Rays (persistent) =====
-function createGodRays() {
-  for (let i = 0; i < 3; i++) {
-    const ray = document.createElement('div');
-    ray.className = 'godray godray-inner';
-    ray.style.left = (20 + i * 25) + '%';
-    ray.style.animationDuration = (12 + i * 4) + 's';
-    ray.style.animationDelay = (i * 3) + 's';
-    ray.style.animation = `godray-sway ${12 + i * 4}s ${i * 3}s infinite ease-in-out`;
-    document.body.appendChild(ray);
-  }
-}
-
-// ===== Cloud Drift (persistent) =====
-function createClouds() {
-  for (let i = 0; i < 3; i++) {
-    const cloud = document.createElement('div');
-    cloud.style.cssText = `
-      position:fixed;
-      top:${15 + i * 25}%;
-      width:200px;
-      height:60px;
-      background:radial-gradient(ellipse at center, rgba(232,220,200,0.03), transparent 70%);
-      border-radius:50%;
-      filter:blur(20px);
-      animation:cloud-drift ${50 + i * 20}s ${i * 15}s infinite linear;
-      pointer-events:none;
-      z-index:0;
-    `;
-    document.body.appendChild(cloud);
-  }
-}
-
-// ===== Show Finale =====
-function showFinale() {
-  isViewing = false;
-  document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
-  skipHint.classList.remove('visible');
-  progressBar.style.width = '100%';
-
-  finale.classList.add('active');
-  buildStarChart();
-}
-
-// ===== Build Interactive Star Chart =====
-const starNodes = [
+const STAR_DATA = [
   { title: '石破天惊', emoji: '🌋', color: '#c0392b', desc: '混沌初开，灵石迸裂。大圣出世。' },
   { title: '克制的力量', emoji: '🏯', color: '#e8a820', desc: '真正的强大是知道何时收手。' },
   { title: '霞衣护花', emoji: '🌸', color: '#f5d890', desc: '比很多人更懂得尊重女性。' },
@@ -982,89 +784,6 @@ const starNodes = [
   { title: '永恒大圣', emoji: '🐒', color: '#e8a820', desc: '定海神针，民族图腾。' },
 ];
 
-function buildStarChart() {
-  const container = document.getElementById('starContainer');
-  const linesSvg = document.getElementById('starLines');
-  container.innerHTML = '';
-  linesSvg.innerHTML = '';
-
-  const positions = [
-    { x: 18, y: 25 }, { x: 72, y: 20 }, { x: 25, y: 60 },
-    { x: 70, y: 55 }, { x: 50, y: 40 }, { x: 48, y: 72 }
-  ];
-
-  // Draw connecting lines
-  let pathData = '';
-  positions.forEach((pos, i) => {
-    if (i === 0) pathData += `M${pos.x}% ${pos.y}%`;
-    else pathData += ` L${pos.x}% ${pos.y}%`;
-  });
-  pathData += ` L${positions[0].x}% ${positions[0].y}%`;
-
-  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-  path.setAttribute('d', pathData);
-  path.setAttribute('stroke', 'rgba(232,168,32,0.15)');
-  path.setAttribute('stroke-width', '1');
-  path.setAttribute('fill', 'none');
-  linesSvg.appendChild(path);
-
-  // Create star nodes
-  starNodes.forEach((node, i) => {
-    const star = document.createElement('div');
-    star.className = 'star-node';
-    star.style.left = positions[i].x + '%';
-    star.style.top = positions[i].y + '%';
-    star.style.borderColor = node.color;
-    star.style.background = `radial-gradient(circle at 30% 30%, ${node.color}20, transparent)`;
-    star.style.boxShadow = `0 0 20px ${node.color}20`;
-    star.style.animationDelay = (i * 0.15) + 's';
-    star.textContent = node.emoji;
-
-    star.addEventListener('click', (e) => {
-      e.stopPropagation();
-      showNodeDetail(node, e.clientX, e.clientY);
-    });
-
-    star.addEventListener('mouseenter', () => {
-      // Create particle burst
-      const rect = star.getBoundingClientRect();
-      createNodeParticles(rect.left + 24, rect.top + 24);
-    });
-
-    container.appendChild(star);
-  });
-}
-
-// ===== Node Particle Burst =====
-function createNodeParticles(cx, cy) {
-  for (let i = 0; i < 8; i++) {
-    const angle = (i / 8) * Math.PI * 2;
-    const p = document.createElement('div');
-    p.style.cssText = `
-      position:fixed;z-index:60;pointer-events:none;
-      width:3px;height:3px;border-radius:50%;
-      background:radial-gradient(circle, #fef3c7, #e8a820);
-      left:${cx}px;top:${cy}px;
-      animation:node-spark ${0.8 + Math.random() * 0.8}s ease-out forwards;
-      --angle:${angle}rad;
-      box-shadow:0 0 6px rgba(232,168,32,0.6);
-    `;
-    document.body.appendChild(p);
-    setTimeout(() => p.remove(), 1600);
-  }
-}
-
-// Add spark animation
-const sparkStyle = document.createElement('style');
-sparkStyle.textContent = `
-  @keyframes node-spark {
-    0% { opacity:1; transform: rotate(var(--angle)) translateY(0) scale(1); }
-    100% { opacity:0; transform: rotate(var(--angle)) translateY(-30px) scale(0); }
-  }
-`;
-document.head.appendChild(sparkStyle);
-
-// ===== Show Node Detail (Speech Bubble) =====
 const FALLBACK_QUOTES = {
   '石破天惊': { haiku: '混沌开天地\n灵石迸裂出大圣\n从此不平凡', message: '每一个中国人心中，都有一只等待破石而出的猴子。那是我们与生俱来的反叛精神。', feeling: '觉醒' },
   '克制的力量': { haiku: '可毁天灭地\n却选择收手停住\n真正的强大', message: '真正的力量不是摧毁一切的能力，而是摧毁一切之后选择不摧毁的克制。', feeling: '智慧' },
@@ -1074,145 +793,511 @@ const FALLBACK_QUOTES = {
   '永恒大圣': { haiku: '七十二般变\n不变是赤子之心\n千年如一日', message: '定海神针沉在东海，大圣活在我们心里。每一次看到猴子，就看到了自己。', feeling: '永恒' },
 };
 
-function showNodeDetail(node, x, y) {
-  // Remove existing bubbles
+// ===== State =====
+let currentSceneIdx = 0;
+let isTransitioning = false;
+let audioCtx = null;
+let isMusicPlaying = false;
+let activeSceneMusic = null;
+
+// ===== DOM refs =====
+const scrollContainer = document.getElementById('scrollContainer');
+const transitionOverlay = document.getElementById('transitionOverlay');
+const chapterNav = document.getElementById('chapterNav');
+const musicToggle = document.getElementById('musicToggle');
+const toFinale = document.getElementById('toFinale');
+const starContainer = document.getElementById('starContainer');
+const starLines = document.getElementById('starLines');
+
+// ===== Build Chapter Navigation =====
+CHAPTERS.forEach((ch, i) => {
+  const wrap = document.createElement('div');
+  wrap.className = 'chapter-dot-wrap';
+  wrap.innerHTML = `
+    <div class="chapter-dot${i === 0 ? ' active' : ''}" data-idx="${i}"></div>
+    <span class="chapter-label">${ch.num} · ${ch.title}</span>
+  `;
+  wrap.addEventListener('click', () => navigateToScene(i));
+  chapterNav.appendChild(wrap);
+});
+
+// ===== God Rays =====
+for (let i = 0; i < 3; i++) {
+  const ray = document.createElement('div');
+  ray.className = 'godray';
+  ray.style.left = (25 + i * 25) + '%';
+  ray.style.animationDuration = (14 + i * 5) + 's';
+  ray.style.animationDelay = (i * 4) + 's';
+  ray.style.animation = `godray-sway ${14 + i * 5}s ${i * 4}s infinite ease-in-out`;
+  document.body.appendChild(ray);
+}
+
+// ===== Clouds =====
+for (let i = 0; i < 3; i++) {
+  const cloud = document.createElement('div');
+  cloud.style.cssText = `
+    position:fixed; top:${15 + i * 25}%; width:250px; height:70px;
+    background:radial-gradient(ellipse at center, rgba(232,220,200,0.03), transparent 70%);
+    border-radius:50%; filter:blur(20px);
+    animation:cloud-drift ${55 + i * 25}s ${i * 18}s infinite linear;
+    pointer-events:none; z-index:0;
+  `;
+  document.body.appendChild(cloud);
+}
+
+// ===== 3-Layer Parallax Particle System =====
+function initParticles(scene) {
+  const layers = scene.querySelectorAll('.particle-layer');
+  layers.forEach(layer => {
+    layer.innerHTML = '';
+    const layerClass = layer.dataset.layer;
+    let count, sizeRange, opacityRange;
+
+    switch(layerClass) {
+      case 'near': count = 15; sizeRange = [3, 7]; opacityRange = [0.3, 0.7]; break;
+      case 'mid':  count = 25; sizeRange = [2, 4]; opacityRange = [0.2, 0.5]; break;
+      case 'far':  count = 10; sizeRange = [1, 2]; opacityRange = [0.1, 0.3]; break;
+    }
+
+    for (let i = 0; i < count; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const size = sizeRange[0] + Math.random() * (sizeRange[1] - sizeRange[0]);
+      const isGold = Math.random() > 0.4;
+      p.style.cssText = `
+        width:${size}px; height:${size}px;
+        left:${5 + Math.random() * 90}%;
+        top:${5 + Math.random() * 90}%;
+        background:${isGold
+          ? `radial-gradient(circle, rgba(254,243,199,${opacityRange[1]}), rgba(232,168,32,${opacityRange[0]}))`
+          : `radial-gradient(circle, rgba(245,216,144,${opacityRange[1]*0.7}), rgba(184,141,10,${opacityRange[0]}))`};
+        box-shadow: 0 0 ${size*2}px rgba(232,168,32,${opacityRange[0]*0.5});
+        animation: ${Math.random() > 0.5 ? 'golddust-float' : 'golddust-float'} ${4 + Math.random() * 6}s ${Math.random() * 4}s ease-in-out infinite;
+      `;
+      layer.appendChild(p);
+    }
+  });
+
+  // Fireflies on scenes 3-5 (respect, philosophy, warmth)
+  const sceneIdx = parseInt(scene.dataset.scene);
+  if (sceneIdx >= 2 && sceneIdx <= 4) {
+    createFireflies(scene, 12);
+  }
+}
+
+function createFireflies(scene, count) {
+  for (let i = 0; i < count; i++) {
+    const f = document.createElement('div');
+    const size = 3 + Math.random() * 4;
+    const drx = (Math.random() - 0.5) * 50;
+    const dry = -8 - Math.random() * 12;
+    f.style.cssText = `
+      position:absolute; z-index:2; pointer-events:none;
+      width:${size}px; height:${size}px; border-radius:50%;
+      background:radial-gradient(circle at 40% 40%, #fef3c7, var(--gold-core));
+      left:${10 + Math.random() * 80}%;
+      top:${15 + Math.random() * 75}%;
+      animation:firefly-float ${6 + Math.random() * 10}s ${Math.random() * 8}s infinite ease-in-out;
+      --drift-x:${drx}px; --drift-y:${dry}px;
+      box-shadow:0 0 ${size*3}px rgba(232,168,32,0.3), 0 0 ${size*6}px rgba(232,168,32,0.1);
+    `;
+    scene.appendChild(f);
+  }
+}
+
+// Initialize all scenes
+document.querySelectorAll('.scene').forEach(scene => initParticles(scene));
+
+// ===== Build Star Chart =====
+function buildStarChart() {
+  starContainer.innerHTML = '';
+  starLines.innerHTML = '';
+
+  const positions = [
+    { x: 18, y: 28 }, { x: 72, y: 22 }, { x: 25, y: 62 },
+    { x: 70, y: 58 }, { x: 50, y: 42 }, { x: 48, y: 75 }
+  ];
+
+  // Draw lines
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  let d = '';
+  positions.forEach((p, i) => {
+    d += i === 0 ? `M${p.x}% ${p.y}%` : ` L${p.x}% ${p.y}%`;
+  });
+  d += ` L${positions[0].x}% ${positions[0].y}%`;
+  path.setAttribute('d', d);
+  starLines.appendChild(path);
+
+  // Create nodes
+  STAR_DATA.forEach((star, i) => {
+    const node = document.createElement('div');
+    node.className = 'star-node';
+    node.style.left = positions[i].x + '%';
+    node.style.top = positions[i].y + '%';
+    node.style.borderColor = star.color;
+    node.style.boxShadow = `0 0 20px ${star.color}20`;
+    node.style.animationDelay = (i * 0.12) + 's';
+    node.textContent = star.emoji;
+
+    node.addEventListener('click', (e) => {
+      e.stopPropagation();
+      showStarDetail(star, e.clientX, e.clientY);
+      // Particle burst
+      const rect = node.getBoundingClientRect();
+      createSparkBurst(rect.left + 22, rect.top + 22);
+    });
+
+    starContainer.appendChild(node);
+  });
+}
+
+// ===== Spark Burst =====
+function createSparkBurst(cx, cy) {
+  for (let i = 0; i < 8; i++) {
+    const angle = (i / 8) * Math.PI * 2;
+    const s = document.createElement('div');
+    s.style.cssText = `
+      position:fixed; z-index:300; pointer-events:none;
+      width:3px; height:3px; border-radius:50%;
+      background:radial-gradient(circle, #fef3c7, var(--gold-core));
+      left:${cx}px; top:${cy}px;
+      animation:node-spark ${0.7 + Math.random()*0.8}s ease-out forwards;
+      --angle:${angle}rad;
+      box-shadow:0 0 6px rgba(232,168,32,0.6);
+    `;
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 1600);
+  }
+}
+
+// ===== Speech Bubble =====
+function showStarDetail(star, x, y) {
   document.querySelectorAll('.speech-bubble').forEach(b => b.remove());
 
+  const quote = FALLBACK_QUOTES[star.title] || FALLBACK_QUOTES['永恒大圣'];
   const bubble = document.createElement('div');
   bubble.className = 'speech-bubble';
-
-  const quote = FALLBACK_QUOTES[node.title] || FALLBACK_QUOTES['永恒大圣'];
-
-  bubble.style.left = Math.min(x - 140, window.innerWidth - 300) + 'px';
-  bubble.style.top = Math.max(y - 200, 20) + 'px';
-
+  bubble.style.left = Math.min(x - 135, window.innerWidth - 290) + 'px';
+  bubble.style.top = Math.max(y - 190, 20) + 'px';
   bubble.innerHTML = `
     <button class="close-btn" onclick="this.parentElement.remove()">✕</button>
     <div class="haiku">${quote.haiku}</div>
     <div class="message">${quote.message}</div>
     <span class="feeling">${quote.feeling}</span>
   `;
-
   document.body.appendChild(bubble);
 
-  // Auto fade after 8s
   setTimeout(() => {
     bubble.classList.add('fading-out');
     setTimeout(() => bubble.remove(), 2000);
   }, 8000);
-
-  // Try AI if available
-  fetchAIWisdom(node.title, bubble);
 }
 
-// ===== AI Wisdom (DeepSeek) =====
-async function fetchAIWisdom(title, bubble) {
-  try {
-    const res = await fetch('https://api.deepseek.com/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + (window.DEEPSEEK_KEY || ''),
-      },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [{
-          role: 'system',
-          content: '你是孙悟空，已经成佛。用三行俳句+一段简短箴言回应。语气：豁达、慈悲、有禅意。输出JSON：{"haiku":"三行俳句","message":"箴言","feeling":"一个词"}'
-        }, {
-          role: 'user',
-          content: `关于"${title}"，请给我一段箴言。`
-        }],
-        max_tokens: 200,
-        temperature: 0.8,
-        response_format: { type: 'json_object' }
-      })
-    });
+// ===== Transition Animations =====
+function triggerTransition(fromIdx, toIdx) {
+  const overlay = transitionOverlay;
+  overlay.innerHTML = '';
+  overlay.classList.add('active');
 
-    if (res.ok) {
-      const data = await res.json();
-      const content = JSON.parse(data.choices[0].message.content);
+  // Pick transition type based on scene pair
+  const type = pickTransition(fromIdx, toIdx);
 
-      const haikuEl = bubble.querySelector('.haiku');
-      const msgEl = bubble.querySelector('.message');
-      const feelingEl = bubble.querySelector('.feeling');
+  if (type === 'ink') {
+    const ink = document.createElement('div');
+    ink.className = 'ink-transition';
+    ink.style.left = '50%';
+    ink.style.top = '50%';
+    ink.style.width = '200px';
+    ink.style.height = '200px';
+    ink.style.marginLeft = '-100px';
+    ink.style.marginTop = '-100px';
+    overlay.appendChild(ink);
+    requestAnimationFrame(() => { ink.classList.add('expand'); });
+    setTimeout(() => { overlay.classList.remove('active'); isTransitioning = false; }, 1200);
 
-      if (haikuEl) haikuEl.textContent = content.haiku;
-      if (msgEl) msgEl.textContent = content.message;
-      if (feelingEl) feelingEl.textContent = content.feeling;
+  } else if (type === 'cloud') {
+    const cloud = document.createElement('div');
+    cloud.className = 'cloud-sweep';
+    overlay.appendChild(cloud);
+    requestAnimationFrame(() => { cloud.classList.add('sweep'); });
+    setTimeout(() => { overlay.classList.remove('active'); isTransitioning = false; }, 800);
 
-      // Add AI badge
-      const badge = document.createElement('span');
-      badge.style.cssText = 'font-size:9px;color:var(--text-muted);margin-left:8px;opacity:0.5;';
-      badge.textContent = 'AI';
-      feelingEl.appendChild(badge);
+  } else if (type === 'firefly') {
+    // Create converging fireflies
+    for (let i = 0; i < 8; i++) {
+      const ff = document.createElement('div');
+      ff.className = 'firefly-converge';
+      ff.style.left = (10 + Math.random() * 80) + '%';
+      ff.style.top = (10 + Math.random() * 80) + '%';
+      ff.style.animationDelay = (i * 0.05) + 's';
+      overlay.appendChild(ff);
     }
-  } catch (e) {
-    // Silent fallback — already showing local quotes
-    console.log('AI fallback used:', e.message);
+    requestAnimationFrame(() => {
+      overlay.querySelectorAll('.firefly-converge').forEach(ff => ff.classList.add('converge'));
+    });
+    setTimeout(() => {
+      overlay.querySelectorAll('.firefly-converge').forEach(ff => ff.classList.add('burst'));
+    }, 1000);
+    setTimeout(() => { overlay.classList.remove('active'); isTransitioning = false; }, 1500);
+
+  } else {
+    // Simple fade
+    setTimeout(() => { overlay.classList.remove('active'); isTransitioning = false; }, 300);
   }
 }
 
-// ===== Music Toggle =====
-let audioCtx = null;
-let isMusicPlaying = false;
-let musicNodes = null;
+function pickTransition(from, to) {
+  if (to === 6) return 'firefly'; // Transition to finale
+  if (from === 0) return 'cloud';  // Scene 1→2
+  if (from === 4) return 'firefly'; // Scene 5→6
+  if ((from + to) % 2 === 0) return 'ink';
+  return 'cloud';
+}
+
+// ===== Navigation =====
+function navigateToScene(idx) {
+  if (isTransitioning || idx === currentSceneIdx) return;
+  if (idx < 0 || idx >= CHAPTERS.length) return;
+
+  const prevIdx = currentSceneIdx;
+  currentSceneIdx = idx;
+
+  // Trigger transition
+  if (Math.abs(idx - prevIdx) > 1) {
+    isTransitioning = true;
+    triggerTransition(prevIdx, idx);
+  }
+
+  // Scroll to scene
+  const targetEl = document.getElementById(CHAPTERS[idx].id);
+  if (targetEl) {
+    targetEl.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // Update chapter nav dots
+  updateChapterDots(idx);
+
+  // Change music mood
+  changeMusicMood(idx);
+
+  // Build star chart when reaching finale
+  if (idx === 6) buildStarChart();
+}
+
+function updateChapterDots(idx) {
+  chapterNav.querySelectorAll('.chapter-dot').forEach((dot, i) => {
+    dot.classList.toggle('active', i === idx);
+  });
+}
+
+// ===== Scroll Observer =====
+const sceneObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
+      const sceneEl = entry.target;
+      const idx = parseInt(sceneEl.dataset.scene);
+      if (idx !== currentSceneIdx) {
+        currentSceneIdx = idx;
+        updateChapterDots(idx);
+        changeMusicMood(idx);
+        if (idx === 6) buildStarChart();
+      }
+      sceneEl.classList.add('visible');
+    }
+  });
+}, { threshold: 0.5 });
+
+document.querySelectorAll('.scene').forEach(scene => {
+  sceneObserver.observe(scene);
+  // Mark first scene as visible immediately
+  if (parseInt(scene.dataset.scene) === 0) scene.classList.add('visible');
+});
+
+// ===== Scroll-driven Parallax =====
+scrollContainer.addEventListener('scroll', () => {
+  document.querySelectorAll('.scene').forEach(scene => {
+    const rect = scene.getBoundingClientRect();
+    const sceneH = scene.offsetHeight;
+    // How far this scene is from center (0 = centered, -0.5 = one scene above, 0.5 = one below)
+    const progress = -rect.top / sceneH;
+
+    if (progress >= -0.5 && progress <= 1.5) {
+      // Move particle layers at different speeds
+      const nearLayer = scene.querySelector('.particle-layer-near');
+      const midLayer = scene.querySelector('.particle-layer-mid');
+      const farLayer = scene.querySelector('.particle-layer-far');
+
+      if (nearLayer) nearLayer.style.transform = `translateY(${progress * -60}px)`;
+      if (midLayer) midLayer.style.transform = `translateY(${progress * -30}px)`;
+      if (farLayer) farLayer.style.transform = `translateY(${progress * -10}px)`;
+    }
+  });
+});
+
+// ===== Keyboard Navigation =====
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
+    e.preventDefault();
+    if (currentSceneIdx < CHAPTERS.length - 1) {
+      navigateToScene(currentSceneIdx + 1);
+    }
+  } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+    e.preventDefault();
+    if (currentSceneIdx > 0) {
+      navigateToScene(currentSceneIdx - 1);
+    }
+  } else if (e.key === 'Home') {
+    e.preventDefault();
+    navigateToScene(0);
+  } else if (e.key === 'End') {
+    e.preventDefault();
+    navigateToScene(6);
+  }
+});
+
+// ===== Touch gestures (mobile swipe) =====
+let touchStartY = 0;
+document.addEventListener('touchstart', (e) => {
+  touchStartY = e.touches[0].clientY;
+}, { passive: true });
+
+document.addEventListener('touchend', (e) => {
+  if (isTransitioning) return;
+  const deltaY = touchStartY - e.changedTouches[0].clientY;
+  if (Math.abs(deltaY) > 60) {
+    if (deltaY > 0 && currentSceneIdx < CHAPTERS.length - 1) {
+      navigateToScene(currentSceneIdx + 1);
+    } else if (deltaY < 0 && currentSceneIdx > 0) {
+      navigateToScene(currentSceneIdx - 1);
+    }
+  }
+});
+
+// ===== Wheel with debounce for transitions =====
+let wheelDebounce = 0;
+scrollContainer.addEventListener('wheel', (e) => {
+  const now = Date.now();
+  if (Math.abs(e.deltaY) > 100 && now - wheelDebounce > 1500 && !isTransitioning) {
+    wheelDebounce = now;
+    const prevIdx = currentSceneIdx;
+    const nextIdx = e.deltaY > 0
+      ? Math.min(currentSceneIdx + 1, CHAPTERS.length - 1)
+      : Math.max(currentSceneIdx - 1, 0);
+    if (nextIdx !== prevIdx && Math.abs(nextIdx - prevIdx) === 1) {
+      isTransitioning = true;
+      triggerTransition(prevIdx, nextIdx);
+    }
+  }
+}, { passive: true });
+
+// ===== Music System =====
+const SCENE_MUSIC_MOODS = [
+  'chaos', 'wisdom', 'respect', 'philosophy', 'warmth', 'eternal', 'finale'
+];
 
 function initAudio() {
   if (audioCtx) return;
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
 
-  // Create a simple pentatonic melody loop using oscillators
-  const masterGain = audioCtx.createGain();
-  masterGain.gain.value = 0.06;
-  masterGain.connect(audioCtx.destination);
+function changeMusicMood(sceneIdx) {
+  if (!audioCtx || !isMusicPlaying) return;
 
-  // Pentatonic scale frequencies (C4-based): C D E G A
-  const notes = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25];
-  const melody = [
-    { note: 4, dur: 0.6 }, { note: 2, dur: 0.3 }, { note: 0, dur: 0.5 },
-    { note: 3, dur: 0.6 }, { note: 5, dur: 0.4 }, { note: 7, dur: 0.7 },
-    { note: 4, dur: 0.5 }, { note: 2, dur: 0.3 }, { note: 1, dur: 0.6 },
-    { note: 0, dur: 0.8 },
-  ];
-
-  let noteIndex = 0;
-  function playNextNote() {
-    if (!isMusicPlaying || !audioCtx) return;
-
-    const { note, dur } = melody[noteIndex];
-    const osc = audioCtx.createOscillator();
-    const noteGain = audioCtx.createGain();
-
-    osc.type = Math.random() > 0.7 ? 'sine' : 'triangle';
-    osc.frequency.value = notes[note];
-    noteGain.gain.setValueAtTime(0.03, audioCtx.currentTime);
-    noteGain.gain.linearRampToValueAtTime(0.08, audioCtx.currentTime + 0.1);
-    noteGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + dur);
-
-    // Add reverb-like echo
-    const echo = audioCtx.createOscillator();
-    const echoGain = audioCtx.createGain();
-    echo.type = 'sine';
-    echo.frequency.value = notes[note] * 2;
-    echoGain.gain.setValueAtTime(0.015, audioCtx.currentTime);
-    echoGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + dur * 0.5);
-
-    osc.connect(noteGain);
-    noteGain.connect(masterGain);
-    echo.connect(echoGain);
-    echoGain.connect(masterGain);
-
-    osc.start(audioCtx.currentTime);
-    echo.start(audioCtx.currentTime);
-    osc.stop(audioCtx.currentTime + dur);
-    echo.stop(audioCtx.currentTime + dur * 0.5);
-
-    noteIndex = (noteIndex + 1) % melody.length;
-    setTimeout(playNextNote, dur * 1000 * 0.9);
+  // Clear existing scene music
+  if (activeSceneMusic) {
+    try { activeSceneMusic.gain.gain.value = 0; } catch(e) {}
+    setTimeout(() => {
+      try { activeSceneMusic.osc.forEach(o => o.stop()); } catch(e) {}
+      activeSceneMusic = null;
+    }, 200);
   }
 
-  playNextNote();
+  playSceneMusic(sceneIdx);
+}
+
+function playSceneMusic(sceneIdx) {
+  if (!audioCtx) return;
+
+  const mood = SCENE_MUSIC_MOODS[sceneIdx];
+  const masterGain = audioCtx.createGain();
+  masterGain.gain.value = 0.05;
+  masterGain.connect(audioCtx.destination);
+
+  // Different pentatonic bases per mood
+  const baseNote = { chaos: 261.63, wisdom: 293.66, respect: 329.63, philosophy: 392.00, warmth: 440.00, eternal: 523.25, finale: 293.66 }[mood] || 329.63;
+
+  const pentatonic = [0, 2, 4, 7, 9].map(s => baseNote * Math.pow(2, s/12));
+  const allNotes = [...pentatonic, ...pentatonic.map(n => n * 2)];
+
+  const oscs = [];
+  let noteIdx = 0;
+
+  const melodyPatterns = {
+    chaos: [4, 2, 0, 3, 5, 7, 4, 2],
+    wisdom: [0, 2, 3, 5, 3, 2, 0, 2],
+    respect: [3, 5, 7, 5, 3, 2, 0, 3],
+    philosophy: [7, 5, 4, 5, 7, 5, 3, 2],
+    warmth: [0, 3, 5, 7, 5, 3, 0, 3],
+    eternal: [4, 7, 5, 7, 4, 7, 5, 2],
+    finale: [3, 5, 7, 5, 3, 2, 0, 3],
+  };
+
+  const durations = {
+    chaos: [0.5, 0.3, 0.6, 0.4, 0.8, 0.5, 0.6, 0.7],
+    wisdom: [0.8, 0.6, 0.4, 0.6, 0.8, 0.6, 0.4, 0.6],
+    respect: [0.6, 0.4, 0.5, 0.6, 0.4, 0.5, 0.6, 0.5],
+    philosophy: [0.7, 0.5, 0.6, 0.4, 0.7, 0.5, 0.6, 0.5],
+    warmth: [0.9, 0.6, 0.7, 0.5, 0.9, 0.6, 0.7, 0.6],
+    eternal: [0.6, 0.5, 0.7, 0.5, 0.6, 0.5, 0.7, 0.5],
+    finale: [0.8, 0.6, 0.5, 0.7, 0.8, 0.6, 0.5, 0.6],
+  };
+
+  const pattern = melodyPatterns[mood] || melodyPatterns.wisdom;
+  const durs = durations[mood] || durations.wisdom;
+
+  function playNote() {
+    if (!isMusicPlaying || !audioCtx || activeSceneMusic?.gain?.gain?.value === 0) {
+      oscs.forEach(o => { try { o.stop(); } catch(e) {} });
+      return;
+    }
+
+    const note = pattern[noteIdx % pattern.length];
+    const dur = durs[noteIdx % durs.length];
+
+    const osc = audioCtx.createOscillator();
+    const noteGain = audioCtx.createGain();
+    osc.type = mood === 'chaos' || mood === 'eternal' ? 'sawtooth' : 'triangle';
+    osc.frequency.value = allNotes[note];
+    noteGain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+    noteGain.gain.linearRampToValueAtTime(0.06, audioCtx.currentTime + 0.08);
+    noteGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + dur);
+    osc.connect(noteGain);
+    noteGain.connect(masterGain);
+    osc.start(audioCtx.currentTime);
+    osc.stop(audioCtx.currentTime + dur);
+    oscs.push(osc);
+
+    // Echo for ambiance
+    if (Math.random() > 0.5) {
+      const echo = audioCtx.createOscillator();
+      const echoGain = audioCtx.createGain();
+      echo.type = 'sine';
+      echo.frequency.value = allNotes[note] * 1.5;
+      echoGain.gain.setValueAtTime(0.01, audioCtx.currentTime + 0.05);
+      echoGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + dur * 0.6);
+      echo.connect(echoGain);
+      echoGain.connect(masterGain);
+      echo.start(audioCtx.currentTime);
+      echo.stop(audioCtx.currentTime + dur * 0.6);
+      oscs.push(echo);
+    }
+
+    noteIdx++;
+    setTimeout(playNote, dur * 900);
+  }
+
+  playNote();
+  activeSceneMusic = { gain: masterGain, osc: oscs };
 }
 
 musicToggle.addEventListener('click', () => {
@@ -1221,6 +1306,7 @@ musicToggle.addEventListener('click', () => {
     isMusicPlaying = true;
     musicToggle.classList.remove('muted');
     musicToggle.textContent = '♪';
+    playSceneMusic(currentSceneIdx);
   } else if (isMusicPlaying) {
     audioCtx.suspend();
     isMusicPlaying = false;
@@ -1231,90 +1317,21 @@ musicToggle.addEventListener('click', () => {
     isMusicPlaying = true;
     musicToggle.classList.remove('muted');
     musicToggle.textContent = '♪';
+    playSceneMusic(currentSceneIdx);
   }
 });
 
-// ===== Skip Hint =====
-skipHint.addEventListener('click', () => {
-  if (currentScene < SCENES.length - 1) {
-    // Skip to last scene
-    skipToScene(SCENES.length - 1);
-  } else {
-    showFinale();
-  }
-});
+// ===== To Finale (click on Scene 6 CTA) =====
+toFinale.addEventListener('click', () => navigateToScene(6));
 
-// ===== To Finale =====
-toFinale.addEventListener('click', showFinale);
+// ===== Initial State =====
+buildStarChart();
+updateChapterDots(0);
 
-// ===== Back to Film =====
-backToFilm.addEventListener('click', () => {
-  finale.classList.remove('active');
-  // Remove finale elements
-  document.querySelectorAll('.speech-bubble').forEach(b => b.remove());
-  document.getElementById('starContainer').innerHTML = '';
-  document.getElementById('starLines').innerHTML = '';
-
-  // Restart from scene 1
-  isViewing = true;
-  showScene(0);
-});
-
-// ===== Keyboard Controls =====
-document.addEventListener('keydown', (e) => {
-  if (!isViewing) return;
-  if (e.key === 'ArrowRight' || e.key === ' ') {
-    e.preventDefault();
-    if (currentScene < SCENES.length - 1) {
-      skipToScene(currentScene + 1);
-    } else {
-      showFinale();
-    }
-  } else if (e.key === 'ArrowLeft') {
-    e.preventDefault();
-    if (currentScene > 0) skipToScene(currentScene - 1);
-  } else if (e.key === 'Escape') {
-    if (!isViewing) {
-      backToFilm.click();
-    }
-  }
-});
-
-// ===== Click to advance (on scenes) =====
-document.addEventListener('click', (e) => {
-  if (!isViewing) return;
-  // Don't advance if clicking on dots or skip
-  if (e.target.closest('.progress-dots') || e.target.closest('.skip-hint') || e.target.closest('.music-toggle')) return;
-
-  const elapsed = Date.now() - sceneStartTime;
-  if (elapsed < 1500) return; // Minimum 1.5s per scene
-
-  if (currentScene < SCENES.length - 1) {
-    skipToScene(currentScene + 1);
-  } else if (elapsed > 3000) {
-    showFinale();
-  }
-});
-
-// ===== Initialize =====
-createGodRays();
-createClouds();
-
-// Set initial progress
-progressBar.style.width = (1 / SCENES.length * 100) + '%';
-document.querySelector('.progress-dot').classList.add('active');
-
-// Start!
-showScene(0);
-
-// Preload next scene hint
-setTimeout(() => {
-  skipHint.classList.add('visible');
-}, 4000);
-
-console.log('🐒 孙悟空 · 永恒大圣 — 已就绪');
-console.log('   空格/右键 → 前进 | 左键 → 后退 | 点击屏幕 → 前进');
-console.log('   右下角 → 快进 | 左下角 → 音乐');
+console.log('🐒 孙悟空 · 永恒大圣 v2 — 滚动驱动叙事');
+console.log('   滚动/↓键 → 前进 | ↑键 → 后退 | Home/End → 首/尾');
+console.log('   右侧圆点 → 跳转章节 | 右下角 → 音乐');
+console.log('   触摸滑动 → 切换场景');
 </script>
 
 </body>
