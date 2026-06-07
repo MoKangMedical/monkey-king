@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>孙悟空 · 永恒大圣 — 十二幕星辰画卷</title>
+<meta name="description" content="中国人会在不同人生阶段，反复爱上孙悟空。十二幕沉浸式叙事体验，探索齐天大圣的智慧、力量、柔情与永恒。">
+<meta property="og:title" content="孙悟空 · 永恒大圣">
+<meta property="og:description" content="十二幕叙事体验，探索大圣的智慧与永恒。">
+<meta property="og:type" content="website">
+<style>
+/* ===== Design Tokens — Spirited Away + Imperial Gold ===== */
+:root {
+  --gold-core: #e8a820; --gold-light: #f5d890; --gold-deep: #b8860b; --gold-glow: #fef3c7;
+  --ink-deep: #060f18; --ink-mid: #0d1a28; --ink-surface: #13212f;
+  --bridge-red: #c0392b; --jade: #1e8568; --spirit-blue: #4a90b8;
+  --cloud: #e8dcc8; --text-warm: #f5efe0; --text-soft: #b8ad9a; --text-muted: #7a7062;
+  --serif: 'Noto Serif SC','Source Han Serif SC','STSong',serif;
+  --sans: 'Inter','PingFang SC','Microsoft YaHei',sans-serif;
+  --radius: 2px; --radius-sm: 1px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-tap-highlight-color:transparent;-webkit-overflow-scrolling:touch}
+body{font-family:var(--sans);background:var(--ink-deep);color:var(--text-warm);overflow:hidden;overscroll-behavior:none}
+body.loaded{overflow:auto}
+
+/* ===== Washi Paper Texture ===== */
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.025;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04 0.06' numOctaves='5'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:200px 200px;mix-blend-mode:overlay}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.012;
+  background-image:repeating-linear-gradient(0deg,rgba(232,220,200,.012) 0px,rgba(232,220,200,.012) 1px,transparent 1px,transparent 60px),
+    repeating-linear-gradient(90deg,rgba(232,220,200,.012) 0px,rgba(232,220,200,.012) 1px,transparent 1px,transparent 60px);
+  mask-image:radial-gradient(ellipse at 50% 0%,black 35%,transparent 75%)}
+
+/* ===== Loading Screen ===== */
+#loadingScreen{position:fixed;inset:0;z-index:9999;background:var(--ink-deep);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .8s ease}
+#loadingScreen.hidden{opacity:0;pointer-events:none}
+#loadingScreen canvas{position:absolute;inset:0;width:100%;height:100%}
+.loading-text{position:relative;z-index:1;font-family:var(--serif);font-size:20px;color:var(--gold-core);opacity:0;transition:opacity 1s ease;letter-spacing:.15em}
+.loading-text.show{opacity:.8}
+
+/* ===== God Rays ===== */
+.godray{position:fixed;top:-20%;width:2px;height:80vh;z-index:0;pointer-events:none;filter:blur(8px);
+  background:linear-gradient(180deg,rgba(232,168,32,.04),transparent)}
+@keyframes godray-sway{0%,100%{transform:rotate(-12deg);opacity:.3}50%{transform:rotate(-8deg);opacity:.7}}
+
+/* ===== Ghibli Fireflies ===== */
+.firefly{position:fixed;border-radius:50%;pointer-events:none;z-index:1;
+  background:radial-gradient(circle at 40% 40%,#fef3c7,#e2b64f)}
+@keyframes firefly-float{0%{opacity:0;transform:translate(0,0) scale(.8)}15%{opacity:.7;transform:translate(calc(var(--drift,0px)*.6),-12px) scale(1.2)}30%{opacity:.3;transform:translate(calc(var(--drift,0px)*1.2),-6px) scale(.9)}45%{opacity:.8;transform:translate(calc(var(--drift,0px)*.3),-18px) scale(1.1)}60%{opacity:.2;transform:translate(calc(var(--drift,0px)*-.4),-3px) scale(.85)}75%{opacity:.6;transform:translate(calc(var(--drift,0px)*.7),-14px) scale(1)}90%{opacity:.1;transform:translate(calc(var(--drift,0px)*-.8),-8px) scale(.9)}100%{opacity:0;transform:translate(0,2px) scale(.7)}}
+
+/* ===== Scroll Container ===== */
+.scroll-container{height:100vh;height:100dvh;overflow-y:scroll;scroll-snap-type:y mandatory;scroll-behavior:smooth;position:relative;z-index:1;opacity:0;transition:opacity .5s ease}
+body.loaded .scroll-container{opacity:1}
+.scroll-container::-webkit-scrollbar{width:0}
+
+/* ===== Scene ===== */
+.scene{height:100vh;height:100dvh;scroll-snap-align:start;scroll-snap-stop:always;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;padding:2rem}
+.scene-bg{position:absolute;inset:0;z-index:0}
+.scene-canvas{position:absolute;inset:0;z-index:0;pointer-events:none}
+
+/* Scene-specific backgrounds */
+#scene1 .scene-bg{background:radial-gradient(ellipse at 30% 40%,rgba(232,168,32,.08) 0%,transparent 60%),radial-gradient(ellipse at 70% 60%,rgba(192,57,43,.05) 0%,transparent 50%),var(--ink-deep)}
+#scene2 .scene-bg{background:radial-gradient(ellipse at 50% 30%,rgba(232,168,32,.1) 0%,transparent 50%),radial-gradient(ellipse at 50% 80%,rgba(30,133,104,.04) 0%,transparent 40%),var(--ink-mid)}
+#scene3 .scene-bg{background:radial-gradient(ellipse at 40% 50%,rgba(245,216,144,.06) 0%,transparent 50%),radial-gradient(ellipse at 60% 30%,rgba(232,168,32,.05) 0%,transparent 40%),var(--ink-deep)}
+#scene4 .scene-bg{background:radial-gradient(ellipse at 50% 20%,rgba(245,216,144,.04) 0%,transparent 50%),radial-gradient(ellipse at 50% 70%,rgba(30,133,104,.05) 0%,transparent 40%),var(--ink-mid)}
+#scene5 .scene-bg{background:radial-gradient(ellipse at 30% 40%,rgba(232,168,32,.07) 0%,transparent 50%),radial-gradient(ellipse at 70% 60%,rgba(245,216,144,.05) 0%,transparent 40%),var(--ink-deep)}
+#scene6 .scene-bg{background:radial-gradient(ellipse at 50% 30%,rgba(232,168,32,.12) 0%,transparent 40%),radial-gradient(ellipse at 50% 80%,rgba(245,216,144,.08) 0%,transparent 40%),var(--ink-mid)}
+#scene7 .scene-bg{background:radial-gradient(ellipse at 50% 50%,rgba(192,57,43,.08) 0%,transparent 50%),radial-gradient(ellipse at 30% 70%,rgba(232,168,32,.06) 0%,transparent 40%),var(--ink-deep)}
+#scene8 .scene-bg{background:radial-gradient(ellipse at 50% 20%,rgba(74,144,184,.06) 0%,transparent 50%),radial-gradient(ellipse at 50% 80%,rgba(232,168,32,.08) 0%,transparent 40%),var(--ink-mid)}
+#scene9 .scene-bg{background:radial-gradient(ellipse at 40% 30%,rgba(232,168,32,.1) 0%,transparent 50%),radial-gradient(ellipse at 60% 70%,rgba(30,133,104,.05) 0%,transparent 40%),var(--ink-deep)}
+#scene10 .scene-bg{background:radial-gradient(ellipse at 50% 40%,rgba(232,168,32,.15) 0%,transparent 40%),radial-gradient(ellipse at 50% 70%,rgba(245,216,144,.1) 0%,transparent 40%),var(--ink-mid)}
+#scene11 .scene-bg{background:radial-gradient(ellipse at 50% 30%,rgba(192,57,43,.07) 0%,transparent 50%),radial-gradient(ellipse at 30% 60%,rgba(232,168,32,.1) 0%,transparent 40%),var(--ink-deep)}
+#scene-finale .scene-bg{background:radial-gradient(ellipse at 50% 30%,rgba(232,168,32,.08) 0%,transparent 40%),radial-gradient(ellipse at 80% 60%,rgba(74,144,184,.05) 0%,transparent 40%),radial-gradient(ellipse at 20% 80%,rgba(30,133,104,.04) 0%,transparent 40%),var(--ink-deep)}
+
+/* ===== Scene Content ===== */
+.scene-content{position:relative;z-index:10;text-align:center;max-width:700px;width:100%}
+.scene-num{font-family:var(--serif);font-size:clamp(48px,10vw,96px);font-weight:900;color:transparent;-webkit-text-stroke:1px rgba(232,168,32,.12);position:absolute;top:1.5rem;right:1.5rem;z-index:5;line-height:1;pointer-events:none}
+.silhouette{position:absolute;font-size:clamp(80px,20vw,200px);opacity:.03;pointer-events:none;z-index:1}
+.scene-title{font-family:var(--serif);font-size:clamp(32px,8vw,64px);font-weight:900;color:var(--gold-core);margin-bottom:.3em;letter-spacing:.06em;
+  text-shadow:0 0 40px rgba(232,168,32,.15),0 0 80px rgba(232,168,32,.08)}
+.scene-subtitle{font-size:clamp(15px,3vw,18px);color:var(--text-soft);line-height:1.85;margin-bottom:1.2em;font-family:var(--serif)}
+.scene-quote{font-family:var(--serif);font-size:clamp(18px,4vw,26px);color:var(--gold-light);font-style:italic;margin:1em 0;line-height:1.7;
+  text-shadow:0 0 20px rgba(232,168,32,.1)}
+.scene-detail{font-size:14px;color:var(--text-muted);line-height:1.9;max-width:500px;margin:0 auto}
+
+/* ===== Gold Frame ===== */
+.gold-frame{margin:1em auto;display:flex;flex-direction:column;gap:10px;max-width:520px}
+.frame-item{display:flex;align-items:center;gap:10px;padding:12px 18px;background:rgba(255,255,255,.02);border:1px solid rgba(232,168,32,.08);border-radius:var(--radius);font-size:14px;color:var(--text-soft);text-align:left;transition:all .3s}
+.frame-item:hover{background:rgba(232,168,32,.04);border-color:rgba(232,168,32,.2)}
+.frame-emoji{font-size:20px;flex-shrink:0}
+.frame-highlight{color:var(--gold-core);font-weight:600}
+
+/* ===== 4-Layer Halo Fireflies (in-scene) ===== */
+.scene-firefly{position:absolute;border-radius:50%;pointer-events:none;z-index:2;
+  background:radial-gradient(circle at 40% 40%,#fef9c3,#e8a820)}
+.scene-firefly .halo{position:absolute;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none}
+@keyframes scene-ff-float{0%,100%{opacity:.3;transform:translate(0,0)}25%{opacity:.8;transform:translate(8px,-16px)}50%{opacity:.4;transform:translate(-4px,-8px)}75%{opacity:.7;transform:translate(6px,-20px)}}
+
+/* ===== Gold Dust ===== */
+@keyframes golddust-float{0%{opacity:0;transform:translate(0,0)}20%{opacity:.6}40%{transform:translate(8px,-12px);opacity:.3}60%{transform:translate(-4px,-6px);opacity:.7}80%{opacity:.2;transform:translate(3px,-16px)}100%{opacity:0;transform:translate(-2px,-8px)}}
+
+/* ===== Scene Enter Animations ===== */
+.scene-content>*{opacity:0;transform:translateY(24px);transition:all .8s cubic-bezier(.16,1,.3,1)}
+.scene.visible .scene-content>*{opacity:1;transform:translateY(0)}
+.scene.visible .scene-content>*:nth-child(1){transition-delay:.1s}
+.scene.visible .scene-content>*:nth-child(2){transition-delay:.25s}
+.scene.visible .scene-content>*:nth-child(3){transition-delay:.4s}
+.scene.visible .scene-content>*:nth-child(4){transition-delay:.55s}
+.scene.visible .scene-content>*:nth-child(5){transition-delay:.7s}
+
+/* ===== Chapter Nav ===== */
+.chapter-nav{position:fixed;right:clamp(8px,3vw,20px);top:50%;transform:translateY(-50%);z-index:100;display:flex;flex-direction:column;gap:clamp(8px,2vh,16px)}
+.chapter-dot-wrap{display:flex;align-items:center;gap:8px;cursor:pointer;position:relative}
+.chapter-dot{width:clamp(6px,1.5vw,10px);height:clamp(6px,1.5vw,10px);border-radius:50%;background:rgba(255,255,255,.15);transition:all .3s;flex-shrink:0}
+.chapter-dot.active{background:var(--gold-core);box-shadow:0 0 12px rgba(232,168,32,.5);transform:scale(1.4)}
+.chapter-dot-wrap:hover .chapter-dot{background:rgba(232,168,32,.5);transform:scale(1.2)}
+.chapter-label{font-size:11px;color:var(--text-muted);white-space:nowrap;opacity:0;transform:translateX(8px);transition:all .3s;position:absolute;right:24px}
+.chapter-dot-wrap:hover .chapter-label{opacity:1;transform:translateX(0)}
+
+/* ===== Music ===== */
+.music-toggle{position:fixed;bottom:clamp(16px,4vh,32px);left:clamp(16px,4vw,32px);z-index:100;width:44px;height:44px;border-radius:50%;background:rgba(6,15,24,.85);border:1px solid rgba(255,255,255,.08);color:var(--gold-core);font-size:20px;cursor:pointer;transition:all .3s;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.music-toggle:hover{background:rgba(232,168,32,.15);border-color:rgba(232,168,32,.3)}
+.music-toggle.muted{color:var(--text-muted)}
+
+/* ===== Scroll Hint ===== */
+.scroll-hint{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--text-muted);font-size:11px;letter-spacing:.1em;z-index:5;animation:scroll-pulse 2s ease-in-out infinite}
+@keyframes scroll-pulse{0%,100%{opacity:.4}50%{opacity:.8}}
+.scroll-hint .arrow{width:1px;height:24px;background:linear-gradient(180deg,transparent,var(--gold-core));animation:arrow-scan 2s ease-in-out infinite}
+@keyframes arrow-scan{0%,100%{transform:scaleY(.3);opacity:.2}50%{transform:scaleY(1);opacity:.6}}
+
+/* ===== Transition ===== */
+.transition-overlay{position:fixed;inset:0;z-index:500;background:var(--gold-core);opacity:0;pointer-events:none;transition:opacity .4s ease}
+.transition-overlay.active{opacity:.15}
+
+/* ===== Star Chart ===== */
+.star-dot{position:absolute;border-radius:50%;cursor:pointer;transition:all .3s;z-index:6}
+.star-dot:hover{transform:scale(2.5);box-shadow:0 0 20px var(--gold-core),0 0 60px rgba(232,168,32,.3)}
+.star-lines{position:absolute;inset:0;z-index:4;pointer-events:none}
+.star-line{stroke:rgba(232,168,32,.06);stroke-width:1;fill:none}
+.star-card{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.9);z-index:200;background:rgba(6,15,24,.97);border:1px solid rgba(232,168,32,.2);border-radius:var(--radius);padding:28px 32px;max-width:320px;text-align:center;opacity:0;pointer-events:none;transition:all .4s cubic-bezier(.16,1,.3,1);
+  box-shadow:0 0 40px rgba(232,168,32,.08),0 8px 32px rgba(0,0,0,.5)}
+.star-card.show{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
+.star-card-haiku{font-family:var(--serif);font-size:18px;color:var(--gold-core);line-height:1.8;margin-bottom:12px}
+.star-card-msg{font-size:13px;color:var(--text-soft);line-height:1.7;margin-bottom:8px}
+.star-card-feeling{font-size:11px;color:var(--gold-light);letter-spacing:.1em}
+.star-card-close{position:absolute;top:8px;right:12px;background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer}
+
+/* ===== Chat Widget ===== */
+.chat-widget{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);z-index:20;width:min(90vw,420px)}
+.chat-response{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;opacity:0;transform:translateY(8px);transition:all .4s}
+.chat-response.show{opacity:1;transform:translateY(0)}
+.chat-avatar{font-size:28px;flex-shrink:0}
+.chat-text{font-size:14px;color:var(--text-warm);line-height:1.8;background:rgba(255,255,255,.03);border:1px solid rgba(232,168,32,.1);border-radius:var(--radius);padding:12px 16px;flex:1}
+.chat-label{font-size:10px;color:var(--gold-light);margin-top:4px;letter-spacing:.1em}
+.chat-input-wrap{display:flex;gap:6px}
+.chat-input{flex:1;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);padding:10px 14px;color:var(--text-warm);font-size:14px;outline:none;transition:border-color .3s}
+.chat-input:focus{border-color:rgba(232,168,32,.3)}
+.chat-input::placeholder{color:var(--text-muted)}
+.chat-send{background:var(--gold-core);color:var(--ink-deep);border:none;border-radius:var(--radius);padding:10px 16px;font-weight:700;cursor:pointer;transition:all .3s}
+.chat-send:hover{background:var(--gold-light)}
+.chat-send:disabled{opacity:.4;cursor:not-allowed}
+.chat-hint{text-align:center;font-size:10px;color:var(--text-muted);margin-top:8px;letter-spacing:.05em}
+
+/* ===== To Finale CTA ===== */
+.to-finale{display:inline-block;margin-top:1.5em;padding:12px 28px;background:rgba(232,168,32,.08);border:1px solid rgba(232,168,32,.2);border-radius:var(--radius);color:var(--gold-core);font-family:var(--serif);font-size:16px;cursor:pointer;transition:all .3s;letter-spacing:.08em}
+.to-finale:hover{background:rgba(232,168,32,.18);border-color:rgba(232,168,32,.4);transform:translateY(-2px);box-shadow:0 8px 24px rgba(232,168,32,.1)}
+
+/* ===== Responsive ===== */
+@media(max-width:768px){
+  .scene{padding:1.2rem}
+  .scene-num{font-size:48px;top:.6rem;right:.6rem}
+  .chat-widget{bottom:1rem;width:calc(100vw - 2rem)}
+  .chapter-nav{right:4px;gap:6px}
+  .chapter-dot{width:5px;height:5px}
+}
+
+/* ===== Particle Layers ===== */
+.particle-layer{position:absolute;inset:0;pointer-events:none;z-index:1}
+</style>
+</head>
+<body>
+
+<!-- Loading Screen -->
+<div id="loadingScreen">
+  <canvas id="loadingCanvas"></canvas>
+  <div class="loading-text" id="loadingText">大 圣 归 来</div>
+</div>
+
+<!-- Transition Overlay -->
+<div class="transition-overlay" id="transitionOverlay"></div>
+
+<!-- Chapter Nav -->
+<nav class="chapter-nav" id="chapterNav"></nav>
+
+<!-- Music Toggle -->
+<button class="music-toggle muted" id="musicToggle" title="配乐">♪</button>
+
+<!-- Ghibli Atmosphere -->
+<div id="ghibliLayer"></div>
+
+<!-- ===== SCROLL CONTAINER ===== -->
+<div class="scroll-container" id="scrollContainer">
+
+<!-- 壹：石破天惊 -->
+<section class="scene" id="scene1" data-scene="0">
+  <canvas class="scene-canvas" data-effect="lightning"></canvas>
+  <div class="scene-bg"></div><div class="scene-num">壹</div>
+  <div class="silhouette" style="top:20%;left:10%">🐒</div>
+  <div class="scene-content">
+    <h1 class="scene-title">石破天惊</h1>
+    <p class="scene-subtitle">混沌初开，灵石迸裂。一只猴子从石头里跳出来，从此天地间多了一个大圣。</p>
+    <p class="scene-quote">"我老孙来也！"</p>
+    <p class="scene-detail">大闹天宫，不过是想要一个答案——凭什么有人天生就是神仙，而我只能当弼马温？这一闹，闹出了中国人心中最原始的反抗精神。</p>
+  </div>
+  <div class="scroll-hint"><span>向下滚动</span><div class="arrow"></div></div>
+</section>
+
+<!-- 贰：克制的力量 -->
+<section class="scene" id="scene2" data-scene="1">
+  <canvas class="scene-canvas" data-effect="clouds"></canvas>
+  <div class="scene-bg"></div><div class="scene-num">贰</div>
+  <div class="silhouette" style="top:10%;right:5%">☁️</div>
+  <div class="scene-content">
+    <h1 class="scene-title">克制的力量</h1>
+    <p class="scene-subtitle">真正的强大不是毁天灭地，而是明明可以，却选择不。</p>
+    <div class="gold-frame">
+      <div class="frame-item"><span class="frame-emoji">🏯</span>大闹天宫时醉酒，<span class="frame-highlight">未毁天宫</span>——心中有尺</div>
+      <div class="frame-item"><span class="frame-emoji">🍑</span>定住七仙女后，<span class="frame-highlight">仅吃桃子</span>——色即是空</div>
+      <div class="frame-item"><span class="frame-emoji">⛰️</span>五行山下五百年，<span class="frame-highlight">未曾黑化</span>——豁达如初</div>
+    </div>
+    <p class="scene-quote">"大圣这一生，最难的不是闹天宫，而是闹完之后还能收得住。"</p>
+    <p class="scene-detail">五百年的孤独，足以让任何人走向黑暗。但大圣没有——他依然是那个想吃就吃、想笑就笑的美猴王。这才是真正的力量。</p>
+  </div>
+</section>
+
+<!-- 叁：霞衣护花 -->
+<section class="scene" id="scene3" data-scene="2">
+  <canvas class="scene-canvas" data-effect="petals"></canvas>
+  <div class="scene-bg"></div><div class="scene-num">叁</div>
+  <div class="silhouette" style="bottom:15%;left:5%">🌸</div>
+  <div class="scene-content">
+    <h1 class="scene-title">霞衣护花</h1>
+    <p class="scene-subtitle">一只猴子，比很多人更懂得如何尊重女性。</p>
+    <div class="gold-frame">
+      <div class="frame-item"><span class="frame-emoji">👑</span>救金圣宫娘娘时，<span class="frame-highlight">让国王见证真相</span>——不越界、不冒犯</div>
+      <div class="frame-item"><span class="frame-emoji">🧥</span>用霞衣保护女性清白，<span class="frame-highlight">超越时代的超前意识</span></div>
+      <div class="frame-item"><span class="frame-emoji">💧</span>化身女性救投河者，<span class="frame-highlight">深刻的共情能力</span></div>
+    </div>
+    <p class="scene-quote">"妖精也有好妖精，人也有坏人。"</p>
+    <p class="scene-detail">在那个女性地位低下的时代，一只猴子用行动证明：真正的强者从不欺压弱者，而是保护弱者。</p>
+  </div>
+</section>
+
+<!-- 肆：天地本不全 -->
+<section class="scene" id="scene4" data-scene="3">
+  <canvas class="scene-canvas" data-effect="stars"></canvas>
+  <div class="scene-bg"></div><div class="scene-num">肆</div>
+  <div class="silhouette" style="top:5%;right:10%">⭐</div>
+  <div class="scene-content">
+    <h1 class="scene-title">天地本不全</h1>
+    <p class="scene-subtitle">一只猴子的哲学领悟，比许多修行千年的神仙都深。</p>
+    <div class="gold-frame">
+      <div class="frame-item"><span class="frame-emoji">🔥</span>"求仙问卜，<span class="frame-highlight">不如自己做主</span>"——独立精神</div>
+      <div class="frame-item"><span class="frame-emoji">📜</span>"天地本不全，<span class="frame-highlight">经文残缺也应不全</span>"——接受不完美</div>
+      <div class="frame-item"><span class="frame-emoji">🛤️</span>对唐僧说："<span class="frame-highlight">灵山在脚下</span>"——路在脚下，不在远方</div>
+    </div>
+    <p class="scene-quote">"只要你见性志诚，念念回首处，即是灵山。"</p>
+    <p class="scene-detail">众生苦苦寻找的西天极乐，不过是安放好自己内心之后的平静。大圣三句话，胜过万卷经书。</p>
+  </div>
+</section>
+
+<!-- 伍：大圣有泪 -->
+<section class="scene" id="scene5" data-scene="4">
+  <canvas class="scene-canvas" data-effect="fireflies"></canvas>
+  <div class="scene-bg"></div><div class="scene-num">伍</div>
+  <div class="silhouette" style="bottom:10%;right:8%">🦋</div>
+  <div class="scene-content">
+    <h1 class="scene-title">大圣有泪</h1>
+    <p class="scene-subtitle">金刚怒目，亦有菩萨低眉。大圣心中最柔软的地方，藏着对众生的深情。</p>
+    <div class="gold-frame">
+      <div class="frame-item"><span class="frame-emoji">🪓</span>默默帮助山中的<span class="frame-highlight">樵夫</span>——不求回报的善意</div>
+      <div class="frame-item"><span class="frame-emoji">🙏</span>铭记菩提祖师，<span class="frame-highlight">终身不忘师恩</span>——最大的虔诚</div>
+      <div class="frame-item"><span class="frame-emoji">🐂</span>保护放牛的<span class="frame-highlight">牧童</span>，不让妖怪靠近——正义的守护</div>
+    </div>
+    <p class="scene-quote">"我无性。人若骂我，我也不恼；若打我，我也不嗔。"</p>
+    <p class="scene-detail">最强大的齐天大圣，却拥有最温柔的心。帮助弱者、记住恩人、守护无辜——这才是大圣之所以为大圣。</p>
+  </div>
+</section>
+
+<!-- 陆：定海神针 -->
+<section class="scene" id="scene6" data-scene="5">
+  <canvas class="scene-canvas" data-effect="staff"></canvas>
+  <div class="scene-bg"></div><div class="scene-num">陆</div>
+  <div class="silhouette" style="top:30%;left:5%">🔱</div>
+  <div class="scene-content">
+    <h1 class="scene-title">定海神针</h1>
+    <p class="scene-subtitle">一万三千五百斤的铁棒，沉在东海深处无人能举——直到那只猴子来了。</p>
+    <div class="gold-frame">
+      <div class="frame-item"><span class="frame-emoji">🌊</span>金箍棒不是武器，是<span class="frame-highlight">民族精神的图腾</span></div>
+      <div class="frame-item"><span class="frame-emoji">⚡</span>能大能小、能伸能屈——<span class="frame-highlight">中国人的处世智慧</span></div>
+      <div class="frame-item"><span class="frame-emoji">💪</span>一万三千五百斤——<span class="frame-highlight">人定胜天的信念重量</span></div>
+    </div>
+    <p class="scene-quote">"此乃定海神珍铁，这几日霞光艳艳，瑞气腾腾，莫不是该遇主人了？"</p>
+    <p class="scene-detail">定海神针在东海沉睡千年，只为等一个配得上它的人。大圣握住它的那一刻，中国人心中「人定胜天」的火焰就此点燃。</p>
+  </div>
+</section>
+
+<!-- 柒：正义必胜 -->
+<section class="scene" id="scene7" data-scene="6">
+  <canvas class="scene-canvas" data-effect="aurora"></canvas>
+  <div class="scene-bg"></div><div class="scene-num">柒</div>
+  <div class="silhouette" style="bottom:20%;right:8%">⚔️</div>
+  <div class="scene-content">
+    <h1 class="scene-title">正义必胜</h1>
+    <p class="scene-subtitle">每一个中国人心中都住着一个孙悟空——因为我们都相信，正义终将战胜邪恶。</p>
+    <div class="gold-frame">
+      <div class="frame-item"><span class="frame-emoji">🦸</span>九九八十一难，<span class="frame-highlight">从未退缩</span>——这是中国人的韧性</div>
+      <div class="frame-item"><span class="frame-emoji">🤝</span>保护唐僧取经，<span class="frame-highlight">团队的力量</span>——这是中国人的团结</div>
+      <div class="frame-item"><span class="frame-emoji">✨</span>从妖猴到斗战胜佛，<span class="frame-highlight">自我超越</span>——这是中国人的成长</div>
+    </div>
+    <p class="scene-quote">"踏南天，碎凌霄。若一去不回？便一去不回！"</p>
+    <p class="scene-detail">大圣代表了中国人的集体信念——无论多么强大的对手，无论多么艰难的险阻，只要心怀正义、永不放弃，就一定能赢。这不是盲目乐观，这是五千年文明沉淀下来的精神底色。</p>
+  </div>
+</section>
+
+<!-- 捌：传统与现代 -->
+<section class="scene" id="scene8" data-scene="7">
+  <canvas class="scene-canvas" data-effect="ink"></canvas>
+  <div class="scene-bg"></div><div class="scene-num">捌</div>
+  <div class="silhouette" style="top:10%;left:10%">🎭</div>
+  <div class="scene-content">
+    <h1 class="scene-title">古今大圣</h1>
+    <p class="scene-subtitle">大圣从未远去。他从明代小说里走出来，走进了电视、电影、游戏、动漫、网文……在每个时代，换着不同的面孔，守着同一颗心。</p>
+    <div class="gold-frame">
+      <div class="frame-item"><span class="frame-emoji">📺</span>86版《西游记》——<span class="frame-highlight">六小龄童，一代人的童年</span></div>
+      <div class="frame-item"><span class="frame-emoji">🎬</span>《大话西游》——<span class="frame-highlight">至尊宝，一代人的爱情</span></div>
+      <div class="frame-item"><span class="frame-emoji">🎮</span>《黑神话：悟空》——<span class="frame-highlight">天命人，新一代的热血</span></div>
+    </div>
+    <p class="scene-quote">"传统英雄的特质，融合进现代价值观——这就是孙悟空永不褪色的秘密。"</p>
+    <p class="scene-detail">从戏曲舞台到短视频，从连环画到3A大作。大圣七十二变，变的不仅是神通，更是与时俱进的文化生命力。</p>
+  </div>
+</section>
+
+<!-- 玖：自由之魂 -->
+<section class="scene" id="scene9" data-scene="8">
+  <canvas class="scene-canvas" data-effect="wind"></canvas>
+  <div class="scene-bg"></div><div class="scene-num">玖</div>
+  <div class="silhouette" style="top:20%;right:10%">🌪️</div>
+  <div class="scene-content">
+    <h1 class="scene-title">自由之魂</h1>
+    <p class="scene-subtitle">一个筋斗十万八千里——孙悟空最核心的基因，是刻在中国人骨子里的自由渴望。</p>
+    <div class="gold-frame">
+      <div class="frame-item"><span class="frame-emoji">🗽</span>不跪玉帝、不拜如来——<span class="frame-highlight">拒绝一切权威的勇气</span></div>
+      <div class="frame-item"><span class="frame-emoji">🏔️</span>花果山称王、水帘洞安家——<span class="frame-highlight">建立自己的王国</span></div>
+      <div class="frame-item"><span class="frame-emoji">🪽</span>筋斗云、七十二变——<span class="frame-highlight">超越限制的想象力</span></div>
+    </div>
+    <p class="scene-quote">"我要这天，再遮不住我眼。我要这地，再埋不了我心。"</p>
+    <p class="scene-detail">大圣是唯一一个敢对天地说「不」的角色。他不是完美的圣人，他是每一个不愿被命运束缚的普通人的化身。</p>
+  </div>
+</section>
+
+<!-- 拾：师徒情深 -->
+<section class="scene" id="scene10" data-scene="9">
+  <canvas class="scene-canvas" data-effect="warm"></canvas>
+  <div class="scene-bg"></div><div class="scene-num">拾</div>
+  <div class="silhouette" style="bottom:15%;left:5%">🧡</div>
+  <div class="scene-content">
+    <h1 class="scene-title">师徒情深</h1>
+    <p class="scene-subtitle">紧箍咒是束缚，也是羁绊。取经路漫漫，但有人同行，便不再孤独。</p>
+    <div class="gold-frame">
+      <div class="frame-item"><span class="frame-emoji">🙇</span>为救师父<span class="frame-highlight">三打白骨精</span>，即使被赶走也义无反顾</div>
+      <div class="frame-item"><span class="frame-emoji">🐷</span>与八戒沙僧<span class="frame-highlight">吵吵闹闹却生死相托</span></div>
+      <div class="frame-item"><span class="frame-emoji">🐉</span>小白龙驮着师父<span class="frame-highlight">默默守护从不抱怨</span></div>
+    </div>
+    <p class="scene-quote">"师父，你若再念紧箍咒，俺老孙这头怕是真要裂开了——但俺不走。"</p>
+    <p class="scene-detail">从最开始的不服管教，到最后的不离不弃。取经之路改变了大圣——不是因为紧箍咒，而是因为有了值得守护的人。</p>
+  </div>
+</section>
+
+<!-- 拾壹：永恒大圣 -->
+<section class="scene" id="scene11" data-scene="10">
+  <canvas class="scene-canvas" data-effect="gold"></canvas>
+  <div class="scene-bg"></div><div class="scene-num">拾壹</div>
+  <div class="scene-content">
+    <h1 class="scene-title" style="font-size:clamp(36px,10vw,80px)">永恒大圣</h1>
+    <p class="scene-subtitle">86版、动画、游戏、网文、短视频……七十二变的大圣，在不同时代换着不同的面孔，守护着同一颗心。</p>
+    <p style="font-family:var(--serif);font-size:16px;color:var(--gold-light);line-height:2.2;text-align:center;margin:1.5em 0">
+      定海神针 · 民族图腾<br>正义必胜 · 集体信念<br>传统英雄 · 现代价值<br>自由之魂 · 师徒情深
+    </p>
+    <p class="scene-quote">"中国人会在不同人生阶段，反复爱上孙悟空。"</p>
+    <p class="to-finale" id="toFinale">探索星辰画卷 →</p>
+  </div>
+</section>
+
+<!-- 终：星辰画卷 -->
+<section class="scene" id="scene-finale" data-scene="11">
+  <div class="scene-bg"></div>
+  <div style="position:relative;z-index:10;text-align:center;margin-top:3rem">
+    <h2 style="font-family:var(--serif);font-size:clamp(24px,5vw,40px);color:var(--gold-core);letter-spacing:.08em;margin-bottom:.5rem">星辰画卷</h2>
+    <p style="color:var(--text-muted);font-size:14px">触碰星辰，聆听大圣的低语</p>
+  </div>
+  <div id="starContainer" style="position:absolute;inset:0;z-index:5"></div>
+  <svg class="star-lines" id="starLines"></svg>
+  <div class="chat-widget" id="chatWidget">
+    <div class="chat-response" id="chatResponse">
+      <div class="chat-avatar">🐒</div>
+      <div class="chat-text"></div>
+    </div>
+    <div class="chat-input-wrap">
+      <input type="text" class="chat-input" id="chatInput" placeholder="向大圣提问...（如：何为自由？何为勇气？）" maxlength="100">
+      <button class="chat-send" id="chatSend">→</button>
+    </div>
+    <p class="chat-hint">问大圣一个问题，他将亲自回答你</p>
+  </div>
+  <div class="star-card" id="starCard">
+    <button class="star-card-close" id="starCardClose">✕</button>
+    <div class="star-card-haiku" id="starHaiku"></div>
+    <div class="star-card-msg" id="starMsg"></div>
+    <div class="star-card-feeling" id="starFeeling"></div>
+  </div>
+</section>
+
+</div>
+
+<script>
+// ===== Data =====
+const CHAPTERS = [
+  {id:'scene1',num:'壹',title:'石破天惊',emoji:'🌋',mood:'chaos'},
+  {id:'scene2',num:'贰',title:'克制的力量',emoji:'🏯',mood:'wisdom'},
+  {id:'scene3',num:'叁',title:'霞衣护花',emoji:'🌸',mood:'respect'},
+  {id:'scene4',num:'肆',title:'天地本不全',emoji:'⭐',mood:'philosophy'},
+  {id:'scene5',num:'伍',title:'大圣有泪',emoji:'🦋',mood:'warmth'},
+  {id:'scene6',num:'陆',title:'定海神针',emoji:'🔱',mood:'totem'},
+  {id:'scene7',num:'柒',title:'正义必胜',emoji:'⚔️',mood:'justice'},
+  {id:'scene8',num:'捌',title:'古今大圣',emoji:'🎭',mood:'modern'},
+  {id:'scene9',num:'玖',title:'自由之魂',emoji:'🌪️',mood:'freedom'},
+  {id:'scene10',num:'拾',title:'师徒情深',emoji:'🧡',mood:'bond'},
+  {id:'scene11',num:'拾壹',title:'永恒大圣',emoji:'🐒',mood:'eternal'},
+  {id:'scene-finale',num:'终',title:'星辰画卷',emoji:'🌟',mood:'finale'},
+];
+
+const STAR_DATA = [
+  {title:'石破天惊',emoji:'🌋',color:'#c0392b'},
+  {title:'克制的力量',emoji:'🏯',color:'#e8a820'},
+  {title:'霞衣护花',emoji:'🌸',color:'#f5d890'},
+  {title:'天地本不全',emoji:'⭐',color:'#1e8568'},
+  {title:'大圣有泪',emoji:'🦋',color:'#4a90b8'},
+  {title:'定海神针',emoji:'🔱',color:'#e8a820'},
+  {title:'正义必胜',emoji:'⚔️',color:'#c0392b'},
+  {title:'古今大圣',emoji:'🎭',color:'#f5d890'},
+  {title:'自由之魂',emoji:'🌪️',color:'#4a90b8'},
+  {title:'师徒情深',emoji:'🧡',color:'#e8a820'},
+  {title:'永恒大圣',emoji:'🐒',color:'#fef3c7'},
+];
+
+const FALLBACK_QUOTES = {
+  '石破天惊':{haiku:'混沌开天地\n灵石迸裂出大圣\n从此不平凡',message:'每一个中国人心中，都有一只等待破石而出的猴子。',feeling:'觉醒'},
+  '克制的力量':{haiku:'可毁天灭地\n却选择收手停住\n真正的强大',message:'真正的力量不是摧毁一切的能力，而是摧毁一切之后选择不摧毁的克制。',feeling:'智慧'},
+  '霞衣护花':{haiku:'霞衣轻轻落\n护住人间清白身\n大圣也柔情',message:'一只猴子比许多正人君子更懂尊重，因为他从不以强者自居。',feeling:'尊重'},
+  '天地本不全':{haiku:'天地本不全\n经文残缺也圆满\n求人不如己',message:'路不在西天，在脚下。你不是要成为谁，你本来就是。',feeling:'觉悟'},
+  '大圣有泪':{haiku:'金箍能降妖\n却降不住一滴泪\n大圣也深情',message:'那些默默守护弱者的瞬间，让斗战胜佛比漫天神佛都更接近人性。',feeling:'温暖'},
+  '定海神针':{haiku:'东海万年沉\n一朝遇主冲天起\n人定能胜天',message:'定海神针选择了大圣，大圣选择了永不屈服。这是中国人精神图腾的诞生。',feeling:'力量'},
+  '正义必胜':{haiku:'八十一难重\n金箍棒下无妖孽\n正义永不败',message:'大圣不只是神话英雄，他是中国人「善必胜恶」信念的化身。',feeling:'信念'},
+  '古今大圣':{haiku:'戏曲到屏幕\n七十二般变化里\n不变赤子心',message:'从明代小说到3A大作，大圣换了无数张面孔，但那双火眼金睛从未改变。',feeling:'传承'},
+  '自由之魂':{haiku:'不跪天不跪地\n筋斗云翻十万八\n我命由我定',message:'大圣是唯一一个拒绝被定义的英雄。他的自由不在天涯，在心里。',feeling:'自由'},
+  '师徒情深':{haiku:'紧箍咒收紧\n却系住了彼此心\n此路不独行',message:'最有力量的羁绊，不是金箍，是心甘情愿的守护。',feeling:'羁绊'},
+  '永恒大圣':{haiku:'七十二般变\n不变是赤子之心\n千年如一日',message:'定海神针沉在东海，大圣活在我们心里。',feeling:'永恒'},
+};
+
+// ===== State =====
+let currentSceneIdx = 0;
+let isTransitioning = false;
+let audioCtx = null;
+let isMusicPlaying = false;
+let activeSceneMusic = null;
+let canvasAnimFrames = {};
+
+// ===== DOM =====
+const loadingScreen = document.getElementById('loadingScreen');
+const loadingText = document.getElementById('loadingText');
+const loadingCanvas = document.getElementById('loadingCanvas');
+const scrollContainer = document.getElementById('scrollContainer');
+const transitionOverlay = document.getElementById('transitionOverlay');
+const chapterNav = document.getElementById('chapterNav');
+const musicToggle = document.getElementById('musicToggle');
+const starContainer = document.getElementById('starContainer');
+const starLines = document.getElementById('starLines');
+const chatInput = document.getElementById('chatInput');
+const chatSend = document.getElementById('chatSend');
+const chatResponse = document.getElementById('chatResponse');
+const starCard = document.getElementById('starCard');
+const starHaiku = document.getElementById('starHaiku');
+const starMsg = document.getElementById('starMsg');
+const starFeeling = document.getElementById('starFeeling');
+
+// ===== A: Ghibli Atmosphere =====
+(function initGhibli(){
+  const layer = document.getElementById('ghibliLayer');
+  layer.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:0';
+  // God rays — already in CSS
+  // Fireflies
+  for(let i=0;i<20;i++){
+    const ff = document.createElement('div');
+    ff.className = 'firefly';
+    const size = 2 + Math.random()*3;
+    const left = 5 + Math.random()*90;
+    const top = 10 + Math.random()*80;
+    const drift = (Math.random()-.5)*40;
+    ff.style.cssText = `left:${left}%;top:${top}%;width:${size}px;height:${size}px;--drift:${drift}px;animation:firefly-float ${6+Math.random()*10}s ${Math.random()*8}s infinite ease-in-out;box-shadow:0 0 ${size*3}px rgba(232,168,32,${.15+Math.random()*.3}),0 0 ${size*6}px rgba(232,168,32,${.07+Math.random()*.15})`;
+    layer.appendChild(ff);
+  }
+})();
+
+// ===== B: Loading Animation =====
+(function runLoading(){
+  const ctx = loadingCanvas.getContext('2d');
+  const W = ()=>loadingCanvas.width=window.innerWidth;
+  const H = ()=>loadingCanvas.height=window.innerHeight;
+  W();H();
+  window.addEventListener('resize',()=>{W();H()});
+
+  let staffY=-100,staffTargetY=H()*.65,staffVelocity=0,hasLanded=false,landTime=0;
+  let cracks=[],particles=[],glowAlpha=0,phase='falling';
+  const staffW=8,staffH=300,staffX=W()/2;
+
+  function draw(){
+    if(!loadingScreen.classList.contains('hidden'))requestAnimationFrame(draw);
+    ctx.clearRect(0,0,W(),H());
+    const now=performance.now();
+    ctx.fillStyle='#060f18';ctx.fillRect(0,0,W(),H());
+
+    if(phase==='falling'){
+      staffVelocity+=.8;staffY+=staffVelocity;
+      if(staffY>=staffTargetY){staffY=staffTargetY;phase='landing';landTime=now;
+        for(let i=0;i<12;i++)cracks.push({angle:(i/12)*Math.PI*2+(Math.random()-.5)*.3,length:0,maxLen:80+Math.random()*200,speed:2+Math.random()*4,width:1+Math.random()*2});
+        for(let i=0;i<40;i++)particles.push({x:staffX,y:staffTargetY,vx:(Math.random()-.5)*8,vy:(Math.random()-.5)*8-2,life:1,decay:.01+Math.random()*.03,size:1.5+Math.random()*3});
+      }
+    }
+    if(phase==='landing'){
+      const elapsed=now-landTime;
+      if(elapsed>600)phase='cracking';
+      const shake=Math.max(0,(600-elapsed)/600)*Math.sin(elapsed*.05)*8;
+      ctx.save();ctx.translate(shake,0);
+    }
+    if(phase==='landing'||phase==='cracking'||phase==='reveal'){
+      cracks.forEach(c=>{
+        c.length=Math.min(c.maxLen,c.length+c.speed);
+        const ex=staffX+Math.cos(c.angle)*c.length,ey=staffTargetY+Math.sin(c.angle)*c.length;
+        ctx.beginPath();ctx.moveTo(staffX,staffTargetY);ctx.lineTo(ex,ey);
+        ctx.strokeStyle=`rgba(232,168,32,${.3*(1-c.length/c.maxLen)})`;
+        ctx.lineWidth=c.width;ctx.stroke();
+        if(c.length>c.maxLen*.4&&!c.branched){c.branched=true;
+          for(let j=0;j<2;j++)cracks.push({angle:c.angle+(Math.random()-.5)*.8,length:c.length*.6,maxLen:c.maxLen*.5,speed:c.speed*.7,width:c.width*.6,branched:true});
+        }
+      });
+    }
+    particles=particles.filter(p=>p.life>0);
+    particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.05;p.life-=p.decay;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+      ctx.fillStyle=`rgba(254,243,199,${p.life})`;ctx.fill();
+      ctx.shadowColor=`rgba(232,168,32,${p.life})`;ctx.shadowBlur=p.size*3;ctx.fill();ctx.shadowBlur=0;
+    });
+    const grad=ctx.createLinearGradient(staffX,staffY-staffH/2,staffX,staffY+staffH/2);
+    grad.addColorStop(0,'#b8860b');grad.addColorStop(.3,'#e8a820');grad.addColorStop(.5,'#fef3c7');grad.addColorStop(.7,'#e8a820');grad.addColorStop(1,'#b8860b');
+    ctx.fillStyle=grad;ctx.shadowColor='rgba(232,168,32,.6)';ctx.shadowBlur=20+glowAlpha*30;
+    ctx.fillRect(staffX-staffW/2,staffY-staffH/2,staffW,staffH);ctx.shadowBlur=0;
+    if(phase==='falling'||phase==='landing'){
+      glowAlpha=Math.min(1,glowAlpha+.03);
+      const glow=ctx.createRadialGradient(staffX,staffTargetY,0,staffX,staffTargetY,60);
+      glow.addColorStop(0,'rgba(254,243,199,.3)');glow.addColorStop(1,'rgba(232,168,32,0)');
+      ctx.fillStyle=glow;ctx.beginPath();ctx.arc(staffX,staffTargetY,60,0,Math.PI*2);ctx.fill();
+    }
+    if(phase==='landing')ctx.restore();
+    if(phase==='cracking'){
+      if(now-landTime-600>1200){phase='reveal';loadingText.classList.add('show');
+        setTimeout(()=>{loadingScreen.classList.add('hidden');document.body.classList.add('loaded');
+          setTimeout(()=>loadingScreen.remove(),800);initScrollDetection();initStarChart();initChat();initMusic();
+        },1000);
+      }
+    }
+  }
+  requestAnimationFrame(draw);
+})();
+
+// ===== Build Chapter Nav =====
+CHAPTERS.forEach((ch,i)=>{
+  const wrap=document.createElement('div');
+  wrap.className='chapter-dot-wrap';
+  wrap.innerHTML=`<div class="chapter-dot${i===0?' active':''}" data-idx="${i}"></div><span class="chapter-label">${ch.num}·${ch.title}</span>`;
+  wrap.addEventListener('click',()=>navigateToScene(i));
+  chapterNav.appendChild(wrap);
+});
+
+// ===== God Rays =====
+for(let i=0;i<3;i++){
+  const ray=document.createElement('div');
+  ray.className='godray';
+  ray.style.cssText=`left:${25+i*25}%;animation:godray-sway ${14+i*5}s ${i*4}s infinite ease-in-out`;
+  document.body.appendChild(ray);
+}
+
+// ===== C: Canvas Background Effects =====
+const effectDrawers = {
+  lightning(ctx,w,h,t){
+    const flicker=Math.pow(Math.sin(t*.003),20)*(Math.random()>.95?1:0);
+    ctx.fillStyle=`rgba(10,15,20,${.92+flicker*.08})`;ctx.fillRect(0,0,w,h);
+    if(flicker>.01){for(let i=0;i<3;i++){ctx.strokeStyle=`rgba(254,243,199,${flicker*.4})`;ctx.lineWidth=1.5;ctx.shadowColor=`rgba(232,168,32,${flicker})`;ctx.shadowBlur=15;ctx.beginPath();let x=w*.3+i*w*.2+Math.random()*40,y=0;ctx.moveTo(x,y);for(let j=0;j<8;j++){x+=(Math.random()-.5)*60;y+=h/8;ctx.lineTo(x,y);}ctx.stroke();ctx.shadowBlur=0;}}
+    for(let i=0;i<4;i++){const cx=((t*.02+i*300)%(w+400))-200;ctx.fillStyle='rgba(255,255,255,.01)';ctx.beginPath();ctx.ellipse(cx,h*(.2+i*.2),180,25,0,0,Math.PI*2);ctx.fill();}
+  },
+  clouds(ctx,w,h,t){
+    ctx.fillStyle='#0d1a28';ctx.fillRect(0,0,w,h);
+    for(let i=0;i<5;i++){const cx=((t*(.015+i*.008)+i*250)%(w+400))-200,cy=h*(.1+i*.18),r=40+i*15;ctx.fillStyle=`rgba(232,168,32,${.015+i*.005})`;ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.arc(cx+r*.7,cy-r*.3,r*.7,0,Math.PI*2);ctx.arc(cx-r*.5,cy-r*.2,r*.6,0,Math.PI*2);ctx.fill();}
+  },
+  petals(ctx,w,h,t){
+    ctx.fillStyle='#0a0f14';ctx.fillRect(0,0,w,h);
+    for(let i=0;i<25;i++){const seed=i*137.5,px=((seed*17+t*.3)%w),py=((seed*23+t*.5)%(h+100))-50,rot=(t*.001+i)%(Math.PI*2),size=4+(i%3)*3;ctx.save();ctx.translate(px,py);ctx.rotate(rot);ctx.fillStyle=`rgba(245,216,144,${.06+(i%3)*.03})`;ctx.beginPath();ctx.ellipse(0,0,size,size*.4,0,0,Math.PI*2);ctx.fill();ctx.restore();}
+  },
+  stars(ctx,w,h,t){
+    ctx.fillStyle='#0d1a28';ctx.fillRect(0,0,w,h);
+    for(let i=0;i<80;i++){const sx=(i*137.508)%w,sy=(i*73.159)%h,twinkle=.3+.7*Math.abs(Math.sin(t*.002+i*.7)),size=.5+(i%3)*1;ctx.fillStyle=`rgba(254,243,199,${twinkle*.4})`;ctx.beginPath();ctx.arc(sx,sy,size,0,Math.PI*2);ctx.fill();}
+    if(Math.random()>.97){const sx=Math.random()*w,sy=Math.random()*h*.5,dx=(Math.random()-.5)*200;ctx.strokeStyle='rgba(254,243,199,.3)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(sx+dx,sy+60);ctx.stroke();}
+  },
+  fireflies(ctx,w,h,t){
+    ctx.fillStyle='#0a0f14';ctx.fillRect(0,0,w,h);
+    for(let i=0;i<18;i++){const seed=i*97.3,fx=((seed*31+t*.15)%(w+60))-30,fy=((seed*41+Math.sin(t*.002+i)*20)%(h+40))-20,pulse=.3+.7*Math.abs(Math.sin(t*.003+i*1.7)),size=2+pulse*3;const glow=ctx.createRadialGradient(fx,fy,0,fx,fy,size*4);glow.addColorStop(0,`rgba(254,243,199,${pulse*.5})`);glow.addColorStop(.5,`rgba(232,168,32,${pulse*.2})`);glow.addColorStop(1,'rgba(232,168,32,0)');ctx.fillStyle=glow;ctx.beginPath();ctx.arc(fx,fy,size*4,0,Math.PI*2);ctx.fill();ctx.fillStyle=`rgba(254,243,199,${pulse})`;ctx.beginPath();ctx.arc(fx,fy,size,0,Math.PI*2);ctx.fill();}
+  },
+  aurora(ctx,w,h,t){
+    ctx.fillStyle='#0d1a28';ctx.fillRect(0,0,w,h);
+    for(let i=0;i<3;i++){ctx.fillStyle=`rgba(232,168,32,${.02+.01*Math.sin(t*.001+i)})`;ctx.beginPath();const y=h*(.3+i*.15);ctx.moveTo(0,y);for(let x=0;x<w;x+=20){ctx.lineTo(x,y+Math.sin(x*.005+t*.001+i)*30+Math.sin(x*.01+t*.002)*20);}ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.closePath();ctx.fill();}
+  },
+  staff(ctx,w,h,t){
+    ctx.fillStyle='#060f18';ctx.fillRect(0,0,w,h);
+    const cx=w/2,cy=h/2;
+    // Rotating golden staff
+    const rot=t*.0008, len=h*.4;
+    ctx.save();ctx.translate(cx,cy);ctx.rotate(rot);
+    ctx.strokeStyle='rgba(232,168,32,.08)';ctx.lineWidth=6;ctx.shadowColor='rgba(232,168,32,.15)';ctx.shadowBlur=30;
+    ctx.beginPath();ctx.moveTo(0,-len);ctx.lineTo(0,len);ctx.stroke();ctx.shadowBlur=0;
+    // Tips glow
+    for(let sign of[-1,1]){const glow=ctx.createRadialGradient(0,sign*len,0,0,sign*len,30);glow.addColorStop(0,'rgba(254,243,199,.2)');glow.addColorStop(1,'rgba(232,168,32,0)');ctx.fillStyle=glow;ctx.beginPath();ctx.arc(0,sign*len,30,0,Math.PI*2);ctx.fill();}
+    ctx.restore();
+    // Gold dust particles
+    for(let i=0;i<50;i++){const seed=i*73.5,dx=((seed*17+t*.1)%(w+40))-20,dy=((seed*23+t*.08)%(h+40))-20,pulse=.2+.8*Math.abs(Math.sin(t*.004+i));ctx.fillStyle=`rgba(254,243,199,${pulse*.15})`;ctx.beginPath();ctx.arc(dx,dy,.5+(i%2),0,Math.PI*2);ctx.fill();}
+  },
+  ink(ctx,w,h,t){
+    ctx.fillStyle='#060f18';ctx.fillRect(0,0,w,h);
+    // Ink wash effect — slow moving dark clouds with gold edges
+    for(let i=0;i<4;i++){const cx=((t*(.01+i*.005)+i*400)%(w+600))-300,cy=h*(.2+i*.2),r=60+i*20;ctx.fillStyle=`rgba(255,255,255,${.008+i*.003})`;ctx.beginPath();ctx.ellipse(cx,cy,r,r*.6,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle=`rgba(232,168,32,${.02+i*.005})`;ctx.lineWidth=.5;ctx.stroke();}
+  },
+  wind(ctx,w,h,t){
+    ctx.fillStyle='#060f18';ctx.fillRect(0,0,w,h);
+    for(let i=0;i<6;i++){const wx=((t*(.2+i*.1))%(w+300))-150,wy=h*(.15+i*.12),len=40+Math.random()*80;ctx.strokeStyle=`rgba(255,255,255,${.015+i*.005})`;ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(wx,wy);ctx.quadraticCurveTo(wx+len*.5,wy+Math.sin(t*.003+i)*10,wx+len,wy);ctx.stroke();}
+  },
+  warm(ctx,w,h,t){
+    ctx.fillStyle='#0d1a28';ctx.fillRect(0,0,w,h);
+    // Warm golden glow pulses
+    const pulse=.4+.6*Math.abs(Math.sin(t*.0015));
+    const glow=ctx.createRadialGradient(w*.5,h*.4,0,w*.5,h*.4,h*.5);
+    glow.addColorStop(0,`rgba(232,168,32,${.04*pulse})`);glow.addColorStop(.5,`rgba(196,120,104,${.02*pulse})`);glow.addColorStop(1,'transparent');
+    ctx.fillStyle=glow;ctx.fillRect(0,0,w,h);
+    // Firefly-like dots
+    for(let i=0;i<12;i++){const seed=i*83.7,fx=((seed*29+t*.12)%(w+40))-20,fy=((seed*37+Math.sin(t*.002+i)*15)%(h+40))-20;ctx.fillStyle=`rgba(254,243,199,${.15+.1*Math.abs(Math.sin(t*.004+i))})`;ctx.beginPath();ctx.arc(fx,fy,1.5,0,Math.PI*2);ctx.fill();}
+  },
+  gold(ctx,w,h,t){
+    ctx.fillStyle='#060f18';ctx.fillRect(0,0,w,h);
+    // Central golden radiance
+    const glow=ctx.createRadialGradient(w*.5,h*.5,0,w*.5,h*.5,w*.6);
+    glow.addColorStop(0,'rgba(232,168,32,.06)');glow.addColorStop(.5,'rgba(232,168,32,.02)');glow.addColorStop(1,'transparent');
+    ctx.fillStyle=glow;ctx.fillRect(0,0,w,h);
+    // Floating gold particles
+    for(let i=0;i<30;i++){const seed=i*47.3,px=((seed*19+t*.06)%(w+60))-30,py=((seed*31+Math.sin(t*.003+i)*25)%(h+60))-30,alpha=.1+.2*Math.abs(Math.sin(t*.005+i));ctx.fillStyle=`rgba(254,243,199,${alpha})`;ctx.beginPath();ctx.arc(px,py,1+Math.abs(Math.sin(t*.003+i))*2,0,Math.PI*2);ctx.fill();}
+  }
+};
+
+function startCanvasAnim(scene){
+  const canvas=scene.querySelector('.scene-canvas');
+  if(!canvas)return;
+  const effect=canvas.dataset.effect;
+  if(!effect||!effectDrawers[effect])return;
+  const sceneId=scene.id;
+  if(canvasAnimFrames[sceneId])return;
+  const ctx=canvas.getContext('2d');
+  function resize(){canvas.width=scene.offsetWidth;canvas.height=scene.offsetHeight}
+  resize();const ro=new ResizeObserver(resize);ro.observe(scene);
+  let running=true;
+  function draw(timestamp){if(!running)return;canvasAnimFrames[sceneId]=requestAnimationFrame(draw);const w=canvas.width,h=canvas.height;effectDrawers[effect](ctx,w,h,timestamp);}
+  canvasAnimFrames[sceneId]=requestAnimationFrame(draw);
+  canvas._ro=ro;canvas._running=true;
+}
+
+function stopCanvasAnim(scene){
+  const canvas=scene.querySelector('.scene-canvas');
+  if(!canvas)return;
+  const sceneId=scene.id;
+  if(canvasAnimFrames[sceneId]){cancelAnimationFrame(canvasAnimFrames[sceneId]);delete canvasAnimFrames[sceneId];}
+  if(canvas._ro){canvas._ro.disconnect();canvas._ro=null;}
+  canvas._running=false;
+}
+
+function manageCanvasAnims(){
+  document.querySelectorAll('.scene').forEach(scene=>{
+    const rect=scene.getBoundingClientRect();
+    const visible=rect.top>-window.innerHeight&&rect.top<window.innerHeight;
+    if(visible)startCanvasAnim(scene);
+    else stopCanvasAnim(scene);
+  });
+}
+
+// ===== D: Scroll Detection =====
+function initScrollDetection(){
+  const scenes=document.querySelectorAll('.scene');
+  const observer=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting&&e.intersectionRatio>.4){
+        const scene=e.target;
+        const idx=parseInt(scene.dataset.scene);
+        if(idx!==currentSceneIdx&&!isTransitioning){
+          currentSceneIdx=idx;
+          scene.classList.add('visible');
+          updateNav();
+          playSceneMusic(idx);
+        }
+      }
+    });
+  },{threshold:.4});
+  scenes.forEach(s=>observer.observe(s));
+  // Initial: mark first scene visible
+  scenes[0].classList.add('visible');
+  manageCanvasAnims();
+  scrollContainer.addEventListener('scroll',manageCanvasAnims,{passive:true});
+}
+
+function navigateToScene(idx){
+  if(isTransitioning)return;
+  isTransitioning=true;
+  transitionOverlay.classList.add('active');
+  const scene=document.getElementById(CHAPTERS[idx].id);
+  scene.scrollIntoView({behavior:'smooth'});
+  setTimeout(()=>{transitionOverlay.classList.remove('active');isTransitioning=false;},400);
+}
+
+function updateNav(){
+  document.querySelectorAll('.chapter-dot').forEach((d,i)=>{
+    d.classList.toggle('active',i===currentSceneIdx);
+  });
+}
+
+// ===== E: Star Chart =====
+function initStarChart(){
+  const W=starContainer.offsetWidth,H=starContainer.offsetHeight;
+  const cx=W/2,cy=H*.4;
+  const points=STAR_DATA.map((s,i)=>{
+    const angle=(i/STAR_DATA.length)*Math.PI*2-Math.PI/2;
+    const r=Math.min(W,H)*.35;
+    return{x:cx+Math.cos(angle)*r,y:cy+Math.sin(angle)*r,...s};
+  });
+
+  // Draw connecting lines
+  let svgContent='';
+  for(let i=0;i<points.length;i++){
+    for(let j=i+1;j<points.length;j++){
+      if(j===i+1||(i===0&&j===points.length-1)){
+        svgContent+=`<line class="star-line" x1="${points[i].x}" y1="${points[i].y}" x2="${points[j].x}" y2="${points[j].y}"/>`;
+      }
+    }
+  }
+  starLines.innerHTML=svgContent;
+
+  // Create star dots
+  points.forEach((p,i)=>{
+    const dot=document.createElement('div');
+    dot.className='star-dot';
+    const size=8+(i%3)*3;
+    dot.style.cssText=`left:${p.x-size/2}px;top:${p.y-size/2}px;width:${size}px;height:${size}px;background:${p.color};animation:pulse-glow ${2+i*.3}s ease-in-out infinite`;
+    dot.addEventListener('click',()=>showStarCard(p));
+    starContainer.appendChild(dot);
+  });
+
+  // Close card
+  document.getElementById('starCardClose').addEventListener('click',()=>{
+    starCard.classList.remove('show');
+  });
+  starCard.addEventListener('click',function(e){if(e.target===this)this.classList.remove('show')});
+}
+
+function showStarCard(p){
+  const q=FALLBACK_QUOTES[p.title]||FALLBACK_QUOTES['永恒大圣'];
+  starHaiku.textContent=q.haiku;
+  starMsg.textContent=q.message;
+  starFeeling.textContent=q.feeling;
+  starCard.classList.add('show');
+}
+
+// ===== F: Chat Widget =====
+const CHAT_PRESET = {
+  '自由':'俺老孙一个筋斗十万八千里，天大地大，想去哪就去哪。但真正的自由不在云上，在心里——心若自由，哪里都是花果山。',
+  '勇气':'勇气不是不怕。俺老孙也怕过——怕紧箍咒、怕师父被妖怪抓走、怕再也回不去花果山。怕，但还是要上，这才是勇气。',
+  '力量':'力量不是拿来炫耀的。俺老孙能翻天覆地，但真正重要的，是知道什么时候该收手。定住七仙女只吃桃子——这比大闹天宫难多了。',
+  '人生':'求仙问卜，不如自己做主。天地本不全，经文残缺也应不全。路不在西天，在脚下。你问俺老孙人生是什么？人生就是——做你自己。',
+  '正义':'正义不是嘴上说的。俺老孙从来不说什么大道理，看到妖怪欺负人，打就是了。看到好人受苦，帮就是了。就这么简单。',
+  '坚持':'俺老孙在五行山下压了五百年。五百年！换别人早就疯了。但俺没有——因为俺知道，总有一天会有人来揭那帖子。你也一样，你的唐僧就在路上。',
+  '孤独':'孤独？俺老孙在花果山的时候，漫山遍野的猴子猴孙，热闘得很。后来跟师父去取经，虽然经常吵架，但路上有人说话，就不孤独了。你也不要一个人扛着。',
+  '失败':'失败？俺老孙被压在五行山下五百年，算不算失败？被赶走过、被妖怪骗过、被师父误解过——这些都不算什么。只要还活着，就还有一棒子打回去的机会。',
+  '成长':'从弼马温到齐天大圣，从妖猴到斗战胜佛——俺老孙走了十万八千里路。成长不是变成别人想要的样子，是越来越清楚自己是谁。',
+  '爱':'俺老孙不懂什么情情爱爱。但俺知道——保护师父、保护师弟、保护那些被妖怪欺负的人，这就是俺的方式。有些话不用说出来，做就行了。',
+  '死亡':'死有什么好怕的？俺老孙在生死簿上把自己的名字划掉了。活着的每一天，都是赚来的。怕死的人，往往也没有好好活过。',
+  '梦想':'俺老孙当年最大的梦想就是不受人管。后来发现，有了想保护的人，被人管着也挺好。梦想会变，但心不能变。',
+};
+const CHAT_DEFAULTS = [
+  '问得好！让俺老孙想想...其实答案早就在你心里了。',
+  '哈哈，这个问题有意思。俺老孙活了上千年，也没完全搞明白。',
+  '你问的这个问题，唐僧也问过。俺说：路在脚下。',
+  '俺老孙不擅长讲大道理，但可以告诉你——做自己，就够了。',
+];
+
+function getReply(question){
+  const q=question;
+  let bestKey='',bestScore=0;
+  for(const[key,reply]of Object.entries(CHAT_PRESET)){
+    let score=q.includes(key)?100:0;
+    for(const ch of key){if(q.includes(ch))score++;}
+    if(score>bestScore){bestScore=score;bestKey=key;}
+  }
+  if(bestKey&&bestScore>2)return CHAT_PRESET[bestKey];
+  return CHAT_DEFAULTS[Math.floor(Math.random()*CHAT_DEFAULTS.length)];
+}
+
+function initChat(){
+  function send(){
+    const q=chatInput.value.trim();
+    if(!q)return;
+    chatSend.disabled=true;
+    chatInput.disabled=true;
+    chatResponse.classList.remove('show');
+    chatResponse.querySelector('.chat-text').textContent='大圣正在思索...';
+    setTimeout(()=>{
+      chatResponse.querySelector('.chat-text').textContent=getReply(q);
+      chatResponse.classList.add('show');
+      chatSend.disabled=false;
+      chatInput.disabled=false;
+      chatInput.value='';
+      chatInput.focus();
+    },600+Math.random()*800);
+  }
+  chatSend.addEventListener('click',send);
+  chatInput.addEventListener('keydown',e=>{if(e.key==='Enter')send()});
+}
+
+// ===== G: Music (Web Audio API pentatonic ambient) =====
+function initMusic(){
+  musicToggle.addEventListener('click',()=>{
+    if(!audioCtx)initAudio();
+    if(isMusicPlaying){
+      if(activeSceneMusic){activeSceneMusic.gain.linearRampToValueAtTime(0,audioCtx.currentTime+.5);setTimeout(()=>{activeSceneMusic.osc.stop();activeSceneMusic=null},600)}
+      isMusicPlaying=false;musicToggle.classList.add('muted');
+    }else{
+      isMusicPlaying=true;musicToggle.classList.remove('muted');
+      playSceneMusic(currentSceneIdx);
+    }
+  });
+}
+
+function initAudio(){
+  audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+}
+
+const SCENE_TONES = [
+  [262,330,392],  // C E G — chaos
+  [294,370,440],  // D F# A — wisdom
+  [330,392,523],  // E G C — respect
+  [262,330,392],  // C E G — philosophy
+  [294,349,440],  // D F A — warmth
+  [196,262,330],  // G C E — totem
+  [330,415,494],  // E G# B — justice
+  [262,330,440],  // C E A — modern
+  [349,440,523],  // F A C — freedom
+  [294,370,440],  // D F# A — bond
+  [262,330,392],  // C E G — eternal
+];
+
+function playSceneMusic(idx){
+  if(!isMusicPlaying||!audioCtx)return;
+  if(activeSceneMusic){activeSceneMusic.gain.linearRampToValueAtTime(0,audioCtx.currentTime+.3);setTimeout(()=>{try{activeSceneMusic.osc.stop()}catch(e){}},400)}
+  const tones=SCENE_TONES[idx]||SCENE_TONES[0];
+  const osc=audioCtx.createOscillator();
+  const gain=audioCtx.createGain();
+  osc.type='triangle';
+  gain.gain.setValueAtTime(0,audioCtx.currentTime);
+  gain.gain.linearRampToValueAtTime(.04,audioCtx.currentTime+.5);
+  // Play a slow arpeggio of the tones
+  let noteIdx=0;
+  osc.frequency.setValueAtTime(tones[0],audioCtx.currentTime);
+  const interval=setInterval(()=>{
+    noteIdx=(noteIdx+1)%tones.length;
+    osc.frequency.linearRampToValueAtTime(tones[noteIdx],audioCtx.currentTime+.1);
+  },2000);
+  osc.connect(gain);gain.connect(audioCtx.destination);
+  osc.start();
+  activeSceneMusic={osc,gain,interval};
+}
+
+// ===== H: Resize Handler =====
+window.addEventListener('resize',()=>{manageCanvasAnims()});
+
+// ===== CSS keyframes injection =====
+const styleSheet=document.createElement('style');
+styleSheet.textContent=`
+@keyframes pulse-glow{0%,100%{box-shadow:0 0 4px currentColor,0 0 8px rgba(232,168,32,.2)}50%{box-shadow:0 0 12px currentColor,0 0 24px rgba(232,168,32,.4)}}
+@keyframes card-rise{from{opacity:0;transform:translate(-50%,-50%) scale(.9) translateY(12px)}to{opacity:1;transform:translate(-50%,-50%) scale(1) translateY(0)}}
+.star-card.show{animation:card-rise .4s ease-out forwards}
+`;
+document.head.appendChild(styleSheet);
+</script>
+</body>
+</html>
