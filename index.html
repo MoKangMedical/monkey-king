@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>孙悟空 · 齐天大圣</title>
+<!-- Preload Three.js — starts loading immediately -->
+<script src="lib/three.min.js"></script>
 <style>
 :root{--ink:#0a0806;--ink2:#14100c;--cin:#c0392b;--gold:#e8a820;--paper:#f5efe0;--serif:'Noto Serif SC','STSong','SimSun',serif}
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -13,12 +15,10 @@ body.loaded{overflow:auto}
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.03;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.05 0.07' numOctaves='6'/%3E%3C/filter%3E%3Crect width='256' height='256' filter='url(%23n)'/%3E%3C/svg%3E");background-size:256px 256px;mix-blend-mode:overlay}
 
-/* QC Status Bar */
-#qcStatus{position:fixed;top:0;left:0;right:0;z-index:9998;background:rgba(10,8,6,.95);border-bottom:1px solid rgba(255,255,255,.05);padding:6px 16px;font-size:10px;font-family:monospace;color:rgba(255,255,255,.5);display:flex;gap:16px;transition:opacity .5s}
-#qcStatus span{display:flex;align-items:center;gap:4px}
-#qcStatus .ok{color:#1e8568}#qcStatus .fail{color:#c0392b}#qcStatus .warn{color:#e8a820}
+/* 3D layer — visible from start, behind opening screen */
+#threeCanvas{position:fixed;inset:0;z-index:1;pointer-events:none}
 
-/* Opening */
+/* Opening — on top of 3D */
 #loadingScreen{position:fixed;inset:0;z-index:9999;background:var(--ink);display:flex;align-items:center;justify-content:center;transition:opacity 1s ease}
 #loadingScreen.hidden{opacity:0;pointer-events:none}
 #loadingCanvas{position:absolute;inset:0}
@@ -26,9 +26,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opa
 #loadingTitle.show{opacity:1}
 #loadingTitle h1{font-size:clamp(36px,8vw,72px);color:var(--gold);letter-spacing:.15em;margin-bottom:.3em;text-shadow:0 0 60px rgba(232,168,32,.3)}
 #loadingTitle p{font-size:13px;color:rgba(192,57,43,.5);letter-spacing:.2em}
-
-/* 3D Canvas */
-#threeCanvas{position:fixed;inset:0;z-index:2;pointer-events:none}
 
 /* Music */
 .music-btn{position:fixed;bottom:24px;left:24px;z-index:100;width:44px;height:44px;border-radius:50%;background:rgba(10,8,6,.9);border:1px solid rgba(255,255,255,.08);color:var(--gold);font-size:18px;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center}
@@ -41,7 +38,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opa
 body.loaded .scroll-container{opacity:1}
 .scroll-container::-webkit-scrollbar{width:0}
 
-/* Scene */
 .scene{height:100vh;height:100dvh;scroll-snap-align:start;scroll-snap-stop:always;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;padding:2rem}
 .scene-bg{position:absolute;inset:0;z-index:0;pointer-events:none}
 #scene1 .scene-bg{background:radial-gradient(ellipse at 50% 30%,rgba(192,57,43,.06) 0%,transparent 55%),var(--ink)}
@@ -86,7 +82,6 @@ body.loaded .scroll-container{opacity:1}
 
 .transition-overlay{position:fixed;inset:0;z-index:500;background:var(--cin);opacity:0;pointer-events:none;transition:opacity .35s}.transition-overlay.active{opacity:.08}
 
-/* Stars */
 .star-dot{position:absolute;border-radius:50%;cursor:pointer;transition:all .3s;z-index:6}
 .star-dot:hover{transform:scale(2.5);box-shadow:0 0 14px var(--cin)}
 .star-lines{position:absolute;inset:0;z-index:4;pointer-events:none}.star-line{stroke:rgba(192,57,43,.03);stroke-width:.6;fill:none}
@@ -97,7 +92,6 @@ body.loaded .scroll-container{opacity:1}
 .star-card-feeling{font-size:9px;color:rgba(192,57,43,.5);letter-spacing:.12em}
 .star-card-close{position:absolute;top:6px;right:12px;background:none;border:none;color:rgba(255,255,255,.15);font-size:12px;cursor:pointer}
 
-/* Chat */
 .chat-widget{position:absolute;bottom:1.5rem;left:50%;transform:translateX(-50%);z-index:20;width:min(88vw,380px)}
 .chat-response{display:flex;align-items:flex-start;gap:7px;margin-bottom:7px;opacity:0;transition:all .35s}
 .chat-response.show{opacity:1}.chat-avatar{font-size:22px}
@@ -113,17 +107,13 @@ body.loaded .scroll-container{opacity:1}
 </head>
 <body>
 
-<div id="qcStatus">
-  <span id="qc3d">⏳ 3D</span>
-  <span id="qcAudio">⏳ 音频</span>
-  <span id="qcScene">⏳ 场景</span>
-</div>
+<!-- 3D renders behind opening screen, visible from frame 1 -->
+<canvas id="threeCanvas"></canvas>
 
 <div id="loadingScreen"><canvas id="loadingCanvas"></canvas>
   <div class="loading-title" id="loadingTitle"><h1>齐 天 大 圣</h1><p>SUN WUKONG</p></div>
 </div>
 
-<canvas id="threeCanvas"></canvas>
 <div class="transition-overlay" id="transitionOverlay"></div>
 <nav class="chapter-nav" id="chapterNav"></nav>
 <button class="music-btn" id="musicBtn">♫</button>
@@ -132,7 +122,7 @@ body.loaded .scroll-container{opacity:1}
 
 <section class="scene" id="scene1" data-scene="0" data-3d="wukong">
   <div class="scene-bg"></div><div class="scene-seal">壹</div><div class="ink-silhouette" style="top:15%;left:5%">🐒</div>
-  <div class="scene-content"><h1 class="scene-title"><span class="gold">石破</span>天惊</h1><p class="scene-subtitle">混沌初开，灵石迸裂。一只猴子从石头里跳出来，从此天地间有了大圣。</p><p class="scene-quote">我老孙来也</p><p class="scene-detail">大闹天宫，不过是想要一个答案——凭什么有人天生就是神仙，而我只能当弼马温？</p></div>
+  <div class="scene-content"><h1 class="scene-title"><span class="gold">石破</span>天惊</h1><p class="scene-subtitle">混沌初开，灵石迸裂。一只猴子从石头里跳出来，从此天地间有了大圣。</p><p class="scene-quote">我老孙来也</p><p class="scene-detail">大闹天宫，不过是想要一个答案——凭什么有人天生就是神仙？</p></div>
   <div class="scroll-hint"><span>展开画卷</span><div class="arrow"></div></div>
 </section>
 
@@ -163,17 +153,17 @@ body.loaded .scroll-container{opacity:1}
 
 <section class="scene" id="scene7" data-scene="6" data-3d="dragon">
   <div class="scene-bg"></div><div class="scene-seal">柒</div><div class="ink-silhouette" style="bottom:20%;right:5%">⚔</div>
-  <div class="scene-content"><h1 class="scene-title"><span class="gold">正义</span>必胜</h1><p class="scene-subtitle">中国人心中都有一个孙悟空——因为我们都相信，正义终将战胜邪恶。</p><div class="gold-frame"><div class="frame-item"><span class="frame-emoji">🦸</span>九九八十一难<span class="frame-highlight">从未退缩</span></div><div class="frame-item"><span class="frame-emoji">🤝</span>护送唐僧取经<span class="frame-highlight">团队的力量</span></div><div class="frame-item"><span class="frame-emoji">✨</span>从妖猴到斗战胜佛<span class="frame-highlight">自我超越</span></div></div><p class="scene-quote">踏南天，碎凌霄。若一去不回？便一去不回</p></div>
+  <div class="scene-content"><h1 class="scene-title"><span class="gold">正义</span>必胜</h1><p class="scene-subtitle">中国人心中都有一个孙悟空——正义终将战胜邪恶。</p><div class="gold-frame"><div class="frame-item"><span class="frame-emoji">🦸</span>九九八十一难<span class="frame-highlight">从未退缩</span></div><div class="frame-item"><span class="frame-emoji">🤝</span>护送唐僧取经<span class="frame-highlight">团队的力量</span></div><div class="frame-item"><span class="frame-emoji">✨</span>从妖猴到斗战胜佛<span class="frame-highlight">自我超越</span></div></div><p class="scene-quote">踏南天，碎凌霄。若一去不回？便一去不回</p></div>
 </section>
 
 <section class="scene" id="scene8" data-scene="7" data-3d="demons">
   <div class="scene-bg"></div><div class="scene-seal">捌</div><div class="ink-silhouette" style="top:8%;left:8%">🎭</div>
-  <div class="scene-content"><h1 class="scene-title"><span class="gold">古今</span>大圣</h1><p class="scene-subtitle">从明代小说走进电视、电影、游戏——每个时代的大圣，守着同一颗心。</p><div class="gold-frame"><div class="frame-item"><span class="frame-emoji">📺</span>86版《西游记》——<span class="frame-highlight">六小龄童，一代童年</span></div><div class="frame-item"><span class="frame-emoji">🎬</span>《大话西游》——<span class="frame-highlight">至尊宝，一代爱情</span></div><div class="frame-item"><span class="frame-emoji">🎮</span>《黑神话：悟空》——<span class="frame-highlight">天命人，新一代热血</span></div></div><p class="scene-quote">七十二变，变的是神通，不变的是赤子之心</p></div>
+  <div class="scene-content"><h1 class="scene-title"><span class="gold">古今</span>大圣</h1><p class="scene-subtitle">从明代小说走进电视、电影、游戏——每个时代的大圣，守着同一颗心。</p><div class="gold-frame"><div class="frame-item"><span class="frame-emoji">📺</span>86版《西游记》——<span class="frame-highlight">六小龄童</span></div><div class="frame-item"><span class="frame-emoji">🎬</span>《大话西游》——<span class="frame-highlight">至尊宝</span></div><div class="frame-item"><span class="frame-emoji">🎮</span>《黑神话：悟空》——<span class="frame-highlight">天命人</span></div></div><p class="scene-quote">七十二变，变的是神通，不变的是赤子之心</p></div>
 </section>
 
 <section class="scene" id="scene9" data-scene="8" data-3d="wukong">
   <div class="scene-bg"></div><div class="scene-seal">玖</div><div class="ink-silhouette" style="top:15%;right:8%">🌪</div>
-  <div class="scene-content"><h1 class="scene-title"><span class="gold">自由</span>之魂</h1><p class="scene-subtitle">一个筋斗十万八千里——刻在中国人骨子里的，是对自由的渴望。</p><div class="gold-frame"><div class="frame-item"><span class="frame-emoji">🗽</span>不跪玉帝不拜如来——<span class="frame-highlight">拒绝一切权威</span></div><div class="frame-item"><span class="frame-emoji">🏔</span>花果山称王水帘洞安家——<span class="frame-highlight">自己的王国</span></div><div class="frame-item"><span class="frame-emoji">🪽</span>筋斗云七十二变——<span class="frame-highlight">超越限制的想象</span></div></div><p class="scene-quote">我要这天，再遮不住我眼。我要这地，再埋不了我心</p></div>
+  <div class="scene-content"><h1 class="scene-title"><span class="gold">自由</span>之魂</h1><p class="scene-subtitle">一个筋斗十万八千里——刻在中国人骨子里的，是对自由的渴望。</p><div class="gold-frame"><div class="frame-item"><span class="frame-emoji">🗽</span>不跪玉帝不拜如来——<span class="frame-highlight">拒绝权威</span></div><div class="frame-item"><span class="frame-emoji">🏔</span>花果山称王水帘洞安家——<span class="frame-highlight">自己的王国</span></div><div class="frame-item"><span class="frame-emoji">🪽</span>筋斗云七十二变——<span class="frame-highlight">超越想象</span></div></div><p class="scene-quote">我要这天，再遮不住我眼。我要这地，再埋不了我心</p></div>
 </section>
 
 <section class="scene" id="scene10" data-scene="9" data-3d="shaseng">
@@ -196,230 +186,59 @@ body.loaded .scroll-container{opacity:1}
 
 </div>
 
-<!-- LOCAL Three.js — zero CDN dependency -->
-<script src="lib/three.min.js"></script>
 <script>
-// ===== QC SYSTEM =====
-const QC={three:false,audio:false,scene:false};
-function qcSet(k,ok){QC[k]=ok;const el=document.getElementById('qc'+k.charAt(0).toUpperCase()+k.slice(1));if(el){el.innerHTML=ok?'<span class="ok">✓</span> '+k:'<span class="fail">✗</span> '+k;el.className=ok?'ok':(ok===null?'warn':'fail')}}
-function qcAllOk(){return QC.three&&QC.audio&&QC.scene}
-
-// Check Three.js loaded
-if(typeof THREE!=='undefined'){qcSet('three',true)}else{qcSet('three',false)}
-
-// ===== DATA =====
-const CHS=[{id:'scene1',num:'壹'},{id:'scene2',num:'贰'},{id:'scene3',num:'叁'},{id:'scene4',num:'肆'},{id:'scene5',num:'伍'},{id:'scene6',num:'陆'},{id:'scene7',num:'柒'},{id:'scene8',num:'捌'},{id:'scene9',num:'玖'},{id:'scene10',num:'拾'},{id:'scene11',num:'拾壹'},{id:'scene-finale',num:'终'}];
-const SD=[{title:'石破天惊',emoji:'🌋',color:'#c0392b'},{title:'克制的力量',emoji:'🏯',color:'#e8a820'},{title:'霞衣护花',emoji:'🌸',color:'#f5d890'},{title:'天地本不全',emoji:'⭐',color:'#1e8568'},{title:'大圣有泪',emoji:'🦋',color:'#4a90b8'},{title:'定海神针',emoji:'🔱',color:'#e8a820'},{title:'正义必胜',emoji:'⚔',color:'#c0392b'},{title:'古今大圣',emoji:'🎭',color:'#f5d890'},{title:'自由之魂',emoji:'🌪',color:'#4a90b8'},{title:'师徒情深',emoji:'🧡',color:'#e8a820'},{title:'永恒大圣',emoji:'🐒',color:'#fef3c7'}];
-const QS={'石破天惊':{h:'混沌开天地\n灵石迸裂出大圣\n从此不平凡',m:'每一个中国人心中，都有一只等待破石而出的猴子。',f:'觉醒'},'克制的力量':{h:'可毁天灭地\n却选择收手停住\n真正的强大',m:'真正的力量不是摧毁一切，而是摧毁之后选择不摧毁。',f:'智慧'},'霞衣护花':{h:'霞衣轻轻落\n护住人间清白身\n大圣也柔情',m:'一只猴子比许多正人君子更懂尊重。',f:'尊重'},'天地本不全':{h:'天地本不全\n经文残缺也圆满\n求人不如己',m:'路不在西天，在脚下。你本来就是。',f:'觉悟'},'大圣有泪':{h:'金箍能降妖\n却降不住一滴泪\n大圣也深情',m:'那些守护弱者的瞬间，让斗战胜佛比神佛更接近人性。',f:'温暖'},'定海神针':{h:'东海万年沉\n一朝遇主冲天起\n人定能胜天',m:'定海神针选择了大圣，大圣选择了永不屈服。',f:'力量'},'正义必胜':{h:'八十一难重\n金箍棒下无妖孽\n正义永不败',m:'大圣不只是英雄，他是中国人善必胜恶的化身。',f:'信念'},'古今大圣':{h:'戏曲到屏幕\n七十二般变化里\n不变赤子心',m:'换了无数面孔，火眼金睛从未改变。',f:'传承'},'自由之魂':{h:'不跪天不跪地\n筋斗云翻十万八\n我命由我定',m:'大圣是唯一拒绝被定义的英雄。自由不在天涯，在心里。',f:'自由'},'师徒情深':{h:'紧箍咒收紧\n却系住了彼此心\n此路不独行',m:'最有力量的羁绊，不是金箍，是心甘情愿的守护。',f:'羁绊'},'永恒大圣':{h:'七十二般变\n不变是赤子之心\n千年如一日',m:'定海神针沉在东海，大圣活在我们心里。',f:'永恒'}};
-const CP={'自由':'俺一个筋斗十万八千里。真正的自由不在云上，在心里。','勇气':'勇气不是不怕。怕，但还是要上。','力量':'能翻天覆地不算本事。知道什么时候收手才是真本事。','人生':'求仙问卜不如自己做主。路不在西天，在脚下。','正义':'看到妖怪欺负人，打就是了。就这么简单。','坚持':'五行山下五百年。换别人早疯了。但俺知道总有一天会有人来揭那帖子。','孤独':'花果山漫山遍野的猴子猴孙。路上有人说话就不孤单。','失败':'只要还活着，就还有一棒子打回去的机会。','成长':'从弼马温到齐天大圣到斗战胜佛。成长是越来越清楚自己是谁。','爱':'保护师父保护师弟保护被欺负的人——这就是俺的方式。','死亡':'俺在生死簿上划掉了自己的名字。活着的每一天都是赚来的。','梦想':'俺当年最大的梦想就是不受人管。后来有了想保护的人，被人管着也挺好。'};
-const CD=['问得好！答案早就在你心里了。','哈哈有意思。俺活了上千年也没完全搞明白。','唐僧也问过。俺说：路在脚下。','做自己就够了。'];
-
-// ===== STATE =====
-let ci=0,tr=false,mp=false;
-let renderer,scene3d,camera,modelObjs=[];
-let audioCtx=null,activeOsc=null,musicPlaying=false;
-
-// ===== DOM =====
-const ls=document.getElementById('loadingScreen'),lt=document.getElementById('loadingTitle'),lc=document.getElementById('loadingCanvas');
-const sc=document.getElementById('scrollContainer'),to=document.getElementById('transitionOverlay'),cn=document.getElementById('chapterNav');
-const mb=document.getElementById('musicBtn'),tc=document.getElementById('threeCanvas');
-const sC=document.getElementById('starContainer'),sL=document.getElementById('starLines');
-const cI=document.getElementById('chatInput'),cS=document.getElementById('chatSend'),cR=document.getElementById('chatResponse');
-const sCd=document.getElementById('starCard'),sH=document.getElementById('starHaiku'),sM=document.getElementById('starMsg'),sF=document.getElementById('starFeeling');
-
-// ===== MUSIC: Web Audio API pentatonic =====
-const MELODIES=[
-  [330,392,523,659,784],  // E pentatonic — 云宫迅音 feel
-  [262,330,392,523,659],  // C pentatonic
-  [294,370,440,587,740],  // D pentatonic
-  [349,440,523,659,784],  // F pentatonic
-];
-
-function initAudio(){
-  try{audioCtx=new(window.AudioContext||window.webkitAudioContext)();qcSet('audio',true)}catch(e){qcSet('audio',false);return false}
-  return true;
-}
-
-function playNote(freq,time,dur,vol){
-  if(!audioCtx)return;
-  const o=audioCtx.createOscillator(),g=audioCtx.createGain();
-  o.type='triangle';o.frequency.setValueAtTime(freq,time);
-  g.gain.setValueAtTime(0,time);g.gain.linearRampToValueAtTime(vol,time+.05);g.gain.linearRampToValueAtTime(0,time+dur);
-  o.connect(g);g.connect(audioCtx.destination);o.start(time);o.stop(time+dur+.01);
-}
-
-function playMelody(melodyIdx){
-  if(!audioCtx)return;
-  const mel=MELODIES[melodyIdx%MELODIES.length];
-  const now=audioCtx.currentTime;
-  // Play a gentle arpeggio pattern
-  for(let i=0;i<mel.length*2;i++){
-    const idx=i%mel.length;
-    const oct=Math.floor(i/mel.length);
-    playNote(mel[idx]*Math.pow(2,oct),now+i*.6,.4,.03);
-  }
-}
-
-let melodyTimer=null;
-function startMusic(){
-  if(!audioCtx&&!initAudio())return;
-  musicPlaying=true;mb.classList.add('playing');mb.textContent='♪';
-  playMelody(ci);
-  melodyTimer=setInterval(()=>playMelody(ci),MELODIES[0].length*2*.6*1000);
-}
-function stopMusic(){
-  musicPlaying=false;mb.classList.remove('playing');mb.textContent='♫';
-  if(melodyTimer){clearInterval(melodyTimer);melodyTimer=null}
-}
-function changeMelody(idx){
-  if(!musicPlaying)return;
-  if(melodyTimer)clearInterval(melodyTimer);
-  playMelody(idx);
-  melodyTimer=setInterval(()=>playMelody(idx),MELODIES[0].length*2*.6*1000);
-}
-
-mb.addEventListener('click',()=>{if(!audioCtx)initAudio();musicPlaying?stopMusic():startMusic()});
-
-// Auto-start music on first user interaction
-const autoStart=()=>{if(!musicPlaying&&initAudio())startMusic();document.removeEventListener('click',autoStart);document.removeEventListener('scroll',autoStart)};
-document.addEventListener('click',autoStart);document.addEventListener('scroll',autoStart,{once:true});
-
-// ===== THREE.JS 3D =====
-function initThree(){
-  if(typeof THREE==='undefined'){qcSet('three',false);return}
+// ===== BUILD 3D IMMEDIATELY (parallel with opening) =====
+var _renderer,_scene,_camera,_objs=[];
+(function init3D(){
+  if(typeof THREE==='undefined')return;
   try{
-    renderer=new THREE.WebGLRenderer({canvas:tc,alpha:true,antialias:true});
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio,1.5));
-    renderer.setSize(window.innerWidth,window.innerHeight);
-    renderer.setClearColor(0x000000,0);
-    scene3d=new THREE.Scene();
-    camera=new THREE.PerspectiveCamera(55,window.innerWidth/window.innerHeight,.1,50);
-    camera.position.set(0,.2,6.5);
-    // Bright lights
-    scene3d.add(new THREE.AmbientLight(0x554433,1.0));
-    scene3d.add(new THREE.DirectionalLight(0xe8a820,1.8)).position.set(3,5,5);
-    scene3d.add(new THREE.DirectionalLight(0xffccaa,.6)).position.set(-2,0,3);
-    scene3d.add(new THREE.DirectionalLight(0xc0392b,.7)).position.set(-3,-2,-2);
-    qcSet('three',true);
-    animate();
-    window.addEventListener('resize',()=>{renderer.setSize(window.innerWidth,window.innerHeight);camera.aspect=window.innerWidth/window.innerHeight;camera.updateProjectionMatrix()});
-  }catch(e){qcSet('three',false)}
-}
+    _renderer=new THREE.WebGLRenderer({canvas:document.getElementById('threeCanvas'),alpha:true,antialias:true});
+    _renderer.setPixelRatio(Math.min(window.devicePixelRatio,1.5));
+    _renderer.setSize(window.innerWidth,window.innerHeight);
+    _renderer.setClearColor(0x000000,0);
+    _scene=new THREE.Scene();
+    _camera=new THREE.PerspectiveCamera(55,window.innerWidth/window.innerHeight,.1,50);
+    _camera.position.set(0,.2,6.5);
+    _scene.add(new THREE.AmbientLight(0x554433,1.0));
+    _scene.add(new THREE.DirectionalLight(0xe8a820,1.8)).position.set(3,5,5);
+    _scene.add(new THREE.DirectionalLight(0xffccaa,.6)).position.set(-2,0,3);
+    _scene.add(new THREE.DirectionalLight(0xc0392b,.7)).position.set(-3,-2,-2);
+    buildScene('wukong'); // Show 悟空 from the start
+    animate3D();
+    window.addEventListener('resize',()=>{_renderer.setSize(window.innerWidth,window.innerHeight);_camera.aspect=window.innerWidth/window.innerHeight;_camera.updateProjectionMatrix()});
+  }catch(e){}
+})();
 
-function animate(){
-  requestAnimationFrame(animate);
-  if(!modelObjs.length||!renderer)return;
+function animate3D(){
+  requestAnimationFrame(animate3D);
+  if(!_objs.length)return;
   const t=performance.now()*.001;
-  modelObjs.forEach(o=>{if(o.userData.ry)o.rotation.y+=o.userData.ry;if(o.userData.fl)o.position.y+=Math.sin(t*1.2+o.userData.of)*.004});
-  renderer.render(scene3d,camera);
+  _objs.forEach(o=>{if(o.ud&&o.ud.ry)o.rotation.y+=o.ud.ry;if(o.ud&&o.ud.fl)o.position.y+=Math.sin(t*1.2+o.ud.of)*.004});
+  _renderer.render(_scene,_camera);
 }
 
-function clearModel(){modelObjs.forEach(o=>scene3d.remove(o));modelObjs=[]}
-
-// Bright materials
+function clearScene(){_objs.forEach(o=>_scene.remove(o));_objs=[]}
 const gM=()=>new THREE.MeshStandardMaterial({color:0xe8a820,roughness:.15,metalness:.9,emissive:0x553300,emissiveIntensity:.6});
 const rM=()=>new THREE.MeshStandardMaterial({color:0xc0392b,roughness:.25,metalness:.5,emissive:0x440000,emissiveIntensity:.4});
 const bM=()=>new THREE.MeshStandardMaterial({color:0x2a1810,roughness:.6,metalness:.15});
 const cM=()=>new THREE.MeshStandardMaterial({color:0xf5efe0,roughness:.85,metalness:0,transparent:true,opacity:.15});
 const jM=()=>new THREE.MeshStandardMaterial({color:0x1e8568,roughness:.2,metalness:.7,emissive:0x003322,emissiveIntensity:.4});
 const fM=()=>new THREE.MeshStandardMaterial({color:0xf5d890,roughness:.2,metalness:.5,emissive:0x443300,emissiveIntensity:.4,transparent:true,opacity:.9});
+function ad(o,ry,fl,of){_scene.add(o);_objs.push(o);o.ud={};if(ry)o.ud.ry=ry;if(fl){o.ud.fl=true;o.ud.of=of||0}return o}
 
-function add(o,ry,fl,of){scene3d.add(o);modelObjs.push(o);if(ry)o.userData.ry=ry;if(fl){o.userData.fl=true;o.userData.of=of||0}return o}
+function mkStaff(x,y,z,s,ry){const g=new THREE.Group();g.add(new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,3.2,16),gM()));const tp=new THREE.Mesh(new THREE.TorusGeometry(.16,.045,8,16),gM());tp.position.y=1.6;g.add(tp);const ti=new THREE.Mesh(new THREE.SphereGeometry(.11,8,8),gM());ti.position.y=1.85;g.add(ti);g.position.set(x,y,z);g.scale.setScalar(s||1);return ad(g,ry)}
+function mkWukong(){const g=new THREE.Group();g.add(new THREE.Mesh(new THREE.SphereGeometry(.24,18,18),gM())).position.y=1.35;g.add(new THREE.Mesh(new THREE.TorusGeometry(.26,.035,8,18),rM())).position.y=1.5;for(let i=0;i<2;i++){const f=new THREE.Mesh(new THREE.ConeGeometry(.035,.28,6),rM());f.position.set((i-.5)*.18,1.68,.08);f.rotation.z=(i-.5)*.35;g.add(f)}g.add(new THREE.Mesh(new THREE.SphereGeometry(.045,6,6),bM())).position.set(.09,1.4,.18);g.add(new THREE.Mesh(new THREE.SphereGeometry(.045,6,6),bM())).position.set(-.09,1.4,.18);const bd=new THREE.Mesh(new THREE.CylinderGeometry(.2,.26,1.3,12),gM());bd.position.y=.65;g.add(bd);const bl=new THREE.Mesh(new THREE.TorusGeometry(.28,.035,8,16),rM());bl.position.y=.45;g.add(bl);g.add(new THREE.Mesh(new THREE.CylinderGeometry(.065,.065,.85,8),gM())).position.set(.3,.85,0).rotation.z=.35;g.add(new THREE.Mesh(new THREE.CylinderGeometry(.065,.065,.85,8),gM())).position.set(-.3,.85,0).rotation.z=-1.05;const st=new THREE.Mesh(new THREE.CylinderGeometry(.045,.045,1.8,8),gM());st.position.set(.55,.65,0);st.rotation.z=-.55;g.add(st);g.add(new THREE.Mesh(new THREE.CylinderGeometry(.075,.075,.75,8),gM())).position.set(.12,0,0);g.add(new THREE.Mesh(new THREE.CylinderGeometry(.075,.075,.75,8),gM())).position.set(-.12,0,0);g.add(new THREE.Mesh(new THREE.ConeGeometry(.32,.35,8),rM())).position.y=.1;for(let i=0;i<5;i++)g.add(new THREE.Mesh(new THREE.SphereGeometry(.16,6,6),cM())).position.set(Math.cos(i*1.256)*.28,-.2,Math.sin(i*1.256)*.18);g.position.set(0,-.55,0);return ad(g,.005,true,0)}
+function mkFairy(x){const g=new THREE.Group();g.add(new THREE.Mesh(new THREE.CylinderGeometry(.09,.13,1.5,8),fM())).position.y=.75;g.add(new THREE.Mesh(new THREE.SphereGeometry(.13,8,8),new THREE.MeshStandardMaterial({color:0xfef3c7,roughness:.15,metalness:.05}))).position.y=1.6;g.add(new THREE.Mesh(new THREE.SphereGeometry(.08,6,6),bM())).position.y=1.7;for(let i=0;i<3;i++){const r=new THREE.Mesh(new THREE.TorusGeometry(.2,.01,6,8,Math.PI),new THREE.MeshStandardMaterial({color:0xf5d890,roughness:.15,transparent:true,opacity:.65}));r.position.set(0,1.2+i*.32,0);r.rotation.x=Math.PI/2;r.rotation.z=i*.35;g.add(r)}g.position.set(x||0,0,0);return ad(g,.0015,true,Math.random()*6)}
+function mkPig(){const g=new THREE.Group();const bd=new THREE.Mesh(new THREE.SphereGeometry(.42,12,12),new THREE.MeshStandardMaterial({color:0x8b7355,roughness:.4,emissive:0x110000,emissiveIntensity:.15}));bd.scale.set(1,1.15,.78);bd.position.y=.42;g.add(bd);g.add(new THREE.Mesh(new THREE.SphereGeometry(.26,10,10),new THREE.MeshStandardMaterial({color:0xa08060,roughness:.35}))).position.set(.16,1.05,0);const sn=new THREE.Mesh(new THREE.CylinderGeometry(.11,.13,.16,8),new THREE.MeshStandardMaterial({color:0xd4a0a0,roughness:.35}));sn.position.set(.32,1.05,.11);sn.rotation.x=Math.PI/2;g.add(sn);g.add(new THREE.Mesh(new THREE.ConeGeometry(.11,.16,8),new THREE.MeshStandardMaterial({color:0xa08060,roughness:.45}))).position.set(.05,1.32,.2);g.add(new THREE.Mesh(new THREE.SphereGeometry(.26,6,6),new THREE.MeshStandardMaterial({color:0xc4a882,roughness:.35}))).position.set(0,.38,.33);const rk=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,1.8,8),new THREE.MeshStandardMaterial({color:0x777,roughness:.25,metalness:.85}));rk.position.set(.5,.65,0);rk.rotation.z=-.32;g.add(rk);g.position.set(0,-.3,0);return ad(g,.0025,true,1.5)}
+function mkMonk(){const g=new THREE.Group();g.add(new THREE.Mesh(new THREE.CylinderGeometry(.16,.2,1.3,8),new THREE.MeshStandardMaterial({color:0xd4c4a0,roughness:.45}))).position.y=.65;g.add(new THREE.Mesh(new THREE.SphereGeometry(.18,10,10),new THREE.MeshStandardMaterial({color:0xe8dcc8,roughness:.25}))).position.y=1.4;g.add(new THREE.Mesh(new THREE.CylinderGeometry(.2,.22,.16,10),rM())).position.y=1.55;g.add(new THREE.Mesh(new THREE.ConeGeometry(.25,.4,8),rM())).position.y=.32;g.add(new THREE.Mesh(new THREE.CylinderGeometry(.045,.045,2,8),new THREE.MeshStandardMaterial({color:0x8b6914,roughness:.15,metalness:.75}))).position.set(.32,.75,0);return ad(g,0,true,2.8)}
+function mkDragon(){const g=new THREE.Group();for(let i=0;i<7;i++)g.add(new THREE.Mesh(new THREE.SphereGeometry(.13-(i*.01),6,6),jM())).position.set(0,i*.38-.55,Math.sin(i*.48)*.18);const hd=new THREE.Mesh(new THREE.ConeGeometry(.16,.32,8),jM());hd.position.set(0,.85,0);hd.rotation.x=-Math.PI*.22;g.add(hd);g.add(new THREE.Mesh(new THREE.ConeGeometry(.035,.22,6),gM())).position.set(.1,.95,0).rotation.z=.28;g.add(new THREE.Mesh(new THREE.ConeGeometry(.035,.22,6),gM())).position.set(-.1,.95,0).rotation.z=-.28;for(let s of[-1,1])g.add(new THREE.Mesh(new THREE.TorusGeometry(.12,.012,6,6,Math.PI),new THREE.MeshStandardMaterial({color:0xf5d890,roughness:.1}))).position.set(s*.1,.82,.12).rotation.y=s*.45;g.position.set(0,-.25,0);return ad(g,.004,true,3.2)}
+function mkDemon(x){const g=new THREE.Group();g.add(new THREE.Mesh(new THREE.DodecahedronGeometry(.28,1),new THREE.MeshStandardMaterial({color:0x2a1818,roughness:.55,emissive:0x110000,emissiveIntensity:.25}))).position.y=.55;g.add(new THREE.Mesh(new THREE.IcosahedronGeometry(.2,1),new THREE.MeshStandardMaterial({color:0x3a2020,roughness:.45}))).position.y=1.15;for(let s of[-1,1])g.add(new THREE.Mesh(new THREE.ConeGeometry(.06,.28,6),bM())).position.set(s*.09,1.38,0).rotation.z=s*.22;g.add(new THREE.Mesh(new THREE.SphereGeometry(.045,5,5),rM())).position.set(.1,1.22,.16);g.add(new THREE.Mesh(new THREE.SphereGeometry(.045,5,5),rM())).position.set(-.1,1.22,.16);g.position.set(x||0,0,0);return ad(g,-.0025,true,Math.random()*4)}
+function mkShaseng(){const g=new THREE.Group();g.add(new THREE.Mesh(new THREE.CylinderGeometry(.16,.18,1.5,8),new THREE.MeshStandardMaterial({color:0x4a3728,roughness:.45,emissive:0x110000,emissiveIntensity:.1}))).position.y=.75;g.add(new THREE.Mesh(new THREE.SphereGeometry(.16,10,10),new THREE.MeshStandardMaterial({color:0x6b5b4f,roughness:.35}))).position.y=1.6;g.add(new THREE.Mesh(new THREE.ConeGeometry(.09,.22,6),bM())).position.set(0,1.38,.14);for(let i=0;i<5;i++)g.add(new THREE.Mesh(new THREE.SphereGeometry(.045,5,5),new THREE.MeshStandardMaterial({color:0x8b6914,roughness:.15,metalness:.55}))).position.set(Math.cos(i*1.256)*.18,1.18,Math.sin(i*1.256)*.15);g.add(new THREE.Mesh(new THREE.CylinderGeometry(.055,.055,2.2,8),new THREE.MeshStandardMaterial({color:0x888,roughness:.15,metalness:.85}))).position.set(.38,.85,0).rotation.z=-.18;return ad(g,0,true,4.5)}
+function mkClouds(n){for(let i=0;i<n;i++)ad(new THREE.Mesh(new THREE.SphereGeometry(.32+Math.random()*.48,6,6),cM()),.0006+Math.random()*.0015,false).position.set((Math.random()-.5)*6.5,(Math.random()-.5)*3.8,-1.5)}
 
-function mkStaff(x,y,z,s,ry){
-  const g=new THREE.Group();
-  const shaft=new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,3.2,16),gM());g.add(shaft);
-  const tp=new THREE.Mesh(new THREE.TorusGeometry(.16,.045,8,16),gM());tp.position.y=1.6;g.add(tp);
-  const ti=new THREE.Mesh(new THREE.SphereGeometry(.11,8,8),gM());ti.position.y=1.85;g.add(ti);
-  g.position.set(x,y,z);g.scale.setScalar(s||1);return add(g,ry);
-}
-
-function mkWukong(){
-  const g=new THREE.Group();
-  const head=new THREE.Mesh(new THREE.SphereGeometry(.24,18,18),gM());head.position.y=1.35;g.add(head);
-  const crown=new THREE.Mesh(new THREE.TorusGeometry(.26,.035,8,18),rM());crown.position.y=1.5;g.add(crown);
-  for(let i=0;i<2;i++){const f=new THREE.Mesh(new THREE.ConeGeometry(.035,.28,6),rM());f.position.set((i-.5)*.18,1.68,.08);f.rotation.z=(i-.5)*.35;g.add(f)}
-  g.add(new THREE.Mesh(new THREE.SphereGeometry(.045,6,6),bM())).position.set(.09,1.4,.18);
-  g.add(new THREE.Mesh(new THREE.SphereGeometry(.045,6,6),bM())).position.set(-.09,1.4,.18);
-  const body=new THREE.Mesh(new THREE.CylinderGeometry(.2,.26,1.3,12),gM());body.position.y=.65;g.add(body);
-  const belt=new THREE.Mesh(new THREE.TorusGeometry(.28,.035,8,16),rM());belt.position.y=.45;g.add(belt);
-  g.add(new THREE.Mesh(new THREE.CylinderGeometry(.065,.065,.85,8),gM())).position.set(.3,.85,0).rotation.z=.35;
-  g.add(new THREE.Mesh(new THREE.CylinderGeometry(.065,.065,.85,8),gM())).position.set(-.3,.85,0).rotation.z=-1.05;
-  const stf=new THREE.Mesh(new THREE.CylinderGeometry(.045,.045,1.8,8),gM());stf.position.set(.55,.65,0);stf.rotation.z=-.55;g.add(stf);
-  g.add(new THREE.Mesh(new THREE.CylinderGeometry(.075,.075,.75,8),gM())).position.set(.12,0,0);
-  g.add(new THREE.Mesh(new THREE.CylinderGeometry(.075,.075,.75,8),gM())).position.set(-.12,0,0);
-  g.add(new THREE.Mesh(new THREE.ConeGeometry(.32,.35,8),rM())).position.y=.1;
-  for(let i=0;i<5;i++)g.add(new THREE.Mesh(new THREE.SphereGeometry(.16,6,6),cM())).position.set(Math.cos(i*1.256)*.28,-.2,Math.sin(i*1.256)*.18);
-  g.position.set(0,-.55,0);return add(g,.005,true,0);
-}
-
-function mkFairy(x){
-  const g=new THREE.Group();
-  g.add(new THREE.Mesh(new THREE.CylinderGeometry(.09,.13,1.5,8),fM())).position.y=.75;
-  g.add(new THREE.Mesh(new THREE.SphereGeometry(.13,8,8),new THREE.MeshStandardMaterial({color:0xfef3c7,roughness:.15,metalness:.05}))).position.y=1.6;
-  g.add(new THREE.Mesh(new THREE.SphereGeometry(.08,6,6),bM())).position.y=1.7;
-  for(let i=0;i<3;i++){const r=new THREE.Mesh(new THREE.TorusGeometry(.2,.01,6,8,Math.PI),new THREE.MeshStandardMaterial({color:0xf5d890,roughness:.15,transparent:true,opacity:.65}));r.position.set(0,1.2+i*.32,0);r.rotation.x=Math.PI/2;r.rotation.z=i*.35;g.add(r)}
-  g.position.set(x||0,0,0);return add(g,.0015,true,Math.random()*6);
-}
-
-function mkPig(){
-  const g=new THREE.Group();
-  const body=new THREE.Mesh(new THREE.SphereGeometry(.42,12,12),new THREE.MeshStandardMaterial({color:0x8b7355,roughness:.4,emissive:0x110000,emissiveIntensity:.15}));body.scale.set(1,1.15,.78);body.position.y=.42;g.add(body);
-  g.add(new THREE.Mesh(new THREE.SphereGeometry(.26,10,10),new THREE.MeshStandardMaterial({color:0xa08060,roughness:.35}))).position.set(.16,1.05,0);
-  const snout=new THREE.Mesh(new THREE.CylinderGeometry(.11,.13,.16,8),new THREE.MeshStandardMaterial({color:0xd4a0a0,roughness:.35}));snout.position.set(.32,1.05,.11);snout.rotation.x=Math.PI/2;g.add(snout);
-  g.add(new THREE.Mesh(new THREE.ConeGeometry(.11,.16,8),new THREE.MeshStandardMaterial({color:0xa08060,roughness:.45}))).position.set(.05,1.32,.2);
-  g.add(new THREE.Mesh(new THREE.SphereGeometry(.26,6,6),new THREE.MeshStandardMaterial({color:0xc4a882,roughness:.35}))).position.set(0,.38,.33);
-  const rake=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,1.8,8),new THREE.MeshStandardMaterial({color:0x777777,roughness:.25,metalness:.85}));rake.position.set(.5,.65,0);rake.rotation.z=-.32;g.add(rake);
-  g.position.set(0,-.3,0);return add(g,.0025,true,1.5);
-}
-
-function mkMonk(){
-  const g=new THREE.Group();
-  g.add(new THREE.Mesh(new THREE.CylinderGeometry(.16,.2,1.3,8),new THREE.MeshStandardMaterial({color:0xd4c4a0,roughness:.45}))).position.y=.65;
-  g.add(new THREE.Mesh(new THREE.SphereGeometry(.18,10,10),new THREE.MeshStandardMaterial({color:0xe8dcc8,roughness:.25}))).position.y=1.4;
-  g.add(new THREE.Mesh(new THREE.CylinderGeometry(.2,.22,.16,10),rM())).position.y=1.55;
-  g.add(new THREE.Mesh(new THREE.ConeGeometry(.25,.4,8),rM())).position.y=.32;
-  g.add(new THREE.Mesh(new THREE.CylinderGeometry(.045,.045,2,8),new THREE.MeshStandardMaterial({color:0x8b6914,roughness:.15,metalness:.75}))).position.set(.32,.75,0);
-  return add(g,0,true,2.8);
-}
-
-function mkDragon(){
-  const g=new THREE.Group();
-  for(let i=0;i<7;i++)g.add(new THREE.Mesh(new THREE.SphereGeometry(.13-(i*.01),6,6),jM())).position.set(0,i*.38-.55,Math.sin(i*.48)*.18);
-  const head=new THREE.Mesh(new THREE.ConeGeometry(.16,.32,8),jM());head.position.set(0,.85,0);head.rotation.x=-Math.PI*.22;g.add(head);
-  g.add(new THREE.Mesh(new THREE.ConeGeometry(.035,.22,6),gM())).position.set(.1,.95,0).rotation.z=.28;
-  g.add(new THREE.Mesh(new THREE.ConeGeometry(.035,.22,6),gM())).position.set(-.1,.95,0).rotation.z=-.28;
-  for(let s of[-1,1])g.add(new THREE.Mesh(new THREE.TorusGeometry(.12,.012,6,6,Math.PI),new THREE.MeshStandardMaterial({color:0xf5d890,roughness:.1}))).position.set(s*.1,.82,.12).rotation.y=s*.45;
-  g.position.set(0,-.25,0);return add(g,.004,true,3.2);
-}
-
-function mkDemon(x){
-  const g=new THREE.Group();
-  g.add(new THREE.Mesh(new THREE.DodecahedronGeometry(.28,1),new THREE.MeshStandardMaterial({color:0x2a1818,roughness:.55,emissive:0x110000,emissiveIntensity:.25}))).position.y=.55;
-  g.add(new THREE.Mesh(new THREE.IcosahedronGeometry(.2,1),new THREE.MeshStandardMaterial({color:0x3a2020,roughness:.45}))).position.y=1.15;
-  for(let s of[-1,1])g.add(new THREE.Mesh(new THREE.ConeGeometry(.06,.28,6),bM())).position.set(s*.09,1.38,0).rotation.z=s*.22;
-  g.add(new THREE.Mesh(new THREE.SphereGeometry(.045,5,5),rM())).position.set(.1,1.22,.16);
-  g.add(new THREE.Mesh(new THREE.SphereGeometry(.045,5,5),rM())).position.set(-.1,1.22,.16);
-  g.position.set(x||0,0,0);return add(g,-.0025,true,Math.random()*4);
-}
-
-function mkShaseng(){
-  const g=new THREE.Group();
-  g.add(new THREE.Mesh(new THREE.CylinderGeometry(.16,.18,1.5,8),new THREE.MeshStandardMaterial({color:0x4a3728,roughness:.45,emissive:0x110000,emissiveIntensity:.1}))).position.y=.75;
-  g.add(new THREE.Mesh(new THREE.SphereGeometry(.16,10,10),new THREE.MeshStandardMaterial({color:0x6b5b4f,roughness:.35}))).position.y=1.6;
-  g.add(new THREE.Mesh(new THREE.ConeGeometry(.09,.22,6),bM())).position.set(0,1.38,.14);
-  for(let i=0;i<5;i++)g.add(new THREE.Mesh(new THREE.SphereGeometry(.045,5,5),new THREE.MeshStandardMaterial({color:0x8b6914,roughness:.15,metalness:.55}))).position.set(Math.cos(i*1.256)*.18,1.18,Math.sin(i*1.256)*.15);
-  g.add(new THREE.Mesh(new THREE.CylinderGeometry(.055,.055,2.2,8),new THREE.MeshStandardMaterial({color:0x888888,roughness:.15,metalness:.85}))).position.set(.38,.85,0).rotation.z=-.18;
-  return add(g,0,true,4.5);
-}
-
-function mkClouds(n){
-  for(let i=0;i<n;i++)add(new THREE.Mesh(new THREE.SphereGeometry(.32+Math.random()*.48,6,6),cM()),.0006+Math.random()*.0015,false).position.set((Math.random()-.5)*6.5,(Math.random()-.5)*3.8,-1.5);
-}
-
-function build3DScene(type){
-  if(!renderer||!scene3d)return;
-  clearModel();
+function buildScene(type){
+  if(!_renderer||!_scene)return;
+  clearScene();
   switch(type){
     case'wukong':mkWukong();mkStaff(-1.8,-.5,0,.65,.0015);mkStaff(1.8,-.5,0,.65,-.0015);mkClouds(5);break;
     case'fairies':for(let i=0;i<5;i++)mkFairy((i-2)*.75);mkClouds(7);break;
@@ -430,19 +249,111 @@ function build3DScene(type){
     case'dragon':mkDragon();mkClouds(8);break;
     case'demons':for(let i=0;i<3;i++)mkDemon((i-1)*1.2);mkClouds(4);break;
     case'shaseng':mkShaseng();mkClouds(4);break;
-    case'stars':for(let i=0;i<30;i++)add(new THREE.Mesh(new THREE.SphereGeometry(.022+Math.random()*.035,4,4),new THREE.MeshStandardMaterial({color:0xfef3c7,emissive:0xe8a820,emissiveIntensity:.8})),0,true,Math.random()*7).position.set((Math.random()-.5)*8,(Math.random()-.5)*6.5,-2.5);break;
+    case'stars':for(let i=0;i<30;i++)ad(new THREE.Mesh(new THREE.SphereGeometry(.022+Math.random()*.035,4,4),new THREE.MeshStandardMaterial({color:0xfef3c7,emissive:0xe8a820,emissiveIntensity:.8})),0,true,Math.random()*7).position.set((Math.random()-.5)*8,(Math.random()-.5)*6.5,-2.5);break;
     default:mkClouds(9);
   }
 }
 
-// ===== OPENING ANIMATION =====
+// ===== DATA =====
+const CHS=[{id:'scene1',num:'壹'},{id:'scene2',num:'贰'},{id:'scene3',num:'叁'},{id:'scene4',num:'肆'},{id:'scene5',num:'伍'},{id:'scene6',num:'陆'},{id:'scene7',num:'柒'},{id:'scene8',num:'捌'},{id:'scene9',num:'玖'},{id:'scene10',num:'拾'},{id:'scene11',num:'拾壹'},{id:'scene-finale',num:'终'}];
+const SD=[{title:'石破天惊',emoji:'🌋',color:'#c0392b'},{title:'克制的力量',emoji:'🏯',color:'#e8a820'},{title:'霞衣护花',emoji:'🌸',color:'#f5d890'},{title:'天地本不全',emoji:'⭐',color:'#1e8568'},{title:'大圣有泪',emoji:'🦋',color:'#4a90b8'},{title:'定海神针',emoji:'🔱',color:'#e8a820'},{title:'正义必胜',emoji:'⚔',color:'#c0392b'},{title:'古今大圣',emoji:'🎭',color:'#f5d890'},{title:'自由之魂',emoji:'🌪',color:'#4a90b8'},{title:'师徒情深',emoji:'🧡',color:'#e8a820'},{title:'永恒大圣',emoji:'🐒',color:'#fef3c7'}];
+const QS={'石破天惊':{h:'混沌开天地\n灵石迸裂出大圣\n从此不平凡',m:'每一个中国人心中，都有一只等待破石而出的猴子。',f:'觉醒'},'克制的力量':{h:'可毁天灭地\n却选择收手停住\n真正的强大',m:'真正的力量不是摧毁一切，而是摧毁之后选择不摧毁。',f:'智慧'},'霞衣护花':{h:'霞衣轻轻落\n护住人间清白身\n大圣也柔情',m:'一只猴子比许多正人君子更懂尊重。',f:'尊重'},'天地本不全':{h:'天地本不全\n经文残缺也圆满\n求人不如己',m:'路不在西天，在脚下。你本来就是。',f:'觉悟'},'大圣有泪':{h:'金箍能降妖\n却降不住一滴泪\n大圣也深情',m:'那些守护弱者的瞬间，让斗战胜佛比神佛更接近人性。',f:'温暖'},'定海神针':{h:'东海万年沉\n一朝遇主冲天起\n人定能胜天',m:'定海神针选择了大圣，大圣选择了永不屈服。',f:'力量'},'正义必胜':{h:'八十一难重\n金箍棒下无妖孽\n正义永不败',m:'大圣不只是英雄，他是中国人善必胜恶的化身。',f:'信念'},'古今大圣':{h:'戏曲到屏幕\n七十二般变化里\n不变赤子心',m:'换了无数面孔，火眼金睛从未改变。',f:'传承'},'自由之魂':{h:'不跪天不跪地\n筋斗云翻十万八\n我命由我定',m:'大圣是唯一拒绝被定义的英雄。自由不在天涯，在心里。',f:'自由'},'师徒情深':{h:'紧箍咒收紧\n却系住了彼此心\n此路不独行',m:'最有力量的羁绊，不是金箍，是心甘情愿的守护。',f:'羁绊'},'永恒大圣':{h:'七十二般变\n不变是赤子之心\n千年如一日',m:'定海神针沉在东海，大圣活在我们心里。',f:'永恒'}};
+const CP={'自由':'俺一个筋斗十万八千里。真正的自由不在云上，在心里。','勇气':'勇气不是不怕。怕，但还是要上。','力量':'能翻天覆地不算本事。知道什么时候收手才是真本事。','人生':'求仙问卜不如自己做主。路不在西天，在脚下。','正义':'看到妖怪欺负人，打就是了。就这么简单。','坚持':'五行山下五百年。换别人早疯了。但俺知道总有一天会有人来揭那帖子。','孤独':'花果山漫山遍野的猴子猴孙。路上有人说话就不孤单。','失败':'只要还活着，就还有一棒子打回去的机会。','成长':'从弼马温到齐天大圣到斗战胜佛。成长是越来越清楚自己是谁。','爱':'保护师父保护师弟保护被欺负的人——这就是俺的方式。','死亡':'俺在生死簿上划掉了自己的名字。活着的每一天都是赚来的。','梦想':'俺当年最大的梦想就是不受人管。后来有了想保护的人，被人管着也挺好。'};
+const CD=['问得好！答案早就在你心里了。','哈哈有意思。俺活了上千年也没完全搞明白。','唐僧也问过。俺说：路在脚下。','做自己就够了。'];
+
+let ci=0,tr=false,mp=false;
+let audioCtx=null,musicPlaying=false,melodyNode=null;
+
+// ===== DOM =====
+const ls=document.getElementById('loadingScreen'),lt=document.getElementById('loadingTitle'),lc=document.getElementById('loadingCanvas');
+const sc=document.getElementById('scrollContainer'),to=document.getElementById('transitionOverlay'),cn=document.getElementById('chapterNav');
+const mb=document.getElementById('musicBtn');
+const sC=document.getElementById('starContainer'),sL=document.getElementById('starLines');
+const cI=document.getElementById('chatInput'),cS=document.getElementById('chatSend'),cR=document.getElementById('chatResponse');
+const sCd=document.getElementById('starCard'),sH=document.getElementById('starHaiku'),sM=document.getElementById('starMsg'),sF=document.getElementById('starFeeling');
+
+// ===== MUSIC: Flowing pentatonic melody =====
+// Chinese pentatonic: 宫商角徵羽 = C D E G A
+const SCALE=[262,294,330,392,440,523,588,660,784,880]; // C4 D4 E4 G4 A4 C5 D5 E5 G5 A5
+
+// Beautiful flowing melody patterns
+const MELODY=[
+  [262,330,392,523,392,330,392,523,659,523,392,330,294,262],
+  [392,523,659,784,659,523,392,330,392,523,392,330,262,294],
+  [523,659,784,880,784,659,523,392,523,659,523,392,330,262],
+  [440,523,659,784,659,523,440,392,440,523,440,392,330,294],
+];
+
+function initAudio(){
+  try{audioCtx=new(window.AudioContext||window.webkitAudioContext)()}catch(e){return false}
+  // Create reverb/delay node for fullness
+  try{
+    const delay=audioCtx.createDelay(1);delay.delayTime.value=.3;
+    const feedback=audioCtx.createGain();feedback.gain.value=.25;
+    const wet=audioCtx.createGain();wet.gain.value=.4;
+    delay.connect(feedback);feedback.connect(delay);delay.connect(wet);wet.connect(audioCtx.destination);
+    melodyNode={delay:delay,dry:audioCtx.createGain()};
+    melodyNode.dry.gain.value=.6;melodyNode.dry.connect(audioCtx.destination);
+  }catch(e){melodyNode=null}
+  return true;
+}
+
+function playNote(freq,start,dur,vol){
+  if(!audioCtx)return;
+  const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+  o.type='triangle';
+  o.frequency.setValueAtTime(freq,start);
+  g.gain.setValueAtTime(0,start);
+  g.gain.linearRampToValueAtTime(vol,start+.04);
+  g.gain.setValueAtTime(vol,start+dur*.7);
+  g.gain.linearRampToValueAtTime(0,start+dur);
+  o.connect(g);
+  // Route to dry + delay
+  if(melodyNode&&melodyNode.dry){g.connect(melodyNode.dry);g.connect(melodyNode.delay)}
+  else g.connect(audioCtx.destination);
+  o.start(start);o.stop(start+dur+.02);
+}
+
+function playMelody(idx){
+  if(!audioCtx)return;
+  const mel=MELODY[idx%MELODY.length];
+  const now=audioCtx.currentTime;
+  const noteDuration=.45; // flowing tempo
+  // Play melody with harmony (fifth below on every other note)
+  for(let i=0;i<mel.length;i++){
+    const t=now+i*noteDuration;
+    playNote(mel[i],t,noteDuration*1.2,.04); // melody
+    if(i%3===0)playNote(mel[i]*.667,t,noteDuration*1.5,.015); // harmony (fifth below)
+    if(i%4===0)playNote(mel[i]*.5,t,noteDuration*2,.01); // bass octave
+  }
+}
+
+let melodyTimer=null;
+function startMusic(){
+  if(!audioCtx&&!initAudio())return;
+  musicPlaying=true;mb.classList.add('playing');mb.textContent='♪';
+  playMelody(ci);
+  const loopLen=MELODY[0].length*.45*1000;
+  melodyTimer=setInterval(()=>playMelody(ci),loopLen);
+}
+function stopMusic(){
+  musicPlaying=false;mb.classList.remove('playing');mb.textContent='♫';
+  if(melodyTimer){clearInterval(melodyTimer);melodyTimer=null}
+}
+
+mb.addEventListener('click',()=>{if(!audioCtx)initAudio();musicPlaying?stopMusic():startMusic()});
+
+// Auto-start on user gesture — no click needed after first interaction
+const autoMusic=()=>{if(!musicPlaying){initAudio();startMusic()}document.removeEventListener('click',autoMusic);document.removeEventListener('scroll',autoMusic)};
+document.addEventListener('click',autoMusic);document.addEventListener('scroll',autoMusic,{once:true});
+
+// ===== OPENING (3D behind it already running) =====
 (function runLoading(){
   const ctx=lc.getContext('2d');
   const W=()=>lc.width=window.innerWidth,H=()=>lc.height=window.innerHeight;
   W();H();window.addEventListener('resize',()=>{W();H()});
   let sy=-120,tY=H()*.58,vel=0,phase='falling',lT=0,crk=[],pts=[],ga=0;
   const sw=10,sh=350,sx=W()/2;
-
   function draw(){
     if(!ls.classList.contains('hidden'))requestAnimationFrame(draw);
     ctx.clearRect(0,0,W(),H());const now=performance.now();
@@ -458,43 +369,39 @@ function build3DScene(type){
     if(phase==='falling'||phase==='landing'){ga=Math.min(1,ga+.025);const glow=ctx.createRadialGradient(sx,tY,0,sx,tY,80);glow.addColorStop(0,'rgba(254,243,199,.35)');glow.addColorStop(.5,'rgba(192,57,43,.2)');glow.addColorStop(1,'transparent');ctx.fillStyle=glow;ctx.beginPath();ctx.arc(sx,tY,80,0,Math.PI*2);ctx.fill()}
     if(phase==='landing')ctx.restore();
     if(phase==='cracking'&&now-lT-700>1400){phase='reveal';lt.classList.add('show');
-      setTimeout(()=>{ls.classList.add('hidden');document.body.classList.add('loaded');setTimeout(()=>ls.remove(),800);
-        initThree();build3DScene('wukong');initScroll();initStars();initChat();
-        qcSet('scene',true);
-      },1200);}
+      setTimeout(()=>{ls.classList.add('hidden');document.body.classList.add('loaded');setTimeout(()=>ls.remove(),800);initScroll();initStars();initChat()},1200);}
   }
   requestAnimationFrame(draw);
 })();
 
-// ===== NAV =====
+// Nav
 CHS.forEach((ch,i)=>{const w=document.createElement('div');w.className='chapter-dot-wrap';w.innerHTML=`<div class="chapter-dot${i===0?' active':''}" data-idx="${i}"></div><span class="chapter-label">${ch.num}</span>`;w.addEventListener('click',()=>goTo(i));cn.appendChild(w)});
 function goTo(idx){if(tr)return;tr=true;to.classList.add('active');document.getElementById(CHS[idx].id).scrollIntoView({behavior:'smooth'});setTimeout(()=>{to.classList.remove('active');tr=false},350)}
 function uNav(){document.querySelectorAll('.chapter-dot').forEach((d,i)=>d.classList.toggle('active',i===ci))}
 
 function initScroll(){
   const scenes=document.querySelectorAll('.scene');
-  const ob=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting&&e.intersectionRatio>.4){const idx=parseInt(e.target.dataset.scene);if(idx!==ci&&!tr){ci=idx;e.target.classList.add('visible');uNav();const t3d=e.target.dataset['3d'];if(t3d&&window.THREE)build3DScene(t3d);if(musicPlaying)changeMelody(idx)}}})},{threshold:.4});
+  const ob=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting&&e.intersectionRatio>.4){const idx=parseInt(e.target.dataset.scene);if(idx!==ci&&!tr){ci=idx;e.target.classList.add('visible');uNav();const t3d=e.target.dataset['3d'];if(t3d)buildScene(t3d)}}})},{threshold:.4});
   scenes.forEach(s=>ob.observe(s));scenes[0].classList.add('visible');
 }
 
-// ===== STARS =====
+// Stars
 function initStars(){
   const W=sC.offsetWidth,H=sC.offsetHeight,cx=W/2,cy=H*.35;
   const pts=SD.map((s,i)=>{const a=(i/SD.length)*Math.PI*2-Math.PI/2,r=Math.min(W,H)*.3;return{x:cx+Math.cos(a)*r,y:cy+Math.sin(a)*r,...s}});
-  let svg='';for(let i=0;i<pts.length;i++){for(let j=i+1;j<pts.length;j++){if(j===i+1||(i===0&&j===pts.length-1))svg+=`<line class="star-line" x1="${pts[i].x}" y1="${pts[i].y}" x2="${pts[j].x}" y2="${pts[j].y}"/>`}}sL.innerHTML=svg;
-  pts.forEach(p=>{const d=document.createElement('div');d.className='star-dot';const sz=6;p%3;d.style.cssText=`left:${p.x-sz/2}px;top:${p.y-sz/2}px;width:${sz}px;height:${sz}px;background:${p.color};animation:pulse-glow 2s ease-in-out infinite`;d.addEventListener('click',()=>showCard(p));sC.appendChild(d)});
+  let svg='';for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++)if(j===i+1||(i===0&&j===pts.length-1))svg+=`<line class="star-line" x1="${pts[i].x}" y1="${pts[i].y}" x2="${pts[j].x}" y2="${pts[j].y}"/>`;sL.innerHTML=svg;
+  pts.forEach(p=>{const d=document.createElement('div');d.className='star-dot';d.style.cssText=`left:${p.x-3}px;top:${p.y-3}px;width:6px;height:6px;background:${p.color};animation:pulse-glow 2s ease-in-out infinite`;d.addEventListener('click',()=>showCard(p));sC.appendChild(d)});
   document.getElementById('starCardClose').addEventListener('click',()=>sCd.classList.remove('show'));sCd.addEventListener('click',function(e){if(e.target===this)this.classList.remove('show')});
 }
 function showCard(p){const q=QS[p.title]||QS['永恒大圣'];sH.textContent=q.h;sM.textContent=q.m;sF.textContent=q.f;sCd.classList.add('show')}
 
-// ===== CHAT =====
+// Chat
 function initChat(){
   function send(){const q=cI.value.trim();if(!q)return;cS.disabled=true;cI.disabled=true;cR.classList.remove('show');cR.querySelector('.chat-text').textContent='大圣正在思索...';setTimeout(()=>{cR.querySelector('.chat-text').textContent=getR(q);cR.classList.add('show');cS.disabled=false;cI.disabled=false;cI.value='';cI.focus()},600+Math.random()*700)}
   cS.addEventListener('click',send);cI.addEventListener('keydown',e=>{if(e.key==='Enter')send()});
 }
 function getR(q){let bk='',bs=0;for(const[k,r]of Object.entries(CP)){let s=q.includes(k)?100:0;for(const ch of k)if(q.includes(ch))s++;if(s>bs){bs=s;bk=k}}return bk&&bs>2?CP[bk]:CD[Math.floor(Math.random()*CD.length)]}
 
-// Keyframes
 const st=document.createElement('style');st.textContent=`@keyframes pulse-glow{0%,100%{box-shadow:0 0 4px currentColor}50%{box-shadow:0 0 10px currentColor,0 0 20px rgba(192,57,43,.3)}}@keyframes card-rise{from{opacity:0;transform:translate(-50%,-50%) scale(.85) translateY(10px)}to{opacity:1;transform:translate(-50%,-50%) scale(1) translateY(0)}}.star-card.show{animation:card-rise .35s ease-out forwards}`;document.head.appendChild(st);
 </script>
 </body>
