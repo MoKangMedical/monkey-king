@@ -3,35 +3,91 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>孙悟空 · 齐天大圣</title>
-<!-- Preload Three.js — starts loading immediately -->
+<title>孙悟空 · 大圣图鉴 | 影神图 · 天庭 · 灵山</title>
 <script src="lib/three.min.js"></script>
 <style>
-:root{--ink:#0a0806;--ink2:#14100c;--cin:#c0392b;--gold:#e8a820;--paper:#f5efe0;--serif:'Noto Serif SC','STSong','SimSun',serif}
+:root{--ink:#0a0806;--ink2:#100c0e;--cin:#c0392b;--gold:#e8a820;--jade:#1e8568;--paper:#f5efe0;--serif:'Noto Serif SC','STSong','SimSun',serif}
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth;-webkit-tap-highlight-color:transparent;overflow:hidden}
 body{font-family:var(--serif);background:var(--ink);color:var(--paper);overflow:hidden}
 body.loaded{overflow:auto}
-body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.03;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.05 0.07' numOctaves='6'/%3E%3C/filter%3E%3Crect width='256' height='256' filter='url(%23n)'/%3E%3C/svg%3E");background-size:256px 256px;mix-blend-mode:overlay}
 
-/* 3D layer — visible from start, behind opening screen */
+/* ========== INK-WASH LANDSCAPE BACKGROUND ========== */
+.landscape{position:fixed;inset:0;z-index:0;pointer-events:none}
+/* Far mountains — deep ink */
+.land-mountains-far{position:absolute;bottom:0;left:0;right:0;height:45%;opacity:.18;
+  background:
+    radial-gradient(ellipse 120% 80% at 15% 90%,rgba(40,30,25,.9) 0%,transparent 60%),
+    radial-gradient(ellipse 100% 70% at 50% 95%,rgba(35,25,20,.8) 0%,transparent 55%),
+    radial-gradient(ellipse 130% 75% at 85% 88%,rgba(45,35,25,.85) 0%,transparent 58%),
+    radial-gradient(ellipse 80% 40% at 30% 100%,rgba(20,15,10,.6) 0%,transparent 50%),
+    radial-gradient(ellipse 90% 45% at 70% 100%,rgba(25,18,12,.55) 0%,transparent 50%);}
+/* Mid mountains */
+.land-mountains-mid{position:absolute;bottom:0;left:0;right:0;height:38%;opacity:.14;
+  background:
+    radial-gradient(ellipse 90% 65% at 25% 92%,rgba(50,40,30,.7) 0%,transparent 50%),
+    radial-gradient(ellipse 85% 55% at 60% 95%,rgba(45,35,25,.65) 0%,transparent 48%),
+    radial-gradient(ellipse 70% 50% at 10% 90%,rgba(55,42,30,.6) 0%,transparent 45%),
+    radial-gradient(ellipse 75% 45% at 88% 93%,rgba(48,38,28,.55) 0%,transparent 45%);}
+/* Near mountains — sharp peaks */
+.land-mountains-near{position:absolute;bottom:0;left:0;right:0;height:30%;opacity:.1;
+  background:
+    linear-gradient(175deg,transparent 20%,rgba(30,20,15,.3) 40%,rgba(20,12,8,.5) 55%,transparent 70%),
+    radial-gradient(ellipse 60% 40% at 20% 85%,rgba(40,30,20,.5) 0%,transparent 45%),
+    radial-gradient(ellipse 55% 35% at 75% 88%,rgba(38,28,18,.45) 0%,transparent 42%);}
+/* Mist layer */
+.land-mist{position:absolute;bottom:0;left:0;right:0;height:20%;opacity:.06;
+  background:linear-gradient(0deg,rgba(180,160,140,.3) 0%,rgba(120,100,80,.15) 30%,transparent 80%);
+  animation:mist-drift 18s ease-in-out infinite;}
+@keyframes mist-drift{0%,100%{transform:translateX(0) scaleX(1)}33%{transform:translateX(2%) scaleX(1.03)}66%{transform:translateX(-1.5%) scaleX(.98)}}
+/* Moon */
+.land-moon{position:absolute;top:6%;right:12%;width:clamp(48px,8vw,80px);height:clamp(48px,8vw,80px);opacity:.06;
+  background:radial-gradient(circle at 40% 40%,rgba(254,243,199,.8) 0%,rgba(232,168,32,.3) 35%,transparent 70%);
+  border-radius:50%;animation:moon-glow 8s ease-in-out infinite;}
+@keyframes moon-glow{0%,100%{opacity:.05}50%{opacity:.08}}
+/* Clouds drifting */
+.land-clouds{position:absolute;inset:0;opacity:.04;
+  background:
+    radial-gradient(ellipse 25% 10% at 20% 25%,rgba(245,239,224,.5) 0%,transparent 50%),
+    radial-gradient(ellipse 18% 8% at 55% 18%,rgba(245,239,224,.4) 0%,transparent 48%),
+    radial-gradient(ellipse 22% 9% at 80% 30%,rgba(245,239,224,.45) 0%,transparent 50%),
+    radial-gradient(ellipse 15% 7% at 40% 35%,rgba(245,239,224,.35) 0%,transparent 45%);
+  animation:clouds-drift 24s ease-in-out infinite;}
+@keyframes clouds-drift{0%,100%{transform:translateX(0)}50%{transform:translateX(3%)}}
+/* Water reflection at bottom */
+.land-water{position:absolute;bottom:0;left:0;right:0;height:8%;opacity:.03;
+  background:linear-gradient(0deg,rgba(120,140,160,.15) 0%,transparent 100%);
+  animation:water-shimmer 6s ease-in-out infinite;}
+@keyframes water-shimmer{0%,100%{opacity:.02}50%{opacity:.04}}
+/* Gold particles floating */
+.land-particles{position:absolute;inset:0;opacity:.025;
+  background-image:
+    radial-gradient(1.5px 1.5px at 12% 15%,rgba(232,168,32,.8),transparent),
+    radial-gradient(1px 1px at 35% 22%,rgba(232,168,32,.7),transparent),
+    radial-gradient(1.2px 1.2px at 58% 12%,rgba(232,168,32,.75),transparent),
+    radial-gradient(1px 1px at 72% 28%,rgba(232,168,32,.6),transparent),
+    radial-gradient(1.5px 1.5px at 88% 18%,rgba(232,168,32,.7),transparent),
+    radial-gradient(1px 1px at 22% 35%,rgba(232,168,32,.65),transparent),
+    radial-gradient(1.3px 1.3px at 45% 38%,rgba(232,168,32,.6),transparent),
+    radial-gradient(.8px .8px at 65% 32%,rgba(232,168,32,.55),transparent);
+  animation:particles-float 12s ease-in-out infinite;}
+@keyframes particles-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+/* ========== 3D + LOADING ========== */
 #threeCanvas{position:fixed;inset:0;z-index:1;pointer-events:none}
-
-/* Opening — on top of 3D */
-#loadingScreen{position:fixed;inset:0;z-index:9999;background:var(--ink);display:flex;align-items:center;justify-content:center;transition:opacity 1s ease}
+#loadingScreen{position:fixed;inset:0;z-index:9999;background:var(--ink);display:flex;align-items:center;justify-content:center;transition:opacity 1s}
 #loadingScreen.hidden{opacity:0;pointer-events:none}
 #loadingCanvas{position:absolute;inset:0}
-#loadingTitle{position:relative;z-index:2;text-align:center;opacity:0;transition:opacity 1s ease}
+#loadingTitle{position:relative;z-index:2;text-align:center;opacity:0;transition:opacity 1s}
 #loadingTitle.show{opacity:1}
 #loadingTitle h1{font-size:clamp(36px,8vw,72px);color:var(--gold);letter-spacing:.15em;margin-bottom:.3em;text-shadow:0 0 60px rgba(232,168,32,.3)}
 #loadingTitle p{font-size:13px;color:rgba(192,57,43,.5);letter-spacing:.2em}
 
 /* Music */
-.music-btn{position:fixed;bottom:24px;left:24px;z-index:100;width:44px;height:44px;border-radius:50%;background:rgba(10,8,6,.9);border:1px solid rgba(255,255,255,.08);color:var(--gold);font-size:18px;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center}
-.music-btn:hover{background:rgba(192,57,43,.2);border-color:rgba(192,57,43,.4)}
+.music-btn{position:fixed;bottom:24px;left:24px;z-index:100;width:46px;height:46px;border-radius:50%;background:rgba(10,8,6,.92);border:1px solid rgba(255,255,255,.08);color:var(--gold);font-size:18px;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+.music-btn:hover{background:rgba(192,57,43,.15);border-color:rgba(192,57,43,.3)}
 .music-btn.playing{color:var(--cin);animation:mp 2s ease infinite}
-@keyframes mp{0%,100%{box-shadow:0 0 0 rgba(192,57,43,0)}50%{box-shadow:0 0 20px rgba(192,57,43,.3)}}
+@keyframes mp{0%,100%{box-shadow:0 0 0 rgba(192,57,43,0)}50%{box-shadow:0 0 24px rgba(192,57,43,.4)}}
 
 /* Scroll */
 .scroll-container{height:100vh;height:100dvh;overflow-y:scroll;scroll-snap-type:y mandatory;position:relative;z-index:3;opacity:0;transition:opacity .6s}
@@ -39,52 +95,89 @@ body.loaded .scroll-container{opacity:1}
 .scroll-container::-webkit-scrollbar{width:0}
 
 .scene{height:100vh;height:100dvh;scroll-snap-align:start;scroll-snap-stop:always;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;padding:2rem}
-.scene-bg{position:absolute;inset:0;z-index:0;pointer-events:none}
-#scene1 .scene-bg{background:radial-gradient(ellipse at 50% 30%,rgba(192,57,43,.06) 0%,transparent 55%),var(--ink)}
-#scene2 .scene-bg{background:radial-gradient(ellipse at 30% 50%,rgba(232,168,32,.06) 0%,transparent 50%),var(--ink2)}
-#scene3 .scene-bg{background:radial-gradient(ellipse at 60% 40%,rgba(245,216,144,.05) 0%,transparent 55%),var(--ink)}
-#scene4 .scene-bg{background:radial-gradient(ellipse at 50% 30%,rgba(232,168,32,.07) 0%,transparent 50%),var(--ink2)}
-#scene5 .scene-bg{background:radial-gradient(ellipse at 40% 50%,rgba(232,168,32,.05) 0%,transparent 55%),var(--ink)}
-#scene6 .scene-bg{background:radial-gradient(ellipse at 50% 50%,rgba(192,57,43,.08) 0%,transparent 50%),var(--ink2)}
-#scene7 .scene-bg{background:radial-gradient(ellipse at 50% 30%,rgba(232,168,32,.08) 0%,transparent 55%),var(--ink)}
-#scene8 .scene-bg{background:radial-gradient(ellipse at 50% 20%,rgba(74,144,184,.06) 0%,transparent 55%),var(--ink2)}
-#scene9 .scene-bg{background:radial-gradient(ellipse at 50% 40%,rgba(232,168,32,.1) 0%,transparent 50%),var(--ink)}
-#scene10 .scene-bg{background:radial-gradient(ellipse at 50% 40%,rgba(232,168,32,.06) 0%,transparent 55%),var(--ink2)}
-#scene11 .scene-bg{background:radial-gradient(ellipse at 50% 30%,rgba(232,168,32,.12) 0%,transparent 45%),var(--ink)}
-#scene-finale .scene-bg{background:radial-gradient(ellipse at 30% 40%,rgba(232,168,32,.06) 0%,transparent 55%),var(--ink2)}
+.scene-bg{position:absolute;inset:0;z-index:-1;pointer-events:none}
+
+/* Scene overlays — ink colors per scene */
+.scene-o0{background:radial-gradient(ellipse at 50% 35%,rgba(192,57,43,.05),transparent 55%)}
+.scene-o1{background:radial-gradient(ellipse at 35% 50%,rgba(232,168,32,.06),transparent 50%)}
+.scene-o2{background:radial-gradient(ellipse at 50% 35%,rgba(245,216,144,.05),transparent 55%)}
+.scene-o3{background:radial-gradient(ellipse at 50% 40%,rgba(30,133,104,.06),transparent 50%)}
+.scene-o4{background:radial-gradient(ellipse at 50% 30%,rgba(232,168,32,.07),transparent 50%)}
+.scene-o5{background:radial-gradient(ellipse at 45% 50%,rgba(74,144,184,.06),transparent 50%)}
+.scene-o6{background:radial-gradient(ellipse at 50% 50%,rgba(192,57,43,.07),transparent 50%)}
 
 .scene-content{position:relative;z-index:10;text-align:center;max-width:680px;width:100%}
-.scene-seal{position:absolute;top:1.3rem;right:1.3rem;z-index:5;width:clamp(48px,7vw,64px);height:clamp(48px,7vw,64px);border:2px solid rgba(192,57,43,.45);display:flex;align-items:center;justify-content:center;transform:rotate(5deg);font-size:clamp(24px,4vw,36px);color:rgba(192,57,43,.6);font-weight:900}
-.scene-title{font-size:clamp(28px,6vw,54px);font-weight:900;color:var(--paper);margin-bottom:.15em;letter-spacing:.08em}
-.scene-title .gold{color:var(--gold);text-shadow:0 0 40px rgba(232,168,32,.2)}
-.scene-subtitle{font-size:clamp(13px,2vw,16px);color:rgba(245,239,224,.4);line-height:1.8;margin-bottom:.8em;letter-spacing:.03em}
-.scene-quote{font-size:clamp(15px,2.5vw,20px);color:var(--gold);font-style:italic;margin:.8em 0;line-height:1.7}
-.scene-quote::before{content:'「 ';color:rgba(192,57,43,.5)}.scene-quote::after{content:' 」';color:rgba(192,57,43,.5)}
-.scene-detail{font-size:12px;color:rgba(245,239,224,.25);line-height:1.9;max-width:420px;margin:.6em auto 0}
-.gold-frame{margin:.8em auto;display:flex;flex-direction:column;gap:5px;max-width:480px}
-.frame-item{display:flex;align-items:center;gap:8px;padding:10px 14px;background:rgba(255,255,255,.01);border:1px solid rgba(232,168,32,.04);font-size:12px;color:rgba(245,239,224,.45);text-align:left}.frame-highlight{color:var(--gold);font-weight:600}.frame-emoji{font-size:16px;opacity:.45}
 .scene-content>*{opacity:0;transform:translateY(14px);transition:all .7s cubic-bezier(.16,1,.3,1)}
 .scene.visible .scene-content>*{opacity:1;transform:translateY(0)}
-.scene.visible .scene-content>*:nth-child(1){transition-delay:.08s}.scene.visible .scene-content>*:nth-child(2){transition-delay:.18s}.scene.visible .scene-content>*:nth-child(3){transition-delay:.28s}.scene.visible .scene-content>*:nth-child(4){transition-delay:.38s}.scene.visible .scene-content>*:nth-child(5){transition-delay:.48s}
+.scene.visible .scene-content>*:nth-child(1){transition-delay:.08s}
+.scene.visible .scene-content>*:nth-child(2){transition-delay:.18s}
+.scene.visible .scene-content>*:nth-child(3){transition-delay:.28s}
+.scene.visible .scene-content>*:nth-child(4){transition-delay:.38s}
+.scene.visible .scene-content>*:nth-child(5){transition-delay:.48s}
+.scene.visible .scene-content>*:nth-child(6){transition-delay:.55s}
 
-.chapter-nav{position:fixed;right:8px;top:50%;transform:translateY(-50%);z-index:100;display:flex;flex-direction:column;gap:8px}
+.scene-seal{position:absolute;top:1.3rem;right:1.3rem;z-index:5;width:clamp(48px,7vw,64px);height:clamp(48px,7vw,64px);border:2px solid rgba(192,57,43,.45);display:flex;align-items:center;justify-content:center;transform:rotate(5deg);font-size:clamp(24px,4vw,36px);color:rgba(192,57,43,.6);font-weight:900}
+.scene-title{font-size:clamp(24px,5.5vw,48px);font-weight:900;color:var(--paper);margin-bottom:.15em;letter-spacing:.08em}
+.scene-title .gold{color:var(--gold);text-shadow:0 0 40px rgba(232,168,32,.2)}
+.scene-subtitle{font-size:clamp(12px,1.8vw,15px);color:rgba(245,239,224,.35);line-height:1.9;margin-bottom:.8em;letter-spacing:.03em}
+.scene-quote{font-size:clamp(14px,2.2vw,18px);color:var(--gold);font-style:italic;margin:.8em 0;line-height:1.7}
+.scene-quote::before{content:'「 ';color:rgba(192,57,43,.5)}
+.scene-quote::after{content:' 」';color:rgba(192,57,43,.5)}
+.scene-detail{font-size:11px;color:rgba(245,239,224,.22);line-height:2;max-width:420px;margin:.6em auto 0}
+
+.gold-frame{margin:.8em auto;display:flex;flex-direction:column;gap:5px;max-width:520px}
+.frame-item{display:flex;align-items:center;gap:8px;padding:10px 14px;background:rgba(255,255,255,.008);border:1px solid rgba(232,168,32,.04);font-size:11px;color:rgba(245,239,224,.4);text-align:left}
+.frame-highlight{color:var(--gold);font-weight:600}
+.frame-emoji{font-size:15px;opacity:.4}
+
+/* Chapter nav */
+.chapter-nav{position:fixed;right:8px;top:50%;transform:translateY(-50%);z-index:100;display:flex;flex-direction:column;gap:6px;max-height:80vh;overflow:hidden}
 .chapter-dot-wrap{display:flex;align-items:center;gap:4px;cursor:pointer}
-.chapter-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.06);transition:all .3s;flex-shrink:0}
-.chapter-dot.active{background:var(--cin);box-shadow:0 0 6px rgba(192,57,43,.4);transform:scale(1.5)}
-.chapter-dot-wrap:hover .chapter-dot{background:rgba(192,57,43,.4);transform:scale(1.3)}
-.chapter-label{font-size:8px;color:rgba(245,239,224,.2);white-space:nowrap;opacity:0;transition:all .3s;position:absolute;right:16px}
+.chapter-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.05);transition:all .3s;flex-shrink:0}
+.chapter-dot.active{background:var(--cin);box-shadow:0 0 6px rgba(192,57,43,.4);transform:scale(1.6)}
+.chapter-dot-wrap:hover .chapter-dot{background:rgba(192,57,43,.35);transform:scale(1.3)}
+.chapter-label{font-size:7px;color:rgba(245,239,224,.18);white-space:nowrap;opacity:0;transition:all .3s;position:absolute;right:14px}
 .chapter-dot-wrap:hover .chapter-label{opacity:1}
 
-.scroll-hint{position:absolute;bottom:1.8rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:5px;color:rgba(245,239,224,.12);font-size:9px;letter-spacing:.12em;z-index:5;animation:sp 2.5s ease-in-out infinite}
-@keyframes sp{0%,100%{opacity:.1}50%{opacity:.45}}
-.scroll-hint .arrow{width:1px;height:22px;background:linear-gradient(180deg,transparent,rgba(192,57,43,.4));animation:as 2.5s ease-in-out infinite}
-@keyframes as{0%,100%{transform:scaleY(.1);opacity:.08}50%{transform:scaleY(1);opacity:.4}}
+.scroll-hint{position:absolute;bottom:1.5rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:5px;color:rgba(245,239,224,.1);font-size:9px;letter-spacing:.12em;z-index:5;animation:sp 2.5s ease-in-out infinite}
+@keyframes sp{0%,100%{opacity:.08}50%{opacity:.4}}
+.scroll-hint .arrow{width:1px;height:20px;background:linear-gradient(180deg,transparent,rgba(192,57,43,.35));animation:as 2.5s ease-in-out infinite}
+@keyframes as{0%,100%{transform:scaleY(.1);opacity:.06}50%{transform:scaleY(1);opacity:.35}}
 
-.transition-overlay{position:fixed;inset:0;z-index:500;background:var(--cin);opacity:0;pointer-events:none;transition:opacity .35s}.transition-overlay.active{opacity:.08}
+.transition-overlay{position:fixed;inset:0;z-index:500;background:var(--cin);opacity:0;pointer-events:none;transition:opacity .35s}
+.transition-overlay.active{opacity:.07}
 
+/* ========== YAOGUAI BESTIARY ========== */
+.yaoguai-gallery{position:relative;z-index:10;width:100%;max-width:90vw}
+.yaoguai-title{text-align:center;font-size:clamp(18px,4vw,32px);color:var(--gold);margin-bottom:1.2em;letter-spacing:.12em}
+.yaoguai-scroll{display:flex;gap:16px;overflow-x:auto;padding:12px 8px 20px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;mask-image:linear-gradient(90deg,transparent 0%,#000 8%,#000 92%,transparent 100%);-webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 8%,#000 92%,transparent 100%)}
+.yaoguai-scroll::-webkit-scrollbar{height:2px}
+.yaoguai-scroll::-webkit-scrollbar-thumb{background:rgba(192,57,43,.15);border-radius:1px}
+.yaoguai-card{flex-shrink:0;width:140px;scroll-snap-align:center;background:rgba(20,16,12,.85);border:1px solid rgba(232,168,32,.08);padding:14px 10px;text-align:center;transition:all .35s;cursor:default}
+.yaoguai-card:hover{transform:translateY(-4px);border-color:rgba(232,168,32,.25);background:rgba(30,22,16,.9);box-shadow:0 8px 28px rgba(0,0,0,.4)}
+.yaoguai-card-emoji{font-size:38px;margin-bottom:8px}
+.yaoguai-card-name{font-size:14px;color:var(--gold);font-weight:700;margin-bottom:4px;letter-spacing:.05em}
+.yaoguai-card-type{font-size:8px;color:rgba(192,57,43,.5);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+.yaoguai-card-desc{font-size:10px;color:rgba(245,239,224,.3);line-height:1.6}
+.yaoguai-card-loc{font-size:8px;color:rgba(245,239,224,.12);margin-top:6px;font-style:italic}
+
+/* ========== HEAVEN/BUDDHA SCENE ========== */
+.heaven-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;max-width:520px;margin:1em auto}
+.heaven-pillar{background:rgba(255,255,255,.008);border:1px solid rgba(232,168,32,.06);padding:12px 10px;text-align:center;transition:all .3s}
+.heaven-pillar:hover{background:rgba(255,255,255,.018);border-color:rgba(232,168,32,.18)}
+.heaven-pillar-icon{font-size:24px;margin-bottom:4px;opacity:.5}
+.heaven-pillar-name{font-size:11px;color:rgba(245,239,224,.5);font-weight:600;letter-spacing:.04em}
+.heaven-pillar-role{font-size:9px;color:rgba(245,239,224,.2);margin-top:2px}
+
+.philosophy-quote{font-size:clamp(12px,1.8vw,16px);color:var(--jade);line-height:2;text-align:center;max-width:500px;margin:.8em auto}
+.philosophy-quote::before{content:'"';color:rgba(30,133,104,.3);font-size:1.5em}
+.philosophy-quote::after{content:'"';color:rgba(30,133,104,.3);font-size:1.5em}
+
+/* Stars */
 .star-dot{position:absolute;border-radius:50%;cursor:pointer;transition:all .3s;z-index:6}
 .star-dot:hover{transform:scale(2.5);box-shadow:0 0 14px var(--cin)}
-.star-lines{position:absolute;inset:0;z-index:4;pointer-events:none}.star-line{stroke:rgba(192,57,43,.03);stroke-width:.6;fill:none}
+.star-lines{position:absolute;inset:0;z-index:4;pointer-events:none}
+.star-line{stroke:rgba(192,57,43,.03);stroke-width:.6;fill:none}
 .star-card{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.9);z-index:200;background:rgba(10,8,6,.97);border:1px solid rgba(192,57,43,.18);padding:24px;max-width:280px;text-align:center;opacity:0;pointer-events:none;transition:all .4s}
 .star-card.show{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
 .star-card-haiku{font-size:16px;color:var(--gold);line-height:1.8;margin-bottom:8px;white-space:pre-line}
@@ -92,26 +185,54 @@ body.loaded .scroll-container{opacity:1}
 .star-card-feeling{font-size:9px;color:rgba(192,57,43,.5);letter-spacing:.12em}
 .star-card-close{position:absolute;top:6px;right:12px;background:none;border:none;color:rgba(255,255,255,.15);font-size:12px;cursor:pointer}
 
+/* Chat */
 .chat-widget{position:absolute;bottom:1.5rem;left:50%;transform:translateX(-50%);z-index:20;width:min(88vw,380px)}
 .chat-response{display:flex;align-items:flex-start;gap:7px;margin-bottom:7px;opacity:0;transition:all .35s}
-.chat-response.show{opacity:1}.chat-avatar{font-size:22px}
-.chat-text{font-size:12px;color:rgba(245,239,224,.7);line-height:1.7;background:rgba(255,255,255,.012);border:1px solid rgba(232,168,32,.04);padding:9px 12px;flex:1}
-.chat-input-wrap{display:flex;gap:4px}.chat-input{flex:1;background:rgba(255,255,255,.012);border:1px solid rgba(255,255,255,.04);padding:7px 10px;color:var(--paper);font-size:12px;outline:none}.chat-input:focus{border-color:rgba(192,57,43,.2)}.chat-input::placeholder{color:rgba(255,255,255,.08)}
-.chat-send{background:var(--cin);color:var(--paper);border:none;padding:7px 12px;font-weight:700;cursor:pointer;font-size:12px}.chat-send:hover{background:#d44235}.chat-send:disabled{opacity:.3}
-.chat-hint{text-align:center;font-size:8px;color:rgba(255,255,255,.08);margin-top:5px;letter-spacing:.06em}
-.to-finale{display:inline-block;margin-top:1.2em;padding:10px 24px;background:rgba(192,57,43,.05);border:1px solid rgba(192,57,43,.18);color:var(--paper);font-size:14px;cursor:pointer;transition:all .3s;letter-spacing:.08em}
-.to-finale:hover{background:rgba(192,57,43,.12);border-color:rgba(192,57,43,.35)}
-.ink-silhouette{position:absolute;font-size:clamp(80px,20vw,220px);opacity:.01;pointer-events:none;z-index:1}
-@media(max-width:768px){.scene{padding:1rem}.scene-seal{width:38px;height:38px;font-size:20px;top:.3rem;right:.3rem}.chapter-nav{right:2px;gap:4px}.chapter-dot{width:4px;height:4px}}
+.chat-response.show{opacity:1}
+.chat-avatar{font-size:22px}
+.chat-text{font-size:12px;color:rgba(245,239,224,.65);line-height:1.7;background:rgba(255,255,255,.01);border:1px solid rgba(232,168,32,.04);padding:9px 12px;flex:1}
+.chat-input-wrap{display:flex;gap:4px}
+.chat-input{flex:1;background:rgba(255,255,255,.012);border:1px solid rgba(255,255,255,.04);padding:7px 10px;color:var(--paper);font-size:12px;outline:none}
+.chat-input:focus{border-color:rgba(192,57,43,.2)}
+.chat-input::placeholder{color:rgba(255,255,255,.06)}
+.chat-send{background:var(--cin);color:var(--paper);border:none;padding:7px 12px;font-weight:700;cursor:pointer;font-size:12px}
+.chat-send:hover{background:#d44235}
+.chat-send:disabled{opacity:.3}
+.chat-hint{text-align:center;font-size:8px;color:rgba(255,255,255,.06);margin-top:5px;letter-spacing:.06em}
+
+.to-finale{display:inline-block;margin-top:1em;padding:10px 24px;background:rgba(192,57,43,.04);border:1px solid rgba(192,57,43,.15);color:var(--paper);font-size:13px;cursor:pointer;transition:all .3s;letter-spacing:.08em}
+.to-finale:hover{background:rgba(192,57,43,.1);border-color:rgba(192,57,43,.3)}
+
+.ink-silhouette{position:absolute;font-size:clamp(70px,18vw,200px);opacity:.008;pointer-events:none;z-index:1}
+
+@media(max-width:768px){
+  .scene{padding:1rem}
+  .scene-seal{width:38px;height:38px;font-size:20px;top:.3rem;right:.3rem}
+  .chapter-nav{right:2px;gap:4px}
+  .chapter-dot{width:4px;height:4px}
+  .yaoguai-card{width:110px;padding:10px 8px}
+  .heaven-grid{grid-template-columns:repeat(3,1fr);gap:6px}
+}
 </style>
 </head>
 <body>
 
-<!-- 3D renders behind opening screen, visible from frame 1 -->
+<!-- INK-WASH LANDSCAPE BACKGROUND -->
+<div class="landscape">
+  <div class="land-mountains-far"></div>
+  <div class="land-mountains-mid"></div>
+  <div class="land-mountains-near"></div>
+  <div class="land-mist"></div>
+  <div class="land-moon"></div>
+  <div class="land-clouds"></div>
+  <div class="land-water"></div>
+  <div class="land-particles"></div>
+</div>
+
 <canvas id="threeCanvas"></canvas>
 
 <div id="loadingScreen"><canvas id="loadingCanvas"></canvas>
-  <div class="loading-title" id="loadingTitle"><h1>齐 天 大 圣</h1><p>SUN WUKONG</p></div>
+  <div class="loading-title" id="loadingTitle"><h1>齐 天 大 圣</h1><p>SUN WUKONG · 影神图</p></div>
 </div>
 
 <div class="transition-overlay" id="transitionOverlay"></div>
@@ -120,64 +241,111 @@ body.loaded .scroll-container{opacity:1}
 
 <div class="scroll-container" id="scrollContainer">
 
+<!-- 壹·石破天惊 -->
 <section class="scene" id="scene1" data-scene="0" data-3d="wukong">
-  <div class="scene-bg"></div><div class="scene-seal">壹</div><div class="ink-silhouette" style="top:15%;left:5%">🐒</div>
-  <div class="scene-content"><h1 class="scene-title"><span class="gold">石破</span>天惊</h1><p class="scene-subtitle">混沌初开，灵石迸裂。一只猴子从石头里跳出来，从此天地间有了大圣。</p><p class="scene-quote">我老孙来也</p><p class="scene-detail">大闹天宫，不过是想要一个答案——凭什么有人天生就是神仙？</p></div>
+  <div class="scene-bg scene-o0"></div><div class="scene-seal">壹</div><div class="ink-silhouette" style="top:10%;left:5%">🐒</div>
+  <div class="scene-content"><h1 class="scene-title"><span class="gold">石破</span>天惊</h1><p class="scene-subtitle">混沌初开，灵石迸裂。东胜神洲傲来国花果山顶，一颗仙石吸日月精华而生灵猴。</p><p class="scene-quote">我老孙来也</p><p class="scene-detail">女娲补天遗落的五彩石，在花果山上孕育千年——每一道裂缝里都藏着星辰。</p></div>
   <div class="scroll-hint"><span>展开画卷</span><div class="arrow"></div></div>
 </section>
 
-<section class="scene" id="scene2" data-scene="1" data-3d="clouds">
-  <div class="scene-bg"></div><div class="scene-seal">贰</div><div class="ink-silhouette" style="top:8%;right:5%">☁</div>
-  <div class="scene-content"><h1 class="scene-title"><span class="gold">克制</span>的力量</h1><p class="scene-subtitle">真正的强大不是毁天灭地，而是明明可以，却选择不。</p><div class="gold-frame"><div class="frame-item"><span class="frame-emoji">🏯</span>大闹天宫时醉酒，<span class="frame-highlight">未毁天宫</span></div><div class="frame-item"><span class="frame-emoji">🍑</span>定住七仙女后，<span class="frame-highlight">仅吃桃子</span></div><div class="frame-item"><span class="frame-emoji">⛰</span>五行山下五百年，<span class="frame-highlight">未曾黑化</span></div></div><p class="scene-quote">大圣这生最难的不是闹天宫，而是闹完还能收得住</p></div>
+<!-- 贰·拜师学艺 -->
+<section class="scene" id="scene2" data-scene="1" data-3d="tangseng">
+  <div class="scene-bg scene-o4"></div><div class="scene-seal">贰</div><div class="ink-silhouette" style="top:8%;right:5%">☯</div>
+  <div class="scene-content"><h1 class="scene-title"><span class="gold">灵台</span>方寸</h1><p class="scene-subtitle">漂洋过海十数年，终在灵台方寸山斜月三星洞，拜入菩提祖师门下。</p><div class="gold-frame"><div class="frame-item"><span class="frame-emoji">🌙</span>斜月三星洞<span class="frame-highlight">——一个"心"字</span></div><div class="frame-item"><span class="frame-emoji">📜</span>七十二般地煞变化<span class="frame-highlight">——变的是形，修的是心</span></div><div class="frame-item"><span class="frame-emoji">☁</span>筋斗云十万八千里<span class="frame-highlight">——一念之间</span></div></div><p class="scene-quote">求仙问卜，不如自己做主</p></div>
 </section>
 
-<section class="scene" id="scene3" data-scene="2" data-3d="fairies">
-  <div class="scene-bg"></div><div class="scene-seal">叁</div><div class="ink-silhouette" style="bottom:10%;left:8%">🌸</div>
-  <div class="scene-content"><h1 class="scene-title"><span class="gold">霞衣</span>护花</h1><p class="scene-subtitle">一只猴子，比很多人更懂得如何尊重女性。</p><div class="gold-frame"><div class="frame-item"><span class="frame-emoji">👑</span>救金圣宫娘娘，<span class="frame-highlight">让国王见证真相</span></div><div class="frame-item"><span class="frame-emoji">🧥</span>用霞衣保护女性——<span class="frame-highlight">超越时代</span></div><div class="frame-item"><span class="frame-emoji">💧</span>化身女性救投河者——<span class="frame-highlight">深刻共情</span></div></div><p class="scene-quote">妖精也有好妖精，人也有坏人</p></div>
+<!-- 叁·龙宫取宝 -->
+<section class="scene" id="scene3" data-scene="2" data-3d="staff">
+  <div class="scene-bg scene-o1"></div><div class="scene-seal">叁</div><div class="ink-silhouette" style="top:20%;left:5%">🌊</div>
+  <div class="scene-content"><h1 class="scene-title"><span class="gold">东海</span>取宝</h1><p class="scene-subtitle">下东海龙宫，得如意金箍棒——一万三千五百斤，能大能小，能伸能屈。</p><div class="gold-frame"><div class="frame-item"><span class="frame-emoji">🔱</span>定海神珍铁<span class="frame-highlight">——沉在东海千年，只为等一只猴子</span></div><div class="frame-item"><span class="frame-emoji">👘</span>藕丝步云履·锁子黄金甲·凤翅紫金冠<span class="frame-highlight">——四海龙王献宝</span></div><div class="frame-item"><span class="frame-emoji">⚡</span>一万三千五百斤<span class="frame-highlight">——人定胜天的重量</span></div></div><p class="scene-quote">此乃定海神珍铁，莫不是该遇主人了</p></div>
 </section>
 
-<section class="scene" id="scene4" data-scene="3" data-3d="tangseng">
-  <div class="scene-bg"></div><div class="scene-seal">肆</div><div class="ink-silhouette" style="top:10%;right:10%">⭐</div>
-  <div class="scene-content"><h1 class="scene-title"><span class="gold">天地</span>本不全</h1><p class="scene-subtitle">一只猴子的哲学领悟，比修了千年的神仙都深。</p><div class="gold-frame"><div class="frame-item"><span class="frame-emoji">🔥</span>求仙问卜，<span class="frame-highlight">不如自己做主</span></div><div class="frame-item"><span class="frame-emoji">📜</span>天地本不全，<span class="frame-highlight">经文残缺也应不全</span></div><div class="frame-item"><span class="frame-emoji">🛤</span>对唐僧说：<span class="frame-highlight">灵山在脚下</span></div></div><p class="scene-quote">只要你见性志诚，念念回首处，即是灵山</p></div>
+<!-- 肆·大闹天宫 -->
+<section class="scene" id="scene4" data-scene="3" data-3d="demons">
+  <div class="scene-bg scene-o6"></div><div class="scene-seal">肆</div><div class="ink-silhouette" style="top:10%;right:10%">⚡</div>
+  <div class="scene-content"><h1 class="scene-title"><span class="gold">大闹</span>天宫</h1><p class="scene-subtitle">不入天门不知天高地厚。从弼马温到齐天大圣，一只猴子闹翻了整个天庭。</p><div class="gold-frame"><div class="frame-item"><span class="frame-emoji">🏛</span>凌霄宝殿<span class="frame-highlight">——玉皇大帝的威严，被一根金箍棒打碎</span></div><div class="frame-item"><span class="frame-emoji">🍑</span>蟠桃盛会<span class="frame-highlight">——偷仙桃盗御酒窃仙丹，吃饱喝足</span></div><div class="frame-item"><span class="frame-emoji">🔥</span>八卦炉中炼<span class="frame-highlight">——四十九天煅出火眼金睛</span></div></div><p class="scene-quote">皇帝轮流做，明年到我家</p></div>
 </section>
 
-<section class="scene" id="scene5" data-scene="4" data-3d="bajie">
-  <div class="scene-bg"></div><div class="scene-seal">伍</div><div class="ink-silhouette" style="bottom:12%;right:5%">🦋</div>
+<!-- 伍·天庭诸神 -->
+<section class="scene" id="scene5" data-scene="4" data-3d="dragon">
+  <div class="scene-bg scene-o4"></div><div class="scene-seal">伍</div>
+  <div class="scene-content"><h1 class="scene-title"><span class="gold">天庭</span>诸神</h1><p class="scene-subtitle">九天之上的权力体系——三清四御五老六司七元八极九曜十都，森严如铁。</p><div class="heaven-grid"><div class="heaven-pillar"><div class="heaven-pillar-icon">👑</div><div class="heaven-pillar-name">玉皇大帝</div><div class="heaven-pillar-role">三界之主</div></div><div class="heaven-pillar"><div class="heaven-pillar-icon">👁</div><div class="heaven-pillar-name">二郎神</div><div class="heaven-pillar-role">听调不听宣</div></div><div class="heaven-pillar"><div class="heaven-pillar-icon">🏮</div><div class="heaven-pillar-name">太上老君</div><div class="heaven-pillar-role">道祖炼丹</div></div><div class="heaven-pillar"><div class="heaven-pillar-icon">⚡</div><div class="heaven-pillar-name">雷公电母</div><div class="heaven-pillar-role">天罚执行</div></div><div class="heaven-pillar"><div class="heaven-pillar-icon">🌪</div><div class="heaven-pillar-name">哪吒</div><div class="heaven-pillar-role">三坛海会大神</div></div><div class="heaven-pillar"><div class="heaven-pillar-icon">👹</div><div class="heaven-pillar-name">四大天王</div><div class="heaven-pillar-role">护世天神</div></div></div><p class="scene-quote">天上有天庭，地上有朝廷，都是官。俺老孙不稀罕</p></div>
+</section>
+
+<!-- 陆·五行山下 -->
+<section class="scene" id="scene6" data-scene="5" data-3d="clouds">
+  <div class="scene-bg scene-o5"></div><div class="scene-seal">陆</div><div class="ink-silhouette" style="bottom:10%;left:8%">⛰</div>
+  <div class="scene-content"><h1 class="scene-title"><span class="gold">五行</span>山下</h1><p class="scene-subtitle">如来佛祖翻手为山。五百年——压住的是肉身，压不住的是那颗齐天之心。</p><div class="gold-frame"><div class="frame-item"><span class="frame-emoji">✋</span>如来佛手掌<span class="frame-highlight">——翻手为云覆手为山</span></div><div class="frame-item"><span class="frame-emoji">⛓</span>五百年<span class="frame-highlight">——饮铜汁食铁丸，未曾黑化</span></div><div class="frame-item"><span class="frame-emoji">🕊</span>等一个人<span class="frame-highlight">——东土大唐来的取经人</span></div></div><p class="scene-quote">五百年桑田沧海，顽石也长满青苔。只一颗心儿未死</p></div>
+</section>
+
+<!-- 柒·灵山在脚下 -->
+<section class="scene" id="scene7" data-scene="6" data-3d="monk">
+  <div class="scene-bg scene-o3"></div><div class="scene-seal">柒</div><div class="ink-silhouette" style="top:10%;right:10%">🙏</div>
+  <div class="scene-content"><h1 class="scene-title"><span class="gold">灵山</span>在脚下</h1><p class="scene-subtitle">唐僧问灵山还有多远。悟空说：师父，灵山就在你脚下。心诚则至。</p><div class="gold-frame"><div class="frame-item"><span class="frame-emoji">🛤</span>十万八千里<span class="frame-highlight">——每一步都是修行</span></div><div class="frame-item"><span class="frame-emoji">💎</span>天地本不全<span class="frame-highlight">——经文残缺也应不全，非人力所能为</span></div><div class="frame-item"><span class="frame-emoji">🪷</span>如来·观音·弥勒<span class="frame-highlight">——西天诸佛的棋局</span></div></div><p class="scene-quote">只要你见性志诚，念念回首处，即是灵山</p></div>
+</section>
+
+<!-- 捌·佛祖棋局 -->
+<section class="scene" id="scene8" data-scene="7" data-3d="bajie">
+  <div class="scene-bg scene-o1"></div><div class="scene-seal">捌</div><div class="ink-silhouette" style="top:20%;right:5%">🪷</div>
+  <div class="scene-content"><h1 class="scene-title"><span class="gold">西天</span>棋局</h1><p class="scene-subtitle">取经路是一场精心设计的劫难——八十一难是天庭与灵山合写的一盘大棋。</p><div class="gold-frame"><div class="frame-item"><span class="frame-emoji">♟</span>五百年前大闹天宫的猴子<span class="frame-highlight">——正是取经需要的护法</span></div><div class="frame-item"><span class="frame-emoji">📖</span>九九八十一难<span class="frame-highlight">——每一难都是提前安排</span></div><div class="frame-item"><span class="frame-emoji">💫</span>从妖猴到斗战胜佛<span class="frame-highlight">——是驯服还是成全？</span></div></div><p class="scene-detail">如来说：你且放心，我自有道理。观音说：功成之后，汝亦坐莲台。</p></div>
+</section>
+
+<!-- 玖·影神图 -->
+<section class="scene" id="scene9" data-scene="8" data-3d="demons">
+  <div class="scene-bg scene-o6"></div><div class="scene-seal">玖</div>
+  <div class="scene-content" style="max-width:90vw"><h1 class="scene-title"><span class="gold">影神</span>图</h1><p class="scene-subtitle">世间妖怪，皆有来历。每一只妖，都是一段被遗忘的故事。</p>
+  <div class="yaoguai-gallery"><div class="yaoguai-scroll" id="yaoguaiScroll">
+    <div class="yaoguai-card"><div class="yaoguai-card-emoji">🦴</div><div class="yaoguai-card-name">白骨夫人</div><div class="yaoguai-card-type">尸魔 · 三变</div><div class="yaoguai-card-desc">三戏唐僧，只为尝一口长生不老。可怜未遇知心人。</div><div class="yaoguai-card-loc">白虎岭</div></div>
+    <div class="yaoguai-card"><div class="yaoguai-card-emoji">🐂</div><div class="yaoguai-card-name">牛魔王</div><div class="yaoguai-card-type">妖王 · 平天大圣</div><div class="yaoguai-card-desc">七大圣之首，昔日结义兄弟，火焰山一役刀兵相见。</div><div class="yaoguai-card-loc">火焰山</div></div>
+    <div class="yaoguai-card"><div class="yaoguai-card-emoji">🦊</div><div class="yaoguai-card-name">九尾狐</div><div class="yaoguai-card-type">妖后 · 压龙大仙</div><div class="yaoguai-card-desc">平顶山金角银角之母，幌金绳之主。千年修行一场空。</div><div class="yaoguai-card-loc">平顶山</div></div>
+    <div class="yaoguai-card"><div class="yaoguai-card-emoji">🕷</div><div class="yaoguai-card-name">蜘蛛精</div><div class="yaoguai-card-type">盘丝洞 · 七姐妹</div><div class="yaoguai-card-desc">濯垢泉中七姐妹，盘丝洞里吐情丝。情网比蛛网更难挣脱。</div><div class="yaoguai-card-loc">盘丝洞</div></div>
+    <div class="yaoguai-card"><div class="yaoguai-card-emoji">🐍</div><div class="yaoguai-card-name">金翅大鹏</div><div class="yaoguai-card-type">如来的舅舅</div><div class="yaoguai-card-desc">狮驼国三魔之首，五百年前吃了全国人。辈分比佛祖还高。</div><div class="yaoguai-card-loc">狮驼岭</div></div>
+    <div class="yaoguai-card"><div class="yaoguai-card-emoji">🔥</div><div class="yaoguai-card-name">红孩儿</div><div class="yaoguai-card-type">圣婴大王</div><div class="yaoguai-card-desc">牛魔王之子，三昧真火无人能敌。观音收为善财童子。</div><div class="yaoguai-card-loc">号山枯松涧</div></div>
+    <div class="yaoguai-card"><div class="yaoguai-card-emoji">🐉</div><div class="yaoguai-card-name">黄袍怪</div><div class="yaoguai-card-type">奎木狼下凡</div><div class="yaoguai-card-desc">二十八星宿之一，为情下界。天庭神仙，也是凡人。</div><div class="yaoguai-card-loc">碗子山波月洞</div></div>
+    <div class="yaoguai-card"><div class="yaoguai-card-emoji">🦁</div><div class="yaoguai-card-name">青毛狮子</div><div class="yaoguai-card-type">文殊菩萨坐骑</div><div class="yaoguai-card-desc">乌鸡国假国王，佛门坐骑下凡为妖。有背景的妖怪最可怕。</div><div class="yaoguai-card-loc">乌鸡国</div></div>
+  </div></div></div>
+</section>
+
+<!-- 拾·黑神话 -->
+<section class="scene" id="scene10" data-scene="9" data-3d="wukong">
+  <div class="scene-bg scene-o2"></div><div class="scene-seal">拾</div><div class="ink-silhouette" style="top:15%;left:8%">🎮</div>
+  <div class="scene-content"><h1 class="scene-title"><span class="gold">黑神话</span>·悟空</h1><p class="scene-subtitle">天命人——你不是大圣，但你可以成为大圣。</p><div class="gold-frame"><div class="frame-item"><span class="frame-emoji">🐒</span>天命人<span class="frame-highlight">——重走西游路，寻回六根</span></div><div class="frame-item"><span class="frame-emoji">🗡</span>如意金箍棒<span class="frame-highlight">——每一根毫毛都是兵器</span></div><div class="frame-item"><span class="frame-emoji">🔥</span>七十二变<span class="frame-highlight">——化身金蝉、巨猿、石磷磷</span></div><div class="frame-item"><span class="frame-emoji">⚔</span>百眼魔君·黄风大圣·毒敌大王<span class="frame-highlight">——妖王尽出</span></div></div><p class="scene-quote">若不披上这件袈裟，世人又怎知我尘缘已断、金海尽干</p></div>
+</section>
+
+<!-- 拾壹·大圣有泪 -->
+<section class="scene" id="scene11" data-scene="10" data-3d="shaseng">
+  <div class="scene-bg scene-o5"></div><div class="scene-seal">拾壹</div><div class="ink-silhouette" style="bottom:10%;right:5%">💧</div>
   <div class="scene-content"><h1 class="scene-title"><span class="gold">大圣</span>有泪</h1><p class="scene-subtitle">金刚怒目，亦有菩萨低眉。最柔软处藏着对众生的深情。</p><div class="gold-frame"><div class="frame-item"><span class="frame-emoji">🪓</span>默默帮助山中<span class="frame-highlight">樵夫</span></div><div class="frame-item"><span class="frame-emoji">🙏</span>铭记菩提祖师——<span class="frame-highlight">终身不忘师恩</span></div><div class="frame-item"><span class="frame-emoji">🐂</span>保护放牛<span class="frame-highlight">牧童</span></div></div><p class="scene-quote">我无性。人若骂我，我也不恼；若打我，我也不嗔</p></div>
 </section>
 
-<section class="scene" id="scene6" data-scene="5" data-3d="staff">
-  <div class="scene-bg"></div><div class="scene-seal">陆</div><div class="ink-silhouette" style="top:25%;left:5%">🔱</div>
-  <div class="scene-content"><h1 class="scene-title"><span class="gold">定海</span>神针</h1><p class="scene-subtitle">一万三千五百斤，沉在东海千年——只为等一只猴子。</p><div class="gold-frame"><div class="frame-item"><span class="frame-emoji">🌊</span>金箍棒不是武器——是<span class="frame-highlight">民族精神图腾</span></div><div class="frame-item"><span class="frame-emoji">⚡</span>能大能小能伸能屈——<span class="frame-highlight">处世智慧</span></div><div class="frame-item"><span class="frame-emoji">💪</span>一万三千五百斤——<span class="frame-highlight">人定胜天的重量</span></div></div><p class="scene-quote">此乃定海神珍铁，莫不是该遇主人了</p></div>
+<!-- 拾贰·自由之魂 -->
+<section class="scene" id="scene12" data-scene="11" data-3d="wukong">
+  <div class="scene-bg scene-o2"></div><div class="scene-seal">拾贰</div><div class="ink-silhouette" style="top:15%;right:8%">🌪</div>
+  <div class="scene-content"><h1 class="scene-title"><span class="gold">自由</span>之魂</h1><p class="scene-subtitle">不跪玉帝不拜如来——刻在中国人骨子里的，是对自由的渴望。</p><div class="gold-frame"><div class="frame-item"><span class="frame-emoji">🗽</span>不跪玉帝不拜如来——<span class="frame-highlight">拒绝权威</span></div><div class="frame-item"><span class="frame-emoji">🏔</span>花果山称王水帘洞安家——<span class="frame-highlight">自己的王国</span></div><div class="frame-item"><span class="frame-emoji">🪽</span>筋斗云十万八千里——<span class="frame-highlight">没人追得上</span></div></div><p class="scene-quote">我要这天，再遮不住我眼。要这地，再埋不了我心</p></div>
 </section>
 
-<section class="scene" id="scene7" data-scene="6" data-3d="dragon">
-  <div class="scene-bg"></div><div class="scene-seal">柒</div><div class="ink-silhouette" style="bottom:20%;right:5%">⚔</div>
-  <div class="scene-content"><h1 class="scene-title"><span class="gold">正义</span>必胜</h1><p class="scene-subtitle">中国人心中都有一个孙悟空——正义终将战胜邪恶。</p><div class="gold-frame"><div class="frame-item"><span class="frame-emoji">🦸</span>九九八十一难<span class="frame-highlight">从未退缩</span></div><div class="frame-item"><span class="frame-emoji">🤝</span>护送唐僧取经<span class="frame-highlight">团队的力量</span></div><div class="frame-item"><span class="frame-emoji">✨</span>从妖猴到斗战胜佛<span class="frame-highlight">自我超越</span></div></div><p class="scene-quote">踏南天，碎凌霄。若一去不回？便一去不回</p></div>
+<!-- 拾叁·羁绊 -->
+<section class="scene" id="scene13" data-scene="12" data-3d="bajie">
+  <div class="scene-bg scene-o4"></div><div class="scene-seal">拾叁</div><div class="ink-silhouette" style="bottom:15%;left:8%">🧡</div>
+  <div class="scene-content"><h1 class="scene-title"><span class="gold">师徒</span>羁绊</h1><p class="scene-subtitle">紧箍咒是束缚，也是羁绊。有人同行，便不再孤独。</p><div class="gold-frame"><div class="frame-item"><span class="frame-emoji">🙇</span>为救师父<span class="frame-highlight">三打白骨精</span></div><div class="frame-item"><span class="frame-emoji">🐷</span>与八戒沙僧<span class="frame-highlight">生死相托</span></div><div class="frame-item"><span class="frame-emoji">🐉</span>小白龙<span class="frame-highlight">默默守护</span></div></div><p class="scene-quote">师父你再念紧箍咒，俺老孙头真要裂了——但俺不走</p></div>
 </section>
 
-<section class="scene" id="scene8" data-scene="7" data-3d="demons">
-  <div class="scene-bg"></div><div class="scene-seal">捌</div><div class="ink-silhouette" style="top:8%;left:8%">🎭</div>
-  <div class="scene-content"><h1 class="scene-title"><span class="gold">古今</span>大圣</h1><p class="scene-subtitle">从明代小说走进电视、电影、游戏——每个时代的大圣，守着同一颗心。</p><div class="gold-frame"><div class="frame-item"><span class="frame-emoji">📺</span>86版《西游记》——<span class="frame-highlight">六小龄童</span></div><div class="frame-item"><span class="frame-emoji">🎬</span>《大话西游》——<span class="frame-highlight">至尊宝</span></div><div class="frame-item"><span class="frame-emoji">🎮</span>《黑神话：悟空》——<span class="frame-highlight">天命人</span></div></div><p class="scene-quote">七十二变，变的是神通，不变的是赤子之心</p></div>
+<!-- 拾肆·哲思 -->
+<section class="scene" id="scene14" data-scene="13" data-3d="clouds">
+  <div class="scene-bg scene-o3"></div><div class="scene-seal">拾肆</div>
+  <div class="ink-silhouette" style="top:10%;left:5%">💎</div>
+  <div class="scene-content"><h1 class="scene-title"><span class="gold">大圣</span>哲思</h1><p class="scene-subtitle">一只猴子的领悟，比修了千年的神佛都透彻。</p>
+  <p class="philosophy-quote">求仙问卜，不如自己做主</p>
+  <p class="philosophy-quote">天地本不全，经文残缺也应不全</p>
+  <p class="philosophy-quote">见性志诚，念念回首处，即是灵山</p>
+  <p class="philosophy-quote">我无性。人若骂我，我也不恼；若打我，我也不嗔</p>
+  <p class="philosophy-quote">山高自有客行路，水深自有渡船人</p>
+  <p class="scene-detail" style="margin-top:1em;font-size:12px;color:rgba(30,133,104,.35)">—— 大圣不是神话，是每个中国人心中那个不认命的自己</p></div>
 </section>
 
-<section class="scene" id="scene9" data-scene="8" data-3d="wukong">
-  <div class="scene-bg"></div><div class="scene-seal">玖</div><div class="ink-silhouette" style="top:15%;right:8%">🌪</div>
-  <div class="scene-content"><h1 class="scene-title"><span class="gold">自由</span>之魂</h1><p class="scene-subtitle">一个筋斗十万八千里——刻在中国人骨子里的，是对自由的渴望。</p><div class="gold-frame"><div class="frame-item"><span class="frame-emoji">🗽</span>不跪玉帝不拜如来——<span class="frame-highlight">拒绝权威</span></div><div class="frame-item"><span class="frame-emoji">🏔</span>花果山称王水帘洞安家——<span class="frame-highlight">自己的王国</span></div><div class="frame-item"><span class="frame-emoji">🪽</span>筋斗云七十二变——<span class="frame-highlight">超越想象</span></div></div><p class="scene-quote">我要这天，再遮不住我眼。我要这地，再埋不了我心</p></div>
-</section>
-
-<section class="scene" id="scene10" data-scene="9" data-3d="shaseng">
-  <div class="scene-bg"></div><div class="scene-seal">拾</div><div class="ink-silhouette" style="bottom:15%;left:8%">🧡</div>
-  <div class="scene-content"><h1 class="scene-title"><span class="gold">师徒</span>情深</h1><p class="scene-subtitle">紧箍咒是束缚，也是羁绊。有人同行，便不再孤独。</p><div class="gold-frame"><div class="frame-item"><span class="frame-emoji">🙇</span>为救师父<span class="frame-highlight">三打白骨精</span></div><div class="frame-item"><span class="frame-emoji">🐷</span>与八戒沙僧<span class="frame-highlight">生死相托</span></div><div class="frame-item"><span class="frame-emoji">🐉</span>小白龙<span class="frame-highlight">默默守护</span></div></div><p class="scene-quote">师父你再念紧箍咒，俺老孙头真要裂了——但俺不走</p></div>
-</section>
-
-<section class="scene" id="scene11" data-scene="10" data-3d="wukong">
-  <div class="scene-bg"></div><div class="scene-seal">拾壹</div>
-  <div class="scene-content"><h1 class="scene-title" style="font-size:clamp(32px,8vw,64px)"><span class="gold">永恒</span>大圣</h1><p class="scene-subtitle">72变的大圣，每个时代换不同面孔，守同一颗心。</p><p style="font-size:13px;color:rgba(245,239,224,.3);line-height:2.3;text-align:center;margin:1.2em 0">定海神针·民族图腾<br>正义必胜·集体信念<br>古今大圣·自由之魂<br>师徒情深·永恒大圣</p><p class="scene-quote">中国人会在不同人生阶段，反复爱上孙悟空</p><p class="to-finale" id="toFinale">展开星辰画卷 →</p></div>
-</section>
-
-<section class="scene" id="scene-finale" data-scene="11" data-3d="stars">
-  <div class="scene-bg"></div>
+<!-- 终·星辰 -->
+<section class="scene" id="scene-finale" data-scene="14" data-3d="stars">
+  <div class="scene-bg scene-o4"></div>
   <div style="position:relative;z-index:10;text-align:center;margin-top:3rem"><h2 style="font-size:clamp(18px,3.5vw,30px);color:rgba(192,57,43,.5);letter-spacing:.08em">星辰画卷</h2><p style="color:rgba(245,239,224,.2);font-size:11px">触碰星辰，聆听大圣的低语</p></div>
   <div id="starContainer" style="position:absolute;inset:0;z-index:5"></div><svg class="star-lines" id="starLines"></svg>
   <div class="chat-widget" id="chatWidget"><div class="chat-response" id="chatResponse"><div class="chat-avatar">🐒</div><div class="chat-text"></div></div><div class="chat-input-wrap"><input type="text" class="chat-input" id="chatInput" placeholder="向大圣发问..." maxlength="80"><button class="chat-send" id="chatSend">问</button></div><p class="chat-hint">— 大圣亲自回答 —</p></div>
@@ -187,222 +355,622 @@ body.loaded .scroll-container{opacity:1}
 </div>
 
 <script>
-// ===== BUILD 3D IMMEDIATELY (parallel with opening) =====
+// ===== 3D ENGINE =====
 var _renderer,_scene,_camera,_objs=[];
-(function init3D(){
+function init3D(){
   if(typeof THREE==='undefined')return;
   try{
     _renderer=new THREE.WebGLRenderer({canvas:document.getElementById('threeCanvas'),alpha:true,antialias:true});
     _renderer.setPixelRatio(Math.min(window.devicePixelRatio,1.5));
     _renderer.setSize(window.innerWidth,window.innerHeight);
     _renderer.setClearColor(0x000000,0);
-    _scene=new THREE.Scene();
-    _camera=new THREE.PerspectiveCamera(55,window.innerWidth/window.innerHeight,.1,50);
-    _camera.position.set(0,.2,6.5);
+    _scene=new THREE.Scene();_scene.fog=new THREE.FogExp2(0x0a0806,.008);
+    _camera=new THREE.PerspectiveCamera(50,window.innerWidth/window.innerHeight,.08,40);
+    _camera.position.set(0,.3,6);
+    // 4-point lighting
     _scene.add(new THREE.AmbientLight(0x554433,1.0));
-    _scene.add(new THREE.DirectionalLight(0xe8a820,1.8)).position.set(3,5,5);
-    _scene.add(new THREE.DirectionalLight(0xffccaa,.6)).position.set(-2,0,3);
-    _scene.add(new THREE.DirectionalLight(0xc0392b,.7)).position.set(-3,-2,-2);
-    buildScene('wukong'); // Show 悟空 from the start
+    var dl1=new THREE.DirectionalLight(0xe8a820,2.2);dl1.position.set(3,5,5);_scene.add(dl1);
+    var dl2=new THREE.DirectionalLight(0xffccaa,.7);dl2.position.set(-2,0,3);_scene.add(dl2);
+    var dl3=new THREE.DirectionalLight(0xc0392b,.8);dl3.position.set(-3,-2,-2);_scene.add(dl3);
+    var dl4=new THREE.PointLight(0x4a90b8,.5,8);dl4.position.set(0,2,4);_scene.add(dl4);
+    buildScene('wukong');
     animate3D();
-    window.addEventListener('resize',()=>{_renderer.setSize(window.innerWidth,window.innerHeight);_camera.aspect=window.innerWidth/window.innerHeight;_camera.updateProjectionMatrix()});
-  }catch(e){}
-})();
+    window.addEventListener('resize',function(){_renderer.setSize(window.innerWidth,window.innerHeight);_camera.aspect=window.innerWidth/window.innerHeight;_camera.updateProjectionMatrix()});
+  }catch(e){console.warn('3D init:',e.message)}
+}
 
 function animate3D(){
   requestAnimationFrame(animate3D);
-  if(!_objs.length)return;
-  const t=performance.now()*.001;
-  _objs.forEach(o=>{if(o.ud&&o.ud.ry)o.rotation.y+=o.ud.ry;if(o.ud&&o.ud.fl)o.position.y+=Math.sin(t*1.2+o.ud.of)*.004});
+  var t=performance.now()*.001;
+  _objs.forEach(function(o){
+    if(o.ud&&o.ud.ry)o.rotation.y+=o.ud.ry*0.7;
+    if(o.ud&&o.ud.fl)o.position.y+=Math.sin(t*1.2+o.ud.of)*.004;
+    if(o.ud&&o.ud.capeWave){
+      o.children.forEach(function(c){
+        if(c.geometry&&c.geometry.type==='PlaneGeometry'){
+          var verts=c.geometry.attributes.position;
+          for(var i=0;i<verts.count;i++){
+            var y=verts.getY(i);
+            verts.setZ(i,Math.sin(t*3+y*4+o.ud.of)*.08);
+          }
+          verts.needsUpdate=true;
+        }
+      });
+    }
+  });
   _renderer.render(_scene,_camera);
 }
 
-function clearScene(){_objs.forEach(o=>_scene.remove(o));_objs=[]}
-const gM=()=>new THREE.MeshStandardMaterial({color:0xe8a820,roughness:.15,metalness:.9,emissive:0x553300,emissiveIntensity:.6});
-const rM=()=>new THREE.MeshStandardMaterial({color:0xc0392b,roughness:.25,metalness:.5,emissive:0x440000,emissiveIntensity:.4});
-const bM=()=>new THREE.MeshStandardMaterial({color:0x2a1810,roughness:.6,metalness:.15});
-const cM=()=>new THREE.MeshStandardMaterial({color:0xf5efe0,roughness:.85,metalness:0,transparent:true,opacity:.15});
-const jM=()=>new THREE.MeshStandardMaterial({color:0x1e8568,roughness:.2,metalness:.7,emissive:0x003322,emissiveIntensity:.4});
-const fM=()=>new THREE.MeshStandardMaterial({color:0xf5d890,roughness:.2,metalness:.5,emissive:0x443300,emissiveIntensity:.4,transparent:true,opacity:.9});
+function clearScene(){_objs.forEach(function(o){_scene.remove(o)});_objs=[]}
+var gM=function(){return new THREE.MeshStandardMaterial({color:0xe8a820,roughness:.12,metalness:.92,emissive:0x553300,emissiveIntensity:.65})};
+var rM=function(){return new THREE.MeshStandardMaterial({color:0xc0392b,roughness:.22,metalness:.55,emissive:0x440000,emissiveIntensity:.45})};
+var bM=function(){return new THREE.MeshStandardMaterial({color:0x1a1008,roughness:.55,metalness:.2})};
+var cM=function(){return new THREE.MeshStandardMaterial({color:0xf5efe0,roughness:.85,metalness:0,transparent:true,opacity:.12})};
+var jM=function(){return new THREE.MeshStandardMaterial({color:0x1e8568,roughness:.18,metalness:.72,emissive:0x003322,emissiveIntensity:.45})};
+var fM=function(){return new THREE.MeshStandardMaterial({color:0xf5d890,roughness:.18,metalness:.55,emissive:0x443300,emissiveIntensity:.45,transparent:true,opacity:.9})};
+var sM=function(){return new THREE.MeshStandardMaterial({color:0x888888,roughness:.12,metalness:.92,emissive:0x111111,emissiveIntensity:.3})};
 function ad(o,ry,fl,of){_scene.add(o);_objs.push(o);o.ud={};if(ry)o.ud.ry=ry;if(fl){o.ud.fl=true;o.ud.of=of||0}return o}
 
-function mkStaff(x,y,z,s,ry){const g=new THREE.Group();g.add(new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,3.2,16),gM()));const tp=new THREE.Mesh(new THREE.TorusGeometry(.16,.045,8,16),gM());tp.position.y=1.6;g.add(tp);const ti=new THREE.Mesh(new THREE.SphereGeometry(.11,8,8),gM());ti.position.y=1.85;g.add(ti);g.position.set(x,y,z);g.scale.setScalar(s||1);return ad(g,ry)}
-function mkWukong(){const g=new THREE.Group();g.add(new THREE.Mesh(new THREE.SphereGeometry(.24,18,18),gM())).position.y=1.35;g.add(new THREE.Mesh(new THREE.TorusGeometry(.26,.035,8,18),rM())).position.y=1.5;for(let i=0;i<2;i++){const f=new THREE.Mesh(new THREE.ConeGeometry(.035,.28,6),rM());f.position.set((i-.5)*.18,1.68,.08);f.rotation.z=(i-.5)*.35;g.add(f)}g.add(new THREE.Mesh(new THREE.SphereGeometry(.045,6,6),bM())).position.set(.09,1.4,.18);g.add(new THREE.Mesh(new THREE.SphereGeometry(.045,6,6),bM())).position.set(-.09,1.4,.18);const bd=new THREE.Mesh(new THREE.CylinderGeometry(.2,.26,1.3,12),gM());bd.position.y=.65;g.add(bd);const bl=new THREE.Mesh(new THREE.TorusGeometry(.28,.035,8,16),rM());bl.position.y=.45;g.add(bl);g.add(new THREE.Mesh(new THREE.CylinderGeometry(.065,.065,.85,8),gM())).position.set(.3,.85,0).rotation.z=.35;g.add(new THREE.Mesh(new THREE.CylinderGeometry(.065,.065,.85,8),gM())).position.set(-.3,.85,0).rotation.z=-1.05;const st=new THREE.Mesh(new THREE.CylinderGeometry(.045,.045,1.8,8),gM());st.position.set(.55,.65,0);st.rotation.z=-.55;g.add(st);g.add(new THREE.Mesh(new THREE.CylinderGeometry(.075,.075,.75,8),gM())).position.set(.12,0,0);g.add(new THREE.Mesh(new THREE.CylinderGeometry(.075,.075,.75,8),gM())).position.set(-.12,0,0);g.add(new THREE.Mesh(new THREE.ConeGeometry(.32,.35,8),rM())).position.y=.1;for(let i=0;i<5;i++)g.add(new THREE.Mesh(new THREE.SphereGeometry(.16,6,6),cM())).position.set(Math.cos(i*1.256)*.28,-.2,Math.sin(i*1.256)*.18);g.position.set(0,-.55,0);return ad(g,.005,true,0)}
-function mkFairy(x){const g=new THREE.Group();g.add(new THREE.Mesh(new THREE.CylinderGeometry(.09,.13,1.5,8),fM())).position.y=.75;g.add(new THREE.Mesh(new THREE.SphereGeometry(.13,8,8),new THREE.MeshStandardMaterial({color:0xfef3c7,roughness:.15,metalness:.05}))).position.y=1.6;g.add(new THREE.Mesh(new THREE.SphereGeometry(.08,6,6),bM())).position.y=1.7;for(let i=0;i<3;i++){const r=new THREE.Mesh(new THREE.TorusGeometry(.2,.01,6,8,Math.PI),new THREE.MeshStandardMaterial({color:0xf5d890,roughness:.15,transparent:true,opacity:.65}));r.position.set(0,1.2+i*.32,0);r.rotation.x=Math.PI/2;r.rotation.z=i*.35;g.add(r)}g.position.set(x||0,0,0);return ad(g,.0015,true,Math.random()*6)}
-function mkPig(){const g=new THREE.Group();const bd=new THREE.Mesh(new THREE.SphereGeometry(.42,12,12),new THREE.MeshStandardMaterial({color:0x8b7355,roughness:.4,emissive:0x110000,emissiveIntensity:.15}));bd.scale.set(1,1.15,.78);bd.position.y=.42;g.add(bd);g.add(new THREE.Mesh(new THREE.SphereGeometry(.26,10,10),new THREE.MeshStandardMaterial({color:0xa08060,roughness:.35}))).position.set(.16,1.05,0);const sn=new THREE.Mesh(new THREE.CylinderGeometry(.11,.13,.16,8),new THREE.MeshStandardMaterial({color:0xd4a0a0,roughness:.35}));sn.position.set(.32,1.05,.11);sn.rotation.x=Math.PI/2;g.add(sn);g.add(new THREE.Mesh(new THREE.ConeGeometry(.11,.16,8),new THREE.MeshStandardMaterial({color:0xa08060,roughness:.45}))).position.set(.05,1.32,.2);g.add(new THREE.Mesh(new THREE.SphereGeometry(.26,6,6),new THREE.MeshStandardMaterial({color:0xc4a882,roughness:.35}))).position.set(0,.38,.33);const rk=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,1.8,8),new THREE.MeshStandardMaterial({color:0x777,roughness:.25,metalness:.85}));rk.position.set(.5,.65,0);rk.rotation.z=-.32;g.add(rk);g.position.set(0,-.3,0);return ad(g,.0025,true,1.5)}
-function mkMonk(){const g=new THREE.Group();g.add(new THREE.Mesh(new THREE.CylinderGeometry(.16,.2,1.3,8),new THREE.MeshStandardMaterial({color:0xd4c4a0,roughness:.45}))).position.y=.65;g.add(new THREE.Mesh(new THREE.SphereGeometry(.18,10,10),new THREE.MeshStandardMaterial({color:0xe8dcc8,roughness:.25}))).position.y=1.4;g.add(new THREE.Mesh(new THREE.CylinderGeometry(.2,.22,.16,10),rM())).position.y=1.55;g.add(new THREE.Mesh(new THREE.ConeGeometry(.25,.4,8),rM())).position.y=.32;g.add(new THREE.Mesh(new THREE.CylinderGeometry(.045,.045,2,8),new THREE.MeshStandardMaterial({color:0x8b6914,roughness:.15,metalness:.75}))).position.set(.32,.75,0);return ad(g,0,true,2.8)}
-function mkDragon(){const g=new THREE.Group();for(let i=0;i<7;i++)g.add(new THREE.Mesh(new THREE.SphereGeometry(.13-(i*.01),6,6),jM())).position.set(0,i*.38-.55,Math.sin(i*.48)*.18);const hd=new THREE.Mesh(new THREE.ConeGeometry(.16,.32,8),jM());hd.position.set(0,.85,0);hd.rotation.x=-Math.PI*.22;g.add(hd);g.add(new THREE.Mesh(new THREE.ConeGeometry(.035,.22,6),gM())).position.set(.1,.95,0).rotation.z=.28;g.add(new THREE.Mesh(new THREE.ConeGeometry(.035,.22,6),gM())).position.set(-.1,.95,0).rotation.z=-.28;for(let s of[-1,1])g.add(new THREE.Mesh(new THREE.TorusGeometry(.12,.012,6,6,Math.PI),new THREE.MeshStandardMaterial({color:0xf5d890,roughness:.1}))).position.set(s*.1,.82,.12).rotation.y=s*.45;g.position.set(0,-.25,0);return ad(g,.004,true,3.2)}
-function mkDemon(x){const g=new THREE.Group();g.add(new THREE.Mesh(new THREE.DodecahedronGeometry(.28,1),new THREE.MeshStandardMaterial({color:0x2a1818,roughness:.55,emissive:0x110000,emissiveIntensity:.25}))).position.y=.55;g.add(new THREE.Mesh(new THREE.IcosahedronGeometry(.2,1),new THREE.MeshStandardMaterial({color:0x3a2020,roughness:.45}))).position.y=1.15;for(let s of[-1,1])g.add(new THREE.Mesh(new THREE.ConeGeometry(.06,.28,6),bM())).position.set(s*.09,1.38,0).rotation.z=s*.22;g.add(new THREE.Mesh(new THREE.SphereGeometry(.045,5,5),rM())).position.set(.1,1.22,.16);g.add(new THREE.Mesh(new THREE.SphereGeometry(.045,5,5),rM())).position.set(-.1,1.22,.16);g.position.set(x||0,0,0);return ad(g,-.0025,true,Math.random()*4)}
-function mkShaseng(){const g=new THREE.Group();g.add(new THREE.Mesh(new THREE.CylinderGeometry(.16,.18,1.5,8),new THREE.MeshStandardMaterial({color:0x4a3728,roughness:.45,emissive:0x110000,emissiveIntensity:.1}))).position.y=.75;g.add(new THREE.Mesh(new THREE.SphereGeometry(.16,10,10),new THREE.MeshStandardMaterial({color:0x6b5b4f,roughness:.35}))).position.y=1.6;g.add(new THREE.Mesh(new THREE.ConeGeometry(.09,.22,6),bM())).position.set(0,1.38,.14);for(let i=0;i<5;i++)g.add(new THREE.Mesh(new THREE.SphereGeometry(.045,5,5),new THREE.MeshStandardMaterial({color:0x8b6914,roughness:.15,metalness:.55}))).position.set(Math.cos(i*1.256)*.18,1.18,Math.sin(i*1.256)*.15);g.add(new THREE.Mesh(new THREE.CylinderGeometry(.055,.055,2.2,8),new THREE.MeshStandardMaterial({color:0x888,roughness:.15,metalness:.85}))).position.set(.38,.85,0).rotation.z=-.18;return ad(g,0,true,4.5)}
-function mkClouds(n){for(let i=0;i<n;i++)ad(new THREE.Mesh(new THREE.SphereGeometry(.32+Math.random()*.48,6,6),cM()),.0006+Math.random()*.0015,false).position.set((Math.random()-.5)*6.5,(Math.random()-.5)*3.8,-1.5)}
+// === Enhanced Wukong with cape, armor, staff-in-hand ===
+function mkWukong(){
+  var g=new THREE.Group();
+  // Cape (flowing behind)
+  var capeGeo=new THREE.PlaneGeometry(.55,1.1,8,12);
+  var cape=new THREE.Mesh(capeGeo,new THREE.MeshStandardMaterial({color:0xc0392b,roughness:.35,side:THREE.DoubleSide,emissive:0x220000,emissiveIntensity:.2}));
+  cape.position.set(0,.35,-.28);cape.rotation.x=-.15;g.add(cape);
+  // Head
+  var head=new THREE.Mesh(new THREE.SphereGeometry(.22,20,20),new THREE.MeshStandardMaterial({color:0xe8a820,roughness:.1,metalness:.9}));
+  head.position.y=1.38;g.add(head);
+  // Crown ring
+  var crown=new THREE.Mesh(new THREE.TorusGeometry(.25,.03,8,20),rM());
+  crown.position.y=1.52;crown.rotation.x=Math.PI/2;g.add(crown);
+  // Phoenix feathers (2 side feathers)
+  for(var i=0;i<2;i++){
+    var feather=new THREE.Mesh(new THREE.ConeGeometry(.03,.35,6),rM());
+    feather.position.set((i-.5)*.18,1.72,.06);feather.rotation.z=(i-.5)*.4;g.add(feather);
+  }
+  // Eyes
+  g.add(new THREE.Mesh(new THREE.SphereGeometry(.05,6,6),new THREE.MeshStandardMaterial({color:0xff4400,emissive:0xff2200,emissiveIntensity:.8}))).position.set(.08,1.42,.18);
+  g.add(new THREE.Mesh(new THREE.SphereGeometry(.05,6,6),new THREE.MeshStandardMaterial({color:0xff4400,emissive:0xff2200,emissiveIntensity:.8}))).position.set(-.08,1.42,.18);
+  // Body (armor)
+  var body=new THREE.Mesh(new THREE.CylinderGeometry(.18,.24,1.2,12),gM());
+  body.position.y=.7;g.add(body);
+  // Belt
+  var belt=new THREE.Mesh(new THREE.TorusGeometry(.26,.035,8,16),rM());
+  belt.position.y=.5;belt.rotation.x=Math.PI/2;g.add(belt);
+  // Arms with staff
+  var staff=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,2.2,8),gM());
+  staff.position.set(.55,.7,0);staff.rotation.z=-.55;g.add(staff);
+  // Staff end caps
+  var cap1=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,.15,8),gM());
+  cap1.position.set(1.2,.28,0);g.add(cap1);
+  var cap2=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,.15,8),gM());
+  cap2.position.set(.05,1.05,0);g.add(cap2);
+  // Arms
+  for(var s=-1;s<=1;s+=2){
+    var arm=new THREE.Mesh(new THREE.CylinderGeometry(.055,.055,.75,8),gM());
+    arm.position.set(s*.3,.88,0);arm.rotation.z=s*.25;g.add(arm);
+  }
+  // Legs
+  g.add(new THREE.Mesh(new THREE.CylinderGeometry(.065,.065,.65,8),gM())).position.set(.12,0,0);
+  g.add(new THREE.Mesh(new THREE.CylinderGeometry(.065,.065,.65,8),gM())).position.set(-.12,0,0);
+  // Boots
+  g.add(new THREE.Mesh(new THREE.ConeGeometry(.11,.2,8),bM())).position.set(.12,-.32,0);
+  g.add(new THREE.Mesh(new THREE.ConeGeometry(.11,.2,8),bM())).position.set(-.12,-.32,0);
+  // Cloud base
+  for(var i=0;i<6;i++){
+    g.add(new THREE.Mesh(new THREE.SphereGeometry(.14,6,6),cM())).position.set(Math.cos(i*1.047)*.25,-.18,Math.sin(i*1.047)*.15);
+  }
+  g.position.set(0,-.4,0);
+  g.ud={capeWave:true,ry:.004,fl:true,of:0};
+  return ad(g,.004,true,0);
+}
+
+function mkStaff(x,y,z,s,ry){
+  var g=new THREE.Group();
+  g.add(new THREE.Mesh(new THREE.CylinderGeometry(.065,.065,3.3,16),gM()));
+  var tp=new THREE.Mesh(new THREE.TorusGeometry(.15,.04,8,16),gM());tp.position.y=1.65;g.add(tp);
+  var ti=new THREE.Mesh(new THREE.SphereGeometry(.1,8,8),gM());ti.position.y=1.9;g.add(ti);
+  g.position.set(x||0,y||0,z||0);g.scale.setScalar(s||1);
+  return ad(g,ry||.002);
+}
+
+function mkFairy(x){
+  var g=new THREE.Group();
+  g.add(new THREE.Mesh(new THREE.CylinderGeometry(.08,.12,1.6,8),fM())).position.y=.8;
+  g.add(new THREE.Mesh(new THREE.SphereGeometry(.12,8,8),new THREE.MeshStandardMaterial({color:0xfef3c7,roughness:.12,metalness:.05}))).position.y=1.7;
+  g.add(new THREE.Mesh(new THREE.SphereGeometry(.07,6,6),bM())).position.y=1.8;
+  // Ribbon rings
+  for(var i=0;i<3;i++){
+    var ribbon=new THREE.Mesh(new THREE.TorusGeometry(.18,.008,6,8,Math.PI),new THREE.MeshStandardMaterial({color:0xf5d890,roughness:.1,transparent:true,opacity:.6}));
+    ribbon.position.set(0,1.25+i*.3,0);ribbon.rotation.x=Math.PI/2;ribbon.rotation.z=i*.3;g.add(ribbon);
+  }
+  g.position.set(x||0,0,0);
+  return ad(g,.0012,true,Math.random()*6);
+}
+
+function mkPig(){
+  var g=new THREE.Group();
+  var bd=new THREE.Mesh(new THREE.SphereGeometry(.4,14,14),new THREE.MeshStandardMaterial({color:0x8b7355,roughness:.35,emissive:0x110000,emissiveIntensity:.15}));
+  bd.scale.set(1,1.2,.75);bd.position.y=.45;g.add(bd);
+  g.add(new THREE.Mesh(new THREE.SphereGeometry(.24,10,10),new THREE.MeshStandardMaterial({color:0xa08060,roughness:.3}))).position.set(.14,1.1,0);
+  var snout=new THREE.Mesh(new THREE.CylinderGeometry(.1,.12,.18,8),new THREE.MeshStandardMaterial({color:0xd4a0a0,roughness:.3}));
+  snout.position.set(.3,1.08,.1);snout.rotation.x=Math.PI/2;g.add(snout);
+  g.add(new THREE.Mesh(new THREE.ConeGeometry(.1,.18,8),new THREE.MeshStandardMaterial({color:0xa08060,roughness:.4}))).position.set(.03,1.35,.18);
+  g.add(new THREE.Mesh(new THREE.SphereGeometry(.24,6,6),new THREE.MeshStandardMaterial({color:0xc4a882,roughliness:.3}))).position.set(0,.4,.3);
+  var rake=new THREE.Mesh(new THREE.CylinderGeometry(.032,.032,1.9,8),new THREE.MeshStandardMaterial({color:0x777,roughness:.2,metalness:.88}));
+  rake.position.set(.48,.7,0);rake.rotation.z=-.28;g.add(rake);
+  g.position.set(0,-.2,0);
+  return ad(g,.0022,true,1.5);
+}
+
+function mkMonk(){
+  var g=new THREE.Group();
+  g.add(new THREE.Mesh(new THREE.CylinderGeometry(.15,.18,1.4,8),new THREE.MeshStandardMaterial({color:0xd4c4a0,roughness:.4}))).position.y=.7;
+  g.add(new THREE.Mesh(new THREE.SphereGeometry(.16,10,10),new THREE.MeshStandardMaterial({color:0xe8dcc8,roughness:.2}))).position.y=1.5;
+  g.add(new THREE.Mesh(new THREE.CylinderGeometry(.18,.2,.18,10),rM())).position.y=1.65;
+  g.add(new THREE.Mesh(new THREE.ConeGeometry(.22,.42,8),rM())).position.y=.38;
+  var staff=new THREE.Mesh(new THREE.CylinderGeometry(.04,.04,2.2,8),new THREE.MeshStandardMaterial({color:0x8b6914,roughness:.12,metalness:.78}));
+  staff.position.set(.3,.8,0);g.add(staff);
+  return ad(g,0,true,2.8);
+}
+
+function mkDragon(){
+  var g=new THREE.Group();
+  for(var i=0;i<8;i++){
+    g.add(new THREE.Mesh(new THREE.SphereGeometry(.12-(i*.012),6,6),jM())).position.set(0,i*.36-.5,Math.sin(i*.5)*.16);
+  }
+  var hd=new THREE.Mesh(new THREE.ConeGeometry(.15,.35,8),jM());
+  hd.position.set(0,.9,0);hd.rotation.x=-Math.PI*.2;g.add(hd);
+  g.add(new THREE.Mesh(new THREE.ConeGeometry(.03,.24,6),gM())).position.set(.08,1,0).rotation.z=.25;
+  g.add(new THREE.Mesh(new THREE.ConeGeometry(.03,.24,6),gM())).position.set(-.08,1,0).rotation.z=-.25;
+  for(var s=-1;s<=1;s+=2){
+    g.add(new THREE.Mesh(new THREE.TorusGeometry(.1,.01,6,6,Math.PI),new THREE.MeshStandardMaterial({color:0xf5d890,roughness:.08}))).position.set(s*.08,.88,.1).rotation.y=s*.4;
+  }
+  g.position.set(0,-.2,0);
+  return ad(g,.0035,true,3.2);
+}
+
+function mkDemon(x){
+  var g=new THREE.Group();
+  // More detailed demon - horned, armored
+  g.add(new THREE.Mesh(new THREE.DodecahedronGeometry(.3,1),new THREE.MeshStandardMaterial({color:0x2a1818,roughness:.5,emissive:0x110000,emissiveIntensity:.3}))).position.y=.55;
+  g.add(new THREE.Mesh(new THREE.IcosahedronGeometry(.22,1),new THREE.MeshStandardMaterial({color:0x3a2020,roughness:.4}))).position.y=1.2;
+  // Horns
+  for(var s=-1;s<=1;s+=2){
+    var horn=new THREE.Mesh(new THREE.ConeGeometry(.05,.32,8),bM());
+    horn.position.set(s*.1,1.45,0);horn.rotation.z=s*.2;g.add(horn);
+  }
+  // Evil eyes
+  g.add(new THREE.Mesh(new THREE.SphereGeometry(.04,5,5),rM())).position.set(.08,1.28,.18);
+  g.add(new THREE.Mesh(new THREE.SphereGeometry(.04,5,5),rM())).position.set(-.08,1.28,.18);
+  // Arms
+  for(var s=-1;s<=1;s+=2){
+    g.add(new THREE.Mesh(new THREE.CylinderGeometry(.04,.04,.55,6),bM())).position.set(s*.17,.65,0).rotation.z=s*.3;
+  }
+  g.position.set(x||0,0,0);
+  return ad(g,-.0022,true,Math.random()*4);
+}
+
+function mkShaseng(){
+  var g=new THREE.Group();
+  g.add(new THREE.Mesh(new THREE.CylinderGeometry(.15,.17,1.6,8),new THREE.MeshStandardMaterial({color:0x4a3728,roughness:.4,emissive:0x110000,emissiveIntensity:.1}))).position.y=.8;
+  g.add(new THREE.Mesh(new THREE.SphereGeometry(.15,10,10),new THREE.MeshStandardMaterial({color:0x6b5b4f,roughness:.3}))).position.y=1.7;
+  g.add(new THREE.Mesh(new THREE.ConeGeometry(.08,.24,6),bM())).position.set(0,1.48,.12);
+  // Skull necklace
+  for(var i=0;i<7;i++){
+    g.add(new THREE.Mesh(new THREE.SphereGeometry(.04,5,5),new THREE.MeshStandardMaterial({color:0xddd,roughness:.15,metalness:.5}))).position.set(Math.cos(i*.897)*.16,1.25,Math.sin(i*.897)*.12);
+  }
+  var staff=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,2.4,8),new THREE.MeshStandardMaterial({color:0x888,roughness:.12,metalness:.88}));
+  staff.position.set(.35,.9,0);staff.rotation.z=-.15;g.add(staff);
+  return ad(g,0,true,4.5);
+}
+
+function mkClouds(n){
+  for(var i=0;i<n;i++){
+    ad(new THREE.Mesh(new THREE.SphereGeometry(.28+Math.random()*.5,6,6),cM()),.0004+Math.random()*.0012,false)
+      .position.set((Math.random()-.5)*7,(Math.random()-.5)*4,-1.5);
+  }
+}
 
 function buildScene(type){
   if(!_renderer||!_scene)return;
   clearScene();
   switch(type){
-    case'wukong':mkWukong();mkStaff(-1.8,-.5,0,.65,.0015);mkStaff(1.8,-.5,0,.65,-.0015);mkClouds(5);break;
-    case'fairies':for(let i=0;i<5;i++)mkFairy((i-2)*.75);mkClouds(7);break;
-    case'clouds':mkClouds(14);mkStaff(0,-.2,-1,1.1,.0008);break;
-    case'tangseng':mkMonk();mkClouds(5);break;
-    case'bajie':mkPig();mkClouds(4);break;
-    case'staff':mkStaff(0,0,0,1.7,.0035);for(let i=0;i<8;i++)mkStaff(Math.cos(i*.785)*2,Math.sin(i*.785)*.8,0,.45,.0018);break;
-    case'dragon':mkDragon();mkClouds(8);break;
-    case'demons':for(let i=0;i<3;i++)mkDemon((i-1)*1.2);mkClouds(4);break;
-    case'shaseng':mkShaseng();mkClouds(4);break;
-    case'stars':for(let i=0;i<30;i++)ad(new THREE.Mesh(new THREE.SphereGeometry(.022+Math.random()*.035,4,4),new THREE.MeshStandardMaterial({color:0xfef3c7,emissive:0xe8a820,emissiveIntensity:.8})),0,true,Math.random()*7).position.set((Math.random()-.5)*8,(Math.random()-.5)*6.5,-2.5);break;
-    default:mkClouds(9);
+    case'wukong':mkWukong();mkStaff(-2,-.3,0,.5,.001);mkStaff(2,-.3,0,.5,-.001);mkClouds(6);break;
+    case'fairies':for(var i=0;i<5;i++){mkFairy((i-2)*.75)}mkClouds(8);break;
+    case'clouds':mkClouds(18);mkStaff(0,-.1,-1,1,.0006);break;
+    case'monk':mkMonk();mkClouds(6);break;
+    case'bajie':mkPig();mkClouds(5);break;
+    case'staff':mkStaff(0,0,0,1.8,.003);for(var i=0;i<10;i++){mkStaff(Math.cos(i*.628)*2,Math.sin(i*.628)*.7,0,.35,.0015)}break;
+    case'dragon':mkDragon();mkClouds(9);break;
+    case'demons':for(var i=0;i<4;i++){mkDemon((i-1.5)*.9)}mkClouds(5);break;
+    case'shaseng':mkShaseng();mkClouds(5);break;
+    case'stars':
+      for(var i=0;i<40;i++){
+        ad(new THREE.Mesh(new THREE.SphereGeometry(.018+Math.random()*.032,4,4),new THREE.MeshStandardMaterial({color:0xfef3c7,emissive:0xe8a820,emissiveIntensity:.85})),0,true,Math.random()*7)
+          .position.set((Math.random()-.5)*9,(Math.random()-.5)*7,-3);
+      }
+      break;
+    default:mkClouds(12);
   }
 }
 
 // ===== DATA =====
-const CHS=[{id:'scene1',num:'壹'},{id:'scene2',num:'贰'},{id:'scene3',num:'叁'},{id:'scene4',num:'肆'},{id:'scene5',num:'伍'},{id:'scene6',num:'陆'},{id:'scene7',num:'柒'},{id:'scene8',num:'捌'},{id:'scene9',num:'玖'},{id:'scene10',num:'拾'},{id:'scene11',num:'拾壹'},{id:'scene-finale',num:'终'}];
-const SD=[{title:'石破天惊',emoji:'🌋',color:'#c0392b'},{title:'克制的力量',emoji:'🏯',color:'#e8a820'},{title:'霞衣护花',emoji:'🌸',color:'#f5d890'},{title:'天地本不全',emoji:'⭐',color:'#1e8568'},{title:'大圣有泪',emoji:'🦋',color:'#4a90b8'},{title:'定海神针',emoji:'🔱',color:'#e8a820'},{title:'正义必胜',emoji:'⚔',color:'#c0392b'},{title:'古今大圣',emoji:'🎭',color:'#f5d890'},{title:'自由之魂',emoji:'🌪',color:'#4a90b8'},{title:'师徒情深',emoji:'🧡',color:'#e8a820'},{title:'永恒大圣',emoji:'🐒',color:'#fef3c7'}];
-const QS={'石破天惊':{h:'混沌开天地\n灵石迸裂出大圣\n从此不平凡',m:'每一个中国人心中，都有一只等待破石而出的猴子。',f:'觉醒'},'克制的力量':{h:'可毁天灭地\n却选择收手停住\n真正的强大',m:'真正的力量不是摧毁一切，而是摧毁之后选择不摧毁。',f:'智慧'},'霞衣护花':{h:'霞衣轻轻落\n护住人间清白身\n大圣也柔情',m:'一只猴子比许多正人君子更懂尊重。',f:'尊重'},'天地本不全':{h:'天地本不全\n经文残缺也圆满\n求人不如己',m:'路不在西天，在脚下。你本来就是。',f:'觉悟'},'大圣有泪':{h:'金箍能降妖\n却降不住一滴泪\n大圣也深情',m:'那些守护弱者的瞬间，让斗战胜佛比神佛更接近人性。',f:'温暖'},'定海神针':{h:'东海万年沉\n一朝遇主冲天起\n人定能胜天',m:'定海神针选择了大圣，大圣选择了永不屈服。',f:'力量'},'正义必胜':{h:'八十一难重\n金箍棒下无妖孽\n正义永不败',m:'大圣不只是英雄，他是中国人善必胜恶的化身。',f:'信念'},'古今大圣':{h:'戏曲到屏幕\n七十二般变化里\n不变赤子心',m:'换了无数面孔，火眼金睛从未改变。',f:'传承'},'自由之魂':{h:'不跪天不跪地\n筋斗云翻十万八\n我命由我定',m:'大圣是唯一拒绝被定义的英雄。自由不在天涯，在心里。',f:'自由'},'师徒情深':{h:'紧箍咒收紧\n却系住了彼此心\n此路不独行',m:'最有力量的羁绊，不是金箍，是心甘情愿的守护。',f:'羁绊'},'永恒大圣':{h:'七十二般变\n不变是赤子之心\n千年如一日',m:'定海神针沉在东海，大圣活在我们心里。',f:'永恒'}};
-const CP={'自由':'俺一个筋斗十万八千里。真正的自由不在云上，在心里。','勇气':'勇气不是不怕。怕，但还是要上。','力量':'能翻天覆地不算本事。知道什么时候收手才是真本事。','人生':'求仙问卜不如自己做主。路不在西天，在脚下。','正义':'看到妖怪欺负人，打就是了。就这么简单。','坚持':'五行山下五百年。换别人早疯了。但俺知道总有一天会有人来揭那帖子。','孤独':'花果山漫山遍野的猴子猴孙。路上有人说话就不孤单。','失败':'只要还活着，就还有一棒子打回去的机会。','成长':'从弼马温到齐天大圣到斗战胜佛。成长是越来越清楚自己是谁。','爱':'保护师父保护师弟保护被欺负的人——这就是俺的方式。','死亡':'俺在生死簿上划掉了自己的名字。活着的每一天都是赚来的。','梦想':'俺当年最大的梦想就是不受人管。后来有了想保护的人，被人管着也挺好。'};
-const CD=['问得好！答案早就在你心里了。','哈哈有意思。俺活了上千年也没完全搞明白。','唐僧也问过。俺说：路在脚下。','做自己就够了。'];
+var CHS=[
+  {id:'scene1',num:'壹'},{id:'scene2',num:'贰'},{id:'scene3',num:'叁'},{id:'scene4',num:'肆'},
+  {id:'scene5',num:'伍'},{id:'scene6',num:'陆'},{id:'scene7',num:'柒'},{id:'scene8',num:'捌'},
+  {id:'scene9',num:'玖'},{id:'scene10',num:'拾'},{id:'scene11',num:'拾壹'},{id:'scene12',num:'拾贰'},
+  {id:'scene13',num:'拾叁'},{id:'scene14',num:'拾肆'},{id:'scene-finale',num:'终'}
+];
+var SD=[
+  {title:'石破天惊',emoji:'🌋',color:'#c0392b'},{title:'灵台方寸',emoji:'☯',color:'#e8a820'},
+  {title:'东海取宝',emoji:'🌊',color:'#e8a820'},{title:'大闹天宫',emoji:'⚡',color:'#c0392b'},
+  {title:'天庭诸神',emoji:'👑',color:'#f5d890'},{title:'五行山下',emoji:'⛰',color:'#4a90b8'},
+  {title:'灵山在脚下',emoji:'🪷',color:'#1e8568'},{title:'西天棋局',emoji:'♟',color:'#f5d890'},
+  {title:'影神图',emoji:'👹',color:'#c0392b'},{title:'黑神话',emoji:'🎮',color:'#e8a820'},
+  {title:'大圣有泪',emoji:'💧',color:'#4a90b8'},{title:'自由之魂',emoji:'🌪',color:'#c0392b'},
+  {title:'师徒羁绊',emoji:'🧡',color:'#e8a820'},{title:'大圣哲思',emoji:'💎',color:'#1e8568'}
+];
+var QS={
+  '石破天惊':{h:'混沌开天地\n灵石迸裂出大圣\n从此不平凡',m:'每一个中国人心中，都有一只等待破石而出的猴子。',f:'觉醒'},
+  '灵台方寸':{h:'斜月三星洞\n七十二变修心法\n求人不如己',m:'漂洋过海十数年，只为学一个"心"字。',f:'问道'},
+  '东海取宝':{h:'东海万年沉\n一朝遇主冲天起\n人定能胜天',m:'定海神针选择了大圣，大圣选择了永不屈服。',f:'力量'},
+  '大闹天宫':{h:'不跪天与地\n金箍棒扫凌霄殿\n我命由我定',m:'天下地下，唯我独尊——哪怕只是一瞬间。',f:'反抗'},
+  '天庭诸神':{h:'天上有朝廷\n玉帝老君二郎神\n都是局中人',m:'权力不是天生的。大圣证明了这一点。',f:'质疑'},
+  '五行山下':{h:'五指化山压\n五百年桑田沧海\n一颗心未死',m:'压住了肉身，压不住灵魂。',f:'坚守'},
+  '灵山在脚下':{h:'师父问灵山\n猴王笑指脚下路\n心诚即是岸',m:'路不在西天——在你的每一个脚印里。',f:'觉悟'},
+  '西天棋局':{h:'八十一难重\n天庭灵山合下棋\n猴子是棋子',m:'但棋子也可以跳出棋盘。',f:'洞察'},
+  '影神图':{h:'天下妖无数\n每只都有血与泪\n谁定义善恶',m:'妖和人之间，不过一念之差。',f:'悲悯'},
+  '黑神话':{h:'天命继大圣\n重走西游寻六根\n金箍棒再起',m:'你不是大圣，但你可以成为大圣。',f:'传承'},
+  '大圣有泪':{h:'金箍能降妖\n却降不住一滴泪\n大圣也深情',m:'那些守护弱者的瞬间，让斗战胜佛比神佛更接近人性。',f:'温暖'},
+  '自由之魂':{h:'不跪天不跪地\n筋斗云翻十万八\n我命由我定',m:'大圣是唯一拒绝被定义的英雄。自由不在天涯，在心里。',f:'自由'},
+  '师徒羁绊':{h:'紧箍咒收紧\n却系住了彼此心\n此路不独行',m:'最有力量的羁绊，不是金箍，是心甘情愿的守护。',f:'羁绊'},
+  '大圣哲思':{h:'天地本不全\n求仙问卜不如己\n念念即灵山',m:'一只猴子的智慧，比修了千年的神仙都透彻。',f:'智慧'}
+};
+var CP={
+  '自由':'俺一个筋斗十万八千里。真正的自由不在云上，在心里。',
+  '勇气':'勇气不是不怕。怕，但还是要上。',
+  '力量':'能翻天覆地不算本事。知道什么时候收手才是真本事。',
+  '人生':'求仙问卜不如自己做主。路不在西天，在脚下。',
+  '正义':'看到妖怪欺负人，打就是了。就这么简单。',
+  '坚持':'五行山下五百年。换别人早疯了。但俺知道总有一天会有人来揭那帖子。',
+  '孤独':'花果山漫山遍野的猴子猴孙。路上有人说话就不孤单。',
+  '失败':'只要还活着，就还有一棒子打回去的机会。',
+  '成长':'从弼马温到齐天大圣到斗战胜佛。成长是越来越清楚自己是谁。',
+  '爱':'保护师父保护师弟保护被欺负的人——这就是俺的方式。',
+  '死亡':'俺在生死簿上划掉了自己的名字。活着的每一天都是赚来的。',
+  '梦想':'俺当年最大的梦想就是不受人管。后来有了想保护的人，被人管着也挺好。',
+  '天命':'天命是什么？天命就是你自己的选择。',
+  '修行':'修行不在经书里，在每一步脚印里。',
+  '妖怪':'妖怪也有好妖怪。人和妖只差一颗心。'
+};
+var CD=['问得好！答案早就在你心里了。','哈哈有意思。俺活了上千年也没完全搞明白。','唐僧也问过。俺说：路在脚下。','做自己就够了。','众生平等。妖也好人也罢，都是天地间的过客。'];
 
-let ci=0,tr=false,mp=false;
-let audioCtx=null,musicPlaying=false,melodyNode=null;
+var ci=0,tr=false;
+var audioCtx=null,musicPlaying=false,melodyTimer=null;
 
 // ===== DOM =====
-const ls=document.getElementById('loadingScreen'),lt=document.getElementById('loadingTitle'),lc=document.getElementById('loadingCanvas');
-const sc=document.getElementById('scrollContainer'),to=document.getElementById('transitionOverlay'),cn=document.getElementById('chapterNav');
-const mb=document.getElementById('musicBtn');
-const sC=document.getElementById('starContainer'),sL=document.getElementById('starLines');
-const cI=document.getElementById('chatInput'),cS=document.getElementById('chatSend'),cR=document.getElementById('chatResponse');
-const sCd=document.getElementById('starCard'),sH=document.getElementById('starHaiku'),sM=document.getElementById('starMsg'),sF=document.getElementById('starFeeling');
+var ls=document.getElementById('loadingScreen'),lt=document.getElementById('loadingTitle'),lc=document.getElementById('loadingCanvas');
+var sc=document.getElementById('scrollContainer'),tov=document.getElementById('transitionOverlay'),cn=document.getElementById('chapterNav');
+var mb=document.getElementById('musicBtn');
+var sC=document.getElementById('starContainer'),sL=document.getElementById('starLines');
+var cI=document.getElementById('chatInput'),cS=document.getElementById('chatSend'),cR=document.getElementById('chatResponse');
+var sCd=document.getElementById('starCard'),sH=document.getElementById('starHaiku'),sM=document.getElementById('starMsg'),sF=document.getElementById('starFeeling');
 
-// ===== MUSIC: Flowing pentatonic melody =====
-// Chinese pentatonic: 宫商角徵羽 = C D E G A
-const SCALE=[262,294,330,392,440,523,588,660,784,880]; // C4 D4 E4 G4 A4 C5 D5 E5 G5 A5
+// ===== ENHANCED MUSIC SYSTEM =====
+// Multi-layer: drone bass + chord pads + melody + light percussion
+var SCALE=[131,165,196,220,262,294,330,392,440,523,588,660,784,880,1047];
 
-// Beautiful flowing melody patterns
-const MELODY=[
-  [262,330,392,523,392,330,392,523,659,523,392,330,294,262],
-  [392,523,659,784,659,523,392,330,392,523,392,330,262,294],
-  [523,659,784,880,784,659,523,392,523,659,523,392,330,262],
-  [440,523,659,784,659,523,440,392,440,523,440,392,330,294],
+var MELODY=[
+  // Flowing theme 1 — heroic
+  [262,330,392,523,659,523,392,330,392,523,659,784,659,523,392,330,294,262],
+  // Theme 2 — contemplative
+  [392,330,294,262,294,330,392,523,440,392,330,294,262,294,330,392],
+  // Theme 3 — dramatic
+  [523,659,784,880,1047,880,784,659,523,392,523,659,784,659,523,392,330,262],
+  // Theme 4 — peaceful
+  [440,523,440,392,330,294,262,294,330,392,440,523,440,392,330,294]
 ];
+
+// Drone bass notes (continuous deep hum)
+var DRONE=[65,73,82,98]; // C2 D2 E2 G2
 
 function initAudio(){
   try{audioCtx=new(window.AudioContext||window.webkitAudioContext)()}catch(e){return false}
-  // Create reverb/delay node for fullness
-  try{
-    const delay=audioCtx.createDelay(1);delay.delayTime.value=.3;
-    const feedback=audioCtx.createGain();feedback.gain.value=.25;
-    const wet=audioCtx.createGain();wet.gain.value=.4;
-    delay.connect(feedback);feedback.connect(delay);delay.connect(wet);wet.connect(audioCtx.destination);
-    melodyNode={delay:delay,dry:audioCtx.createGain()};
-    melodyNode.dry.gain.value=.6;melodyNode.dry.connect(audioCtx.destination);
-  }catch(e){melodyNode=null}
   return true;
 }
 
-function playNote(freq,start,dur,vol){
+function playNote(freq,start,dur,vol,type,pan){
   if(!audioCtx)return;
-  const o=audioCtx.createOscillator(),g=audioCtx.createGain();
-  o.type='triangle';
+  type=type||'triangle';
+  var o=audioCtx.createOscillator(),g=audioCtx.createGain();
+  o.type=type;
   o.frequency.setValueAtTime(freq,start);
   g.gain.setValueAtTime(0,start);
-  g.gain.linearRampToValueAtTime(vol,start+.04);
-  g.gain.setValueAtTime(vol,start+dur*.7);
+  g.gain.linearRampToValueAtTime(vol,start+.03);
+  g.gain.setValueAtTime(vol,start+dur*.65);
   g.gain.linearRampToValueAtTime(0,start+dur);
+  // Delay/reverb
+  var delay=audioCtx.createDelay(.35);
+  delay.delayTime.value=.28;
+  var dfb=audioCtx.createGain();dfb.gain.value=.18;
+  var dwet=audioCtx.createGain();dwet.gain.value=.3;
+  delay.connect(dfb);dfb.connect(delay);delay.connect(dwet);dwet.connect(audioCtx.destination);
+  // Dry
+  var dr=audioCtx.createGain();dr.gain.value=.55;
+  g.connect(dr);dr.connect(audioCtx.destination);
+  g.connect(dwet);
+  // Pan
+  if(pan!==undefined){
+    var panner=audioCtx.createStereoPanner();
+    panner.pan.value=pan;
+    g.connect(panner);panner.connect(audioCtx.destination);
+  }
   o.connect(g);
-  // Route to dry + delay
-  if(melodyNode&&melodyNode.dry){g.connect(melodyNode.dry);g.connect(melodyNode.delay)}
-  else g.connect(audioCtx.destination);
-  o.start(start);o.stop(start+dur+.02);
+  o.start(start);o.stop(start+dur+.05);
+}
+
+function playDrone(idx){
+  if(!audioCtx)return;
+  var now=audioCtx.currentTime;
+  var freq=DRONE[idx%DRONE.length];
+  // Deep drone
+  for(var i=0;i<2;i++){
+    var o=audioCtx.createOscillator(),g=audioCtx.createGain();
+    o.type='sine';
+    o.frequency.setValueAtTime(freq*(i+1),now);
+    g.gain.setValueAtTime(.012,now);
+    g.gain.linearRampToValueAtTime(.01,now+3);
+    g.gain.linearRampToValueAtTime(.012,now+4);
+    g.gain.linearRampToValueAtTime(0,now+6.5);
+    o.connect(g);g.connect(audioCtx.destination);
+    o.start(now);o.stop(now+6.6);
+  }
+}
+
+function playPad(idx){
+  if(!audioCtx)return;
+  var now=audioCtx.currentTime;
+  var notes=[SCALE[2],SCALE[6],SCALE[9],SCALE[2]+12]; // E3 G3 A3 E4
+  notes.forEach(function(f,di){
+    var o=audioCtx.createOscillator(),g=audioCtx.createGain();
+    o.type='sine';
+    o.frequency.setValueAtTime(f,now+di*.02);
+    g.gain.setValueAtTime(0,now);
+    g.gain.linearRampToValueAtTime(.018,now+.8);
+    g.gain.setValueAtTime(.018,now+3);
+    g.gain.linearRampToValueAtTime(0,now+5);
+    o.connect(g);g.connect(audioCtx.destination);
+    o.start(now+di*.02);o.stop(now+5.1);
+  });
 }
 
 function playMelody(idx){
   if(!audioCtx)return;
-  const mel=MELODY[idx%MELODY.length];
-  const now=audioCtx.currentTime;
-  const noteDuration=.45; // flowing tempo
-  // Play melody with harmony (fifth below on every other note)
-  for(let i=0;i<mel.length;i++){
-    const t=now+i*noteDuration;
-    playNote(mel[i],t,noteDuration*1.2,.04); // melody
-    if(i%3===0)playNote(mel[i]*.667,t,noteDuration*1.5,.015); // harmony (fifth below)
-    if(i%4===0)playNote(mel[i]*.5,t,noteDuration*2,.01); // bass octave
+  var mel=MELODY[idx%MELODY.length];
+  var now=audioCtx.currentTime;
+  var noteDur=.38;
+  for(var i=0;i<mel.length;i++){
+    var t=now+i*noteDur;
+    var vol=.035;
+    playNote(mel[i],t,noteDur*1.1,vol,'triangle',0);
+    // Harmony fifth
+    if(i%3===0)playNote(mel[i]*.667,t,noteDur*1.3,.012,'sine',.3);
+    // Bass octave
+    if(i%4===0)playNote(mel[i]*.5,t,noteDur*1.8,.008,'sine',-.2);
+    // Light chime on strong beats
+    if(i%8===0)playNote(mel[i]*2,t,.35,.006,'sine',.5);
   }
 }
 
-let melodyTimer=null;
+var droneTimer=null,padTimer=null;
 function startMusic(){
   if(!audioCtx&&!initAudio())return;
   musicPlaying=true;mb.classList.add('playing');mb.textContent='♪';
-  playMelody(ci);
-  const loopLen=MELODY[0].length*.45*1000;
-  melodyTimer=setInterval(()=>playMelody(ci),loopLen);
+
+  function musicLoop(){
+    playMelody(ci%MELODY.length);
+    playDrone(ci%DRONE.length);
+    playPad(ci);
+  }
+  musicLoop();
+  var loopLen=MELODY[0].length*.38*1000;
+  melodyTimer=setInterval(function(){
+    ci=(ci+1)%MELODY.length;
+    musicLoop();
+  },loopLen);
+  droneTimer=setInterval(function(){
+    playDrone(Math.floor(performance.now()/6500)%DRONE.length);
+  },6500);
+  padTimer=setInterval(function(){
+    playPad(Math.floor(performance.now()/5200)%4);
+  },5200);
 }
+
 function stopMusic(){
   musicPlaying=false;mb.classList.remove('playing');mb.textContent='♫';
   if(melodyTimer){clearInterval(melodyTimer);melodyTimer=null}
+  if(droneTimer){clearInterval(droneTimer);droneTimer=null}
+  if(padTimer){clearInterval(padTimer);padTimer=null}
 }
 
-mb.addEventListener('click',()=>{if(!audioCtx)initAudio();musicPlaying?stopMusic():startMusic()});
+mb.addEventListener('click',function(){
+  if(!audioCtx)initAudio();
+  musicPlaying?stopMusic():startMusic();
+});
 
-// Auto-start on user gesture — no click needed after first interaction
-const autoMusic=()=>{if(!musicPlaying){initAudio();startMusic()}document.removeEventListener('click',autoMusic);document.removeEventListener('scroll',autoMusic)};
-document.addEventListener('click',autoMusic);document.addEventListener('scroll',autoMusic,{once:true});
+var autoMusic=function(){
+  if(!musicPlaying){initAudio();startMusic()}
+  document.removeEventListener('click',autoMusic);
+  document.removeEventListener('scroll',autoMusic);
+};
+document.addEventListener('click',autoMusic);
+document.addEventListener('scroll',autoMusic,{once:true});
 
-// ===== OPENING (3D behind it already running) =====
+// ===== OPENING ANIMATION =====
 (function runLoading(){
-  const ctx=lc.getContext('2d');
-  const W=()=>lc.width=window.innerWidth,H=()=>lc.height=window.innerHeight;
-  W();H();window.addEventListener('resize',()=>{W();H()});
-  let sy=-120,tY=H()*.58,vel=0,phase='falling',lT=0,crk=[],pts=[],ga=0;
-  const sw=10,sh=350,sx=W()/2;
+  var ctx=lc.getContext('2d');
+  var W=function(){return lc.width=window.innerWidth},H=function(){return lc.height=window.innerHeight};
+  W();H();window.addEventListener('resize',function(){W();H()});
+  var sy=-120,tY=H()*.58,vel=0,phase='falling',lT=0,crk=[],pts=[],ga=0;
+  var sw=10,sh=350,sx=W()/2;
   function draw(){
     if(!ls.classList.contains('hidden'))requestAnimationFrame(draw);
-    ctx.clearRect(0,0,W(),H());const now=performance.now();
+    if(W()<10||H()<10)return;
+    ctx.clearRect(0,0,W(),H());var now=performance.now();
     ctx.fillStyle='#0a0806';ctx.fillRect(0,0,W(),H());
     if(phase==='falling'){vel+=.9;sy+=vel;if(sy>=tY){sy=tY;phase='landing';lT=now;
-      for(let i=0;i<14;i++)crk.push({a:(i/14)*Math.PI*2+(Math.random()-.5)*.35,l:0,ml:90+Math.random()*220,sp:2.5+Math.random()*4,w:1+Math.random()*2.5});
-      for(let i=0;i<50;i++)pts.push({x:sx,y:tY,vx:(Math.random()-.5)*10,vy:(Math.random()-.5)*10-3,life:1,dc:.008+Math.random()*.025,sz:1.5+Math.random()*3.5});}}
-    if(phase==='landing'){const e=now-lT;if(e>700)phase='cracking';const shake=Math.max(0,(700-e)/700)*Math.sin(e*.04)*10;ctx.save();ctx.translate(shake,0)}
-    if(phase==='landing'||phase==='cracking'||phase==='reveal'){crk.forEach(c=>{c.l=Math.min(c.ml,c.l+c.sp);const ex=sx+Math.cos(c.a)*c.l,ey=tY+Math.sin(c.a)*c.l;ctx.beginPath();ctx.moveTo(sx,tY);ctx.lineTo(ex,ey);ctx.strokeStyle=`rgba(232,168,32,${.45*(1-c.l/c.ml)})`;ctx.lineWidth=c.w;ctx.stroke();if(c.l>c.ml*.35&&!c.b){c.b=true;for(let j=0;j<2;j++)crk.push({a:c.a+(Math.random()-.5)*.7,l:c.l*.55,ml:c.ml*.45,sp:c.sp*.6,w:c.w*.5,b:true});}})}
-    pts=pts.filter(p=>p.life>0);pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.06;p.life-=p.dc;ctx.beginPath();ctx.arc(p.x,p.y,p.sz,0,Math.PI*2);ctx.fillStyle=`rgba(254,243,199,${p.life})`;ctx.fill();ctx.shadowColor=`rgba(232,168,32,${p.life})`;ctx.shadowBlur=p.sz*4;ctx.fill();ctx.shadowBlur=0});
-    const grad=ctx.createLinearGradient(sx,sy-sh/2,sx,sy+sh/2);grad.addColorStop(0,'#b8860b');grad.addColorStop(.25,'#c0392b');grad.addColorStop(.45,'#e8a820');grad.addColorStop(.55,'#fef3c7');grad.addColorStop(.75,'#e8a820');grad.addColorStop(1,'#b8860b');
-    ctx.fillStyle=grad;ctx.shadowColor='rgba(232,168,32,.8)';ctx.shadowBlur=24+ga*35;ctx.fillRect(sx-sw/2,sy-sh/2,sw,sh);ctx.shadowColor='rgba(192,57,43,.5)';ctx.shadowBlur=40+ga*40;ctx.fillRect(sx-sw/2,sy-sh/2,sw,sh);ctx.shadowBlur=0;
-    if(phase==='falling'||phase==='landing'){ga=Math.min(1,ga+.025);const glow=ctx.createRadialGradient(sx,tY,0,sx,tY,80);glow.addColorStop(0,'rgba(254,243,199,.35)');glow.addColorStop(.5,'rgba(192,57,43,.2)');glow.addColorStop(1,'transparent');ctx.fillStyle=glow;ctx.beginPath();ctx.arc(sx,tY,80,0,Math.PI*2);ctx.fill()}
+      for(var i=0;i<16;i++)crk.push({a:(i/16)*Math.PI*2+(Math.random()-.5)*.3,l:0,ml:90+Math.random()*240,sp:2.3+Math.random()*4.5,w:1+Math.random()*3});
+      for(var i=0;i<60;i++)pts.push({x:sx,y:tY,vx:(Math.random()-.5)*12,vy:(Math.random()-.5)*12-4,life:1,dc:.006+Math.random()*.028,sz:1+Math.random()*4.5});
+    }}
+    if(phase==='landing'){var e=now-lT;if(e>700)phase='cracking';var shake=Math.max(0,(700-e)/700)*Math.sin(e*.04)*12;ctx.save();ctx.translate(shake,0)}
+    if(phase==='landing'||phase==='cracking'||phase==='reveal'){
+      crk.forEach(function(c){
+        c.l=Math.min(c.ml,c.l+c.sp);
+        var ex=sx+Math.cos(c.a)*c.l,ey=tY+Math.sin(c.a)*c.l;
+        ctx.beginPath();ctx.moveTo(sx,tY);ctx.lineTo(ex,ey);
+        ctx.strokeStyle='rgba(232,168,32,'+(.5*(1-c.l/c.ml))+')';ctx.lineWidth=c.w;ctx.stroke();
+        if(c.l>c.ml*.3&&!c.b){c.b=true;
+          for(var j=0;j<3;j++)crk.push({a:c.a+(Math.random()-.5)*.8,l:c.l*.5,ml:c.ml*.4,sp:c.sp*.55,w:c.w*.45,b:true});
+        }
+      });
+    }
+    pts=pts.filter(function(p){return p.life>0});
+    pts.forEach(function(p){
+      p.x+=p.vx;p.y+=p.vy;p.vy+=.05;p.life-=p.dc;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.sz,0,Math.PI*2);
+      ctx.fillStyle='rgba(254,243,199,'+p.life+')';ctx.fill();
+      ctx.shadowColor='rgba(232,168,32,'+p.life+')';ctx.shadowBlur=p.sz*4;ctx.fill();ctx.shadowBlur=0;
+    });
+    if(isFinite(sx)&&isFinite(sy)&&isFinite(sh)){
+    var grad=ctx.createLinearGradient(sx,sy-sh/2,sx,sy+sh/2);
+    grad.addColorStop(0,'#b8860b');grad.addColorStop(.25,'#c0392b');grad.addColorStop(.45,'#e8a820');
+    grad.addColorStop(.55,'#fef3c7');grad.addColorStop(.75,'#e8a820');grad.addColorStop(1,'#b8860b');
+    ctx.fillStyle=grad;ctx.shadowColor='rgba(232,168,32,.8)';ctx.shadowBlur=24+ga*35;
+    ctx.fillRect(sx-sw/2,sy-sh/2,sw,sh);ctx.shadowColor='rgba(192,57,43,.5)';ctx.shadowBlur=40+ga*40;
+    ctx.fillRect(sx-sw/2,sy-sh/2,sw,sh);ctx.shadowBlur=0;
+    }
+    if(phase==='falling'||phase==='landing'){
+      ga=Math.min(1,ga+.025);
+      if(isFinite(sx)&&isFinite(tY)){
+      var glow=ctx.createRadialGradient(sx,tY,0,sx,tY,80);
+      glow.addColorStop(0,'rgba(254,243,199,.35)');glow.addColorStop(.5,'rgba(192,57,43,.2)');glow.addColorStop(1,'transparent');
+      ctx.fillStyle=glow;ctx.beginPath();ctx.arc(sx,tY,80,0,Math.PI*2);ctx.fill();
+      }
+    }
     if(phase==='landing')ctx.restore();
-    if(phase==='cracking'&&now-lT-700>1400){phase='reveal';lt.classList.add('show');
-      setTimeout(()=>{ls.classList.add('hidden');document.body.classList.add('loaded');setTimeout(()=>ls.remove(),800);initScroll();initStars();initChat()},1200);}
+    if(phase==='cracking'&&now-lT-700>1600){
+      phase='reveal';lt.classList.add('show');
+      setTimeout(function(){
+        ls.classList.add('hidden');document.body.classList.add('loaded');
+        setTimeout(function(){try{ls.remove()}catch(e){}},800);
+        initScroll();initStars();initChat();
+      },1200);
+    }
   }
   requestAnimationFrame(draw);
 })();
 
 // Nav
-CHS.forEach((ch,i)=>{const w=document.createElement('div');w.className='chapter-dot-wrap';w.innerHTML=`<div class="chapter-dot${i===0?' active':''}" data-idx="${i}"></div><span class="chapter-label">${ch.num}</span>`;w.addEventListener('click',()=>goTo(i));cn.appendChild(w)});
-function goTo(idx){if(tr)return;tr=true;to.classList.add('active');document.getElementById(CHS[idx].id).scrollIntoView({behavior:'smooth'});setTimeout(()=>{to.classList.remove('active');tr=false},350)}
-function uNav(){document.querySelectorAll('.chapter-dot').forEach((d,i)=>d.classList.toggle('active',i===ci))}
+CHS.forEach(function(ch,i){
+  var w=document.createElement('div');w.className='chapter-dot-wrap';
+  w.innerHTML='<div class="chapter-dot'+(i===0?' active':'')+'" data-idx="'+i+'"></div><span class="chapter-label">'+ch.num+'</span>';
+  w.addEventListener('click',function(){goTo(i)});cn.appendChild(w);
+});
+function goTo(idx){
+  if(tr)return;tr=true;
+  tov.classList.add('active');
+  document.getElementById(CHS[idx].id).scrollIntoView({behavior:'smooth'});
+  setTimeout(function(){tov.classList.remove('active');tr=false},350);
+}
+function uNav(){
+  document.querySelectorAll('.chapter-dot').forEach(function(d,i){d.classList.toggle('active',i===ci)});
+}
 
 function initScroll(){
-  const scenes=document.querySelectorAll('.scene');
-  const ob=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting&&e.intersectionRatio>.4){const idx=parseInt(e.target.dataset.scene);if(idx!==ci&&!tr){ci=idx;e.target.classList.add('visible');uNav();const t3d=e.target.dataset['3d'];if(t3d)buildScene(t3d)}}})},{threshold:.4});
-  scenes.forEach(s=>ob.observe(s));scenes[0].classList.add('visible');
+  var scenes=document.querySelectorAll('.scene');
+  var ob=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting&&e.intersectionRatio>.4){
+        var idx=parseInt(e.target.dataset.scene);
+        if(idx!==ci&&!tr){
+          ci=idx;e.target.classList.add('visible');uNav();
+          var t3d=e.target.dataset['3d'];
+          if(t3d)buildScene(t3d);
+          // Update melody theme
+          if(musicPlaying)playMelody(ci);
+        }
+      }
+    });
+  },{threshold:.4});
+  scenes.forEach(function(s){ob.observe(s)});
+  scenes[0].classList.add('visible');
 }
 
 // Stars
 function initStars(){
-  const W=sC.offsetWidth,H=sC.offsetHeight,cx=W/2,cy=H*.35;
-  const pts=SD.map((s,i)=>{const a=(i/SD.length)*Math.PI*2-Math.PI/2,r=Math.min(W,H)*.3;return{x:cx+Math.cos(a)*r,y:cy+Math.sin(a)*r,...s}});
-  let svg='';for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++)if(j===i+1||(i===0&&j===pts.length-1))svg+=`<line class="star-line" x1="${pts[i].x}" y1="${pts[i].y}" x2="${pts[j].x}" y2="${pts[j].y}"/>`;sL.innerHTML=svg;
-  pts.forEach(p=>{const d=document.createElement('div');d.className='star-dot';d.style.cssText=`left:${p.x-3}px;top:${p.y-3}px;width:6px;height:6px;background:${p.color};animation:pulse-glow 2s ease-in-out infinite`;d.addEventListener('click',()=>showCard(p));sC.appendChild(d)});
-  document.getElementById('starCardClose').addEventListener('click',()=>sCd.classList.remove('show'));sCd.addEventListener('click',function(e){if(e.target===this)this.classList.remove('show')});
+  var W=sC.offsetWidth,H=sC.offsetHeight,cx=W/2,cy=H*.35;
+  var pts=SD.map(function(s,i){
+    var a=(i/SD.length)*Math.PI*2-Math.PI/2,r=Math.min(W,H)*.32;
+    return{x:cx+Math.cos(a)*r,y:cy+Math.sin(a)*r,title:s.title,emoji:s.emoji,color:s.color};
+  });
+  var svg='';
+  for(var i=0;i<pts.length;i++){
+    for(var j=i+1;j<pts.length;j++){
+      if(j===i+1||(i===0&&j===pts.length-1))
+        svg+='<line class="star-line" x1="'+pts[i].x+'" y1="'+pts[i].y+'" x2="'+pts[j].x+'" y2="'+pts[j].y+'"/>';
+    }
+  }
+  sL.innerHTML=svg;
+  pts.forEach(function(p){
+    var d=document.createElement('div');d.className='star-dot';
+    d.style.cssText='left:'+(p.x-3)+'px;top:'+(p.y-3)+'px;width:6px;height:6px;background:'+p.color+';animation:pulse-glow 2s ease-in-out infinite';
+    d.addEventListener('click',function(){showCard(p)});sC.appendChild(d);
+  });
+  document.getElementById('starCardClose').addEventListener('click',function(){sCd.classList.remove('show')});
+  sCd.addEventListener('click',function(e){if(e.target===this)this.classList.remove('show')});
 }
-function showCard(p){const q=QS[p.title]||QS['永恒大圣'];sH.textContent=q.h;sM.textContent=q.m;sF.textContent=q.f;sCd.classList.add('show')}
+function showCard(p){
+  var q=QS[p.title]||QS['大圣哲思'];
+  sH.textContent=q.h;sM.textContent=q.m;sF.textContent=q.f;sCd.classList.add('show');
+}
 
 // Chat
 function initChat(){
-  function send(){const q=cI.value.trim();if(!q)return;cS.disabled=true;cI.disabled=true;cR.classList.remove('show');cR.querySelector('.chat-text').textContent='大圣正在思索...';setTimeout(()=>{cR.querySelector('.chat-text').textContent=getR(q);cR.classList.add('show');cS.disabled=false;cI.disabled=false;cI.value='';cI.focus()},600+Math.random()*700)}
-  cS.addEventListener('click',send);cI.addEventListener('keydown',e=>{if(e.key==='Enter')send()});
+  function send(){
+    var q=cI.value.trim();if(!q)return;
+    cS.disabled=true;cI.disabled=true;cR.classList.remove('show');
+    cR.querySelector('.chat-text').textContent='大圣正在思索...';
+    setTimeout(function(){
+      cR.querySelector('.chat-text').textContent=getR(q);
+      cR.classList.add('show');cS.disabled=false;cI.disabled=false;cI.value='';cI.focus();
+    },500+Math.random()*800);
+  }
+  cS.addEventListener('click',send);
+  cI.addEventListener('keydown',function(e){if(e.key==='Enter')send()});
 }
-function getR(q){let bk='',bs=0;for(const[k,r]of Object.entries(CP)){let s=q.includes(k)?100:0;for(const ch of k)if(q.includes(ch))s++;if(s>bs){bs=s;bk=k}}return bk&&bs>2?CP[bk]:CD[Math.floor(Math.random()*CD.length)]}
+function getR(q){
+  var bk='',bs=0;
+  for(var k in CP){
+    var s=q.indexOf(k)>=0?100:0;
+    for(var i=0;i<k.length;i++){if(q.indexOf(k[i])>=0)s++}
+    if(s>bs){bs=s;bk=k}
+  }
+  return bk&&bs>2?CP[bk]:CD[Math.floor(Math.random()*CD.length)];
+}
 
-const st=document.createElement('style');st.textContent=`@keyframes pulse-glow{0%,100%{box-shadow:0 0 4px currentColor}50%{box-shadow:0 0 10px currentColor,0 0 20px rgba(192,57,43,.3)}}@keyframes card-rise{from{opacity:0;transform:translate(-50%,-50%) scale(.85) translateY(10px)}to{opacity:1;transform:translate(-50%,-50%) scale(1) translateY(0)}}.star-card.show{animation:card-rise .35s ease-out forwards}`;document.head.appendChild(st);
+// Animations
+var st=document.createElement('style');
+st.textContent='@keyframes pulse-glow{0%,100%{box-shadow:0 0 4px currentColor}50%{box-shadow:0 0 10px currentColor,0 0 20px rgba(192,57,43,.3)}}@keyframes card-rise{from{opacity:0;transform:translate(-50%,-50%) scale(.85) translateY(10px)}to{opacity:1;transform:translate(-50%,-50%) scale(1) translateY(0)}}.star-card.show{animation:card-rise .35s ease-out forwards}';
+document.head.appendChild(st);
+
+var tf=document.getElementById('toFinale');if(tf)tf.addEventListener('click',function(){
+  document.getElementById('scene-finale').scrollIntoView({behavior:'smooth'});
+});
+
+// Start 3D after all functions defined
+init3D();
 </script>
 </body>
 </html>
