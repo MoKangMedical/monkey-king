@@ -213,6 +213,45 @@ body.loaded .scroll-container{opacity:1}
   .yaoguai-card{width:110px;padding:10px 8px}
   .heaven-grid{grid-template-columns:repeat(3,1fr);gap:6px}
 }
+
+/* ========== TORIYAMA DRAGON BALL STYLE ========== */
+.toriyama-panel{background:linear-gradient(135deg,#1a0a00 0%,#3d1500 30%,#ff6b2b 60%,#ff8c42 80%,#1a0a00 100%);position:relative;overflow:hidden}
+.toriyama-panel::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(255,255,255,.015) 3px,rgba(255,255,255,.015) 4px);opacity:.6;pointer-events:none}
+.toriyama-panel::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 30%,rgba(255,107,43,.12) 0%,transparent 50%),radial-gradient(circle at 80% 60%,rgba(30,144,255,.08) 0%,transparent 40%);pointer-events:none}
+.toriyama-speedlines{position:absolute;inset:0;pointer-events:none;opacity:.15;background:repeating-linear-gradient(90deg,transparent 0px,rgba(255,255,255,.3) 1px,transparent 2px,transparent 15px);mask-image:radial-gradient(ellipse at center,transparent 20%,#000 90%);-webkit-mask-image:radial-gradient(ellipse at center,transparent 20%,#000 90%);animation:speed-scroll .8s linear infinite}
+@keyframes speed-scroll{0%{background-position:0 0}100%{background-position:30px 0}}
+.toriyama-burst{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;opacity:.07;width:280px;height:280px;background:conic-gradient(from 0deg,transparent 0deg,transparent 8deg,rgba(255,255,255,.4) 8deg,rgba(255,255,255,.4) 10deg,transparent 10deg,transparent 37deg,transparent 45deg,transparent 53deg,rgba(255,255,255,.3) 53deg,rgba(255,255,255,.3) 55deg,transparent 55deg,transparent 82deg,transparent 90deg,transparent 98deg,rgba(255,255,255,.35) 98deg,rgba(255,255,255,.35) 100deg,transparent 100deg,transparent 127deg,transparent 135deg,transparent 143deg,rgba(255,255,255,.3) 143deg,rgba(255,255,255,.3) 145deg,transparent 145deg,transparent 172deg,transparent 180deg,transparent 188deg,rgba(255,255,255,.4) 188deg,rgba(255,255,255,.4) 190deg,transparent 190deg,transparent 217deg,transparent 225deg,transparent 233deg,rgba(255,255,255,.35) 233deg,rgba(255,255,255,.35) 235deg,transparent 235deg,transparent 262deg,transparent 270deg,transparent 278deg,rgba(255,255,255,.3) 278deg,rgba(255,255,255,.3) 280deg,transparent 280deg,transparent 307deg,transparent 315deg,transparent 323deg,rgba(255,255,255,.35) 323deg,rgba(255,255,255,.35) 325deg,transparent 325deg,transparent 352deg,transparent 360deg);animation:toriyama-burst-spin 12s linear infinite}
+@keyframes toriyama-burst-spin{0%{transform:translate(-50%,-50%) rotate(0deg)}100%{transform:translate(-50%,-50%) rotate(360deg)}}
+.toriyama-title{font-family:var(--serif);font-size:clamp(22px,5vw,42px);color:#ff6b2b;text-shadow:0 0 30px rgba(255,107,43,.5),2px 2px 0 #000;letter-spacing:.1em;font-weight:900}
+.toriyama-quote{font-size:clamp(12px,1.8vw,15px);color:#fff;text-shadow:0 0 10px rgba(255,107,43,.4);line-height:1.8}
+.toriyama-label{display:inline-block;padding:4px 14px;background:rgba(255,107,43,.2);border:2px solid #ff6b2b;color:#ff8c42;font-size:10px;letter-spacing:.15em;margin-top:8px}
+.db-star{position:absolute;width:8px;height:8px;background:#ffdd00;clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);animation:db-star-glow 1.5s ease-in-out infinite}
+@keyframes db-star-glow{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:1;transform:scale(1.4)}}
+
+/* ========== KID GOKU STYLE ========== */
+.kid-panel{background:linear-gradient(180deg,#4a90d9 0%,#87ceeb 40%,#7ec850 60%,#4caf50 100%);position:relative;overflow:hidden}
+.kid-panel::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 30% at 20% 15%,rgba(255,255,255,.5) 0%,transparent 50%),radial-gradient(ellipse 60% 25% at 65% 20%,rgba(255,255,255,.4) 0%,transparent 45%),radial-gradient(ellipse 70% 20% at 45% 28%,rgba(255,255,255,.35) 0%,transparent 40%);pointer-events:none}
+.kid-panel::after{content:'';position:absolute;bottom:0;left:0;right:0;height:35%;background:linear-gradient(0deg,#388e3c 0%,#4caf50 30%,#66bb6a 60%,transparent 100%);pointer-events:none}
+.speech-bubble{position:relative;background:#fff;border:3px solid #333;border-radius:20px;padding:10px 16px;font-size:13px;color:#333;max-width:200px;margin:10px auto;text-align:center}
+.speech-bubble::after{content:'';position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:12px solid #333}
+.kid-title{font-family:var(--serif);font-size:clamp(22px,5vw,42px);color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.3),0 0 20px rgba(255,255,255,.2);letter-spacing:.08em;font-weight:900}
+.kid-quote{font-size:clamp(11px,1.6vw,14px);color:rgba(255,255,255,.85);line-height:1.8}
+.kid-label{display:inline-block;padding:4px 14px;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.5);color:#fff;font-size:10px;letter-spacing:.1em;margin-top:8px;border-radius:12px}
+
+/* ========== THREE PANEL LAYOUT ========== */
+.allfaces-scene{display:flex;flex-direction:row;gap:0;width:100%;height:100vh;height:100dvh;overflow:hidden}
+.allfaces-panel{flex:1;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;transition:all .4s;cursor:pointer;min-width:0}
+.allfaces-panel:hover{flex:1.25;z-index:5}
+.allfaces-panel:hover .allfaces-3d-wrap{transform:scale(1.1)}
+.allfaces-3d-wrap{position:absolute;inset:0;z-index:1;transition:transform .5s;pointer-events:none}
+.allfaces-3d-wrap canvas{width:100%!important;height:100%!important}
+.allfaces-content{position:relative;z-index:10;text-align:center;padding:1rem}
+.allfaces-label{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:20;font-size:10px;letter-spacing:.12em;padding:4px 12px;border-radius:4px}
+.allfaces-ink .allfaces-label{background:rgba(192,57,43,.15);border:1px solid rgba(192,57,43,.3);color:rgba(192,57,43,.7)}
+.allfaces-tori .allfaces-label{background:rgba(255,107,43,.2);border:1px solid #ff6b2b;color:#ff8c42}
+.allfaces-kid .allfaces-label{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);color:#fff}
+@media(max-width:768px){.allfaces-scene{flex-direction:column}.allfaces-panel{flex:auto;height:33.33vh}.allfaces-panel:hover{flex:auto}.toriyama-burst{width:180px;height:180px}}
+
 </style>
 </head>
 <body>
@@ -343,8 +382,33 @@ body.loaded .scroll-container{opacity:1}
   <p class="scene-detail" style="margin-top:1em;font-size:12px;color:rgba(30,133,104,.35)">—— 大圣不是神话，是每个中国人心中那个不认命的自己</p></div>
 </section>
 
+
+<!-- 拾伍·万相大圣 -->
+<section class="scene allfaces-scene" id="scene-allfaces" data-scene="14" data-3d="allfaces">
+  <!-- Panel 1: Ink Wukong -->
+  <div class="allfaces-panel allfaces-ink">
+    <div class="allfaces-label">🏯 齐天大圣</div>
+    <div class="allfaces-3d-wrap"><canvas id="cvInk"></canvas></div>
+    <div class="toriyama-speedlines" style="opacity:.03"></div>
+    <div class="allfaces-content"><h1 class="scene-title" style="font-size:clamp(18px,3vw,32px)"><span class="gold">齐天</span>大圣</h1><p class="scene-detail" style="font-size:10px;max-width:260px">吴承恩笔下的灵石英雄。金甲金箍棒，火眼金睛。五行山下五百年，压不住一颗齐天之心。</p><p class="scene-quote" style="font-size:12px">踏南天，碎凌霄。若一去不回？便一去不回</p></div>
+  </div>
+  <!-- Panel 2: Toriyama Wukong -->
+  <div class="allfaces-panel allfaces-tori toriyama-panel">
+    <div class="allfaces-label" style="color:#ff6b2b;background:rgba(255,107,43,.2);border-color:#ff6b2b">🟠 卡卡罗特</div>
+    <div class="allfaces-3d-wrap"><canvas id="cvTori"></canvas></div>
+    <div class="toriyama-burst"></div><div class="toriyama-speedlines"></div>
+    <div class="allfaces-content"><h1 class="toriyama-title">卡卡罗特</h1><p class="toriyama-quote" style="font-size:10px;max-width:260px">鸟山明以孙悟空为原型创造的赛亚人战士。橙色道服，蓝色腰带，龟派气功——全球最知名的"悟空"。</p><p class="toriyama-quote">「俺は地球で育ったサイヤ人だ！」</p><span class="toriyama-label">DRAGON BALL · 鳥山明</span></div>
+  </div>
+  <!-- Panel 3: Kid Wukong -->
+  <div class="allfaces-panel allfaces-kid kid-panel">
+    <div class="allfaces-label" style="color:#fff;background:rgba(0,0,0,.15);border-color:rgba(255,255,255,.4)">🧒 小悟空</div>
+    <div class="allfaces-3d-wrap"><canvas id="cvKid"></canvas></div>
+    <div class="allfaces-content"><h1 class="kid-title">小悟空</h1><div class="speech-bubble">オラ、ワクワクしてきたぞ！</div><p class="kid-quote" style="font-size:10px;max-width:260px">来自深山的天真少年。一根如意棒，一颗四星龙珠，一条棕色尾巴——所有传奇的起点。</p><p class="kid-quote">「筋斗雲に乗って、どこまでも行くんだ！」</p><span class="kid-label">DRAGON BALL · 少年編</span></div>
+  </div>
+</section>
+
 <!-- 终·星辰 -->
-<section class="scene" id="scene-finale" data-scene="14" data-3d="stars">
+<section class="scene" id="scene-finale" data-scene="15" data-3d="stars">
   <div class="scene-bg scene-o4"></div>
   <div style="position:relative;z-index:10;text-align:center;margin-top:3rem"><h2 style="font-size:clamp(18px,3.5vw,30px);color:rgba(192,57,43,.5);letter-spacing:.08em">星辰画卷</h2><p style="color:rgba(245,239,224,.2);font-size:11px">触碰星辰，聆听大圣的低语</p></div>
   <div id="starContainer" style="position:absolute;inset:0;z-index:5"></div><svg class="star-lines" id="starLines"></svg>
@@ -566,6 +630,92 @@ function mkShaseng(){
   return ad(g,0,true,4.5);
 }
 
+
+// === Toriyama Dragon Ball Wukong (orange gi, spiky hair, tail, kamehameha pose) ===
+function mkToriyamaWukong(){
+  var g=new THREE.Group();
+  var body=new THREE.Mesh(new THREE.CylinderGeometry(.16,.2,1.0,10),new THREE.MeshStandardMaterial({color:0xff6b2b,roughness:.3,metalness:.1,emissive:0x331100,emissiveIntensity:.2}));
+  body.position.y=.55;g.add(body);
+  var belt=new THREE.Mesh(new THREE.TorusGeometry(.22,.04,6,12),new THREE.MeshStandardMaterial({color:0x1e90ff,roughness:.2,metalness:.3,emissive:0x001133,emissiveIntensity:.3}));
+  belt.position.y=.55;belt.rotation.x=Math.PI/2;g.add(belt);
+  var head=new THREE.Mesh(new THREE.SphereGeometry(.18,14,14),new THREE.MeshStandardMaterial({color:0xe8c8a0,roughness:.3}));
+  head.position.y=1.25;g.add(head);
+  var hairM=new THREE.MeshStandardMaterial({color:0x1a1a2e,roughness:.4,emissive:0x050510,emissiveIntensity:.15});
+  for(var i=0;i<10;i++){
+    var angle=(i/10)*Math.PI*2;
+    var h=new THREE.Mesh(new THREE.ConeGeometry(.04,.28,6),hairM);
+    h.position.set(Math.cos(angle)*.14,1.4+Math.random()*.08,Math.sin(angle)*.14);
+    h.rotation.z=(Math.random()-.5)*.6;h.rotation.x=(Math.random()-.5)*.4;g.add(h);
+  }
+  var spike=new THREE.Mesh(new THREE.ConeGeometry(.045,.35,6),hairM);spike.position.y=1.55;g.add(spike);
+  var eyeM=new THREE.MeshStandardMaterial({color:0x111,roughness:.1});
+  g.add(new THREE.Mesh(new THREE.SphereGeometry(.035,5,5),eyeM)).position.set(.06,1.28,.14);
+  g.add(new THREE.Mesh(new THREE.SphereGeometry(.035,5,5),eyeM)).position.set(-.06,1.28,.14);
+  var mouth=new THREE.Mesh(new THREE.TorusGeometry(.04,.012,4,6,Math.PI),new THREE.MeshStandardMaterial({color:0x331111,roughness:.3}));
+  mouth.position.set(0,1.2,.15);g.add(mouth);
+  for(var s=-1;s<=1;s+=2){
+    var arm=new THREE.Mesh(new THREE.CylinderGeometry(.05,.045,.55,8),new THREE.MeshStandardMaterial({color:0xff6b2b,roughness:.3}));
+    arm.position.set(s*.24,.8,.1);arm.rotation.x=-.5;arm.rotation.z=s*.15;g.add(arm);
+    var fist=new THREE.Mesh(new THREE.SphereGeometry(.06,6,6),new THREE.MeshStandardMaterial({color:0xe8c8a0,roughness:.3}));
+    fist.position.set(s*.3,.55,.35);g.add(fist);
+  }
+  for(var s=-1;s<=1;s+=2){
+    var leg=new THREE.Mesh(new THREE.CylinderGeometry(.055,.06,.55,8),new THREE.MeshStandardMaterial({color:0x1a1a4e,roughness:.35}));
+    leg.position.set(s*.1,.1,0);g.add(leg);
+    var boot=new THREE.Mesh(new THREE.CylinderGeometry(.065,.055,.18,8),new THREE.MeshStandardMaterial({color:0x1e90ff,roughness:.25}));
+    boot.position.set(s*.1,-.22,0);g.add(boot);
+  }
+  var tailPts=[];for(var i=0;i<8;i++){tailPts.push(new THREE.Vector3(-.25+Math.sin(i*.35)*.15,-.15+i*.12,Math.cos(i*.35)*.2))}
+  var tailCurve=new THREE.CatmullRomCurve3(tailPts);
+  var tailGeo=new THREE.TubeGeometry(tailCurve,20,.03,6,false);
+  g.add(new THREE.Mesh(tailGeo,new THREE.MeshStandardMaterial({color:0x8b4513,roughness:.4})));
+  g.position.set(0,-.25,0);
+  return ad(g,.005,true,1.5);
+}
+
+// === Kid Wukong (chibi, big head, tail, power pole, 4-star dragon ball) ===
+function mkKidWukong(){
+  var g=new THREE.Group();
+  var head=new THREE.Mesh(new THREE.SphereGeometry(.3,16,16),new THREE.MeshStandardMaterial({color:0xf0dcc0,roughness:.25}));
+  head.position.y=1.2;g.add(head);
+  var hairM=new THREE.MeshStandardMaterial({color:0x111122,roughness:.35,emissive:0x050510,emissiveIntensity:.1});
+  for(var i=0;i<8;i++){
+    var angle=(i/8)*Math.PI*2;
+    var h=new THREE.Mesh(new THREE.ConeGeometry(.045,.32,6),hairM);
+    h.position.set(Math.cos(angle)*.22,1.4+Math.random()*.1,Math.sin(angle)*.22);
+    h.rotation.z=(Math.random()-.5)*.5;g.add(h);
+  }
+  var spike2=new THREE.Mesh(new THREE.ConeGeometry(.05,.4,6),hairM);spike2.position.y=1.58;g.add(spike2);
+  var eyeW=new THREE.Mesh(new THREE.SphereGeometry(.06,6,6),new THREE.MeshStandardMaterial({color:0xffffff,roughness:.05}));
+  eyeW.position.set(.1,1.28,.22);g.add(eyeW);var eyeW2=eyeW.clone();eyeW2.position.set(-.1,1.28,.22);g.add(eyeW2);
+  var pupil=new THREE.Mesh(new THREE.SphereGeometry(.035,5,5),new THREE.MeshStandardMaterial({color:0x111,roughness:.05}));
+  pupil.position.set(.1,1.28,.27);g.add(pupil);var pupil2=pupil.clone();pupil2.position.set(-.1,1.28,.27);g.add(pupil2);
+  var smile=new THREE.Mesh(new THREE.TorusGeometry(.05,.01,4,6,Math.PI),new THREE.MeshStandardMaterial({color:0x442211,roughness:.3}));
+  smile.position.set(0,1.18,.22);g.add(smile);
+  var body=new THREE.Mesh(new THREE.CylinderGeometry(.15,.18,.65,10),new THREE.MeshStandardMaterial({color:0xff6b2b,roughness:.3}));
+  body.position.y=.65;g.add(body);
+  var belt=new THREE.Mesh(new THREE.TorusGeometry(.2,.03,6,10),new THREE.MeshStandardMaterial({color:0x1e90ff,roughness:.2}));
+  belt.position.y=.65;belt.rotation.x=Math.PI/2;g.add(belt);
+  for(var s=-1;s<=1;s+=2){
+    g.add(new THREE.Mesh(new THREE.CylinderGeometry(.04,.04,.4,6),new THREE.MeshStandardMaterial({color:0xf0dcc0,roughness:.3}))).position.set(s*.2,.72,0).rotation.z=s*.3;
+    g.add(new THREE.Mesh(new THREE.CylinderGeometry(.045,.05,.35,6),new THREE.MeshStandardMaterial({color:0x1a1a4e,roughness:.3}))).position.set(s*.08,.25,0);
+  }
+  var tailPts2=[];for(var i=0;i<8;i++){tailPts2.push(new THREE.Vector3(-.22+Math.sin(i*.4)*.12,-.05+i*.1,Math.cos(i*.4)*.15))}
+  var tailCurve2=new THREE.CatmullRomCurve3(tailPts2);
+  g.add(new THREE.Mesh(new THREE.TubeGeometry(tailCurve2,15,.025,6,false),new THREE.MeshStandardMaterial({color:0x8b4513,roughness:.4})));
+  var pole=new THREE.Mesh(new THREE.CylinderGeometry(.025,.025,2.2,8),new THREE.MeshStandardMaterial({color:0xcc0000,roughness:.2,metalness:.4,emissive:0x330000,emissiveIntensity:.2}));
+  pole.position.set(0,.55,-.3);pole.rotation.x=.2;g.add(pole);
+  var dbGroup=new THREE.Group();
+  dbGroup.add(new THREE.Mesh(new THREE.SphereGeometry(.12,14,14),new THREE.MeshStandardMaterial({color:0xff8800,roughness:.08,metalness:.3,emissive:0x441100,emissiveIntensity:.5})));
+  for(var s=0;s<4;s++){
+    var starAngle=(s/4)*Math.PI*2;
+    dbGroup.add(new THREE.Mesh(new THREE.SphereGeometry(.02,4,4),new THREE.MeshStandardMaterial({color:0xffdd00,emissive:0xffaa00,emissiveIntensity:.8}))).position.set(Math.cos(starAngle)*.07,.02,Math.sin(starAngle)*.07);
+  }
+  dbGroup.position.set(.3,.15,.35);g.add(dbGroup);
+  g.position.set(0,-.35,0);
+  return ad(g,.003,true,2.5);
+}
+
 function mkClouds(n){
   for(var i=0;i<n;i++){
     ad(new THREE.Mesh(new THREE.SphereGeometry(.28+Math.random()*.5,6,6),cM()),.0004+Math.random()*.0012,false)
@@ -586,14 +736,80 @@ function buildScene(type){
     case'dragon':mkDragon();mkClouds(9);break;
     case'demons':for(var i=0;i<4;i++){mkDemon((i-1.5)*.9)}mkClouds(5);break;
     case'shaseng':mkShaseng();mkClouds(5);break;
+        case'allfaces':initAllFaces();break;
     case'stars':
       for(var i=0;i<40;i++){
         ad(new THREE.Mesh(new THREE.SphereGeometry(.018+Math.random()*.032,4,4),new THREE.MeshStandardMaterial({color:0xfef3c7,emissive:0xe8a820,emissiveIntensity:.85})),0,true,Math.random()*7)
           .position.set((Math.random()-.5)*9,(Math.random()-.5)*7,-3);
       }
       break;
+        case'toriyama':mkToriyamaWukong();mkClouds(4);break;
+    case'kidwukong':mkKidWukong();mkClouds(3);break;
     default:mkClouds(12);
   }
+}
+
+
+// ===== THREE PANEL 3D =====
+var _rTori,_sTori,_cTori,_rKid,_sKid,_cKid,_objsAF=[];
+function initAllFaces(){
+  if(typeof THREE==='undefined')return;
+  try{
+    // Toriyama panel renderer
+    var cvT=document.getElementById('cvTori');
+    if(cvT&&!_rTori){
+      _rTori=new THREE.WebGLRenderer({canvas:cvT,alpha:true,antialias:true});
+      _rTori.setPixelRatio(Math.min(window.devicePixelRatio,1.5));
+      _rTori.setSize(window.innerWidth/3,window.innerHeight);
+      _sTori=new THREE.Scene();
+      _cTori=new THREE.PerspectiveCamera(45,1,.1,20);
+      _cTori.position.set(0,.3,4.5);
+      _sTori.add(new THREE.AmbientLight(0x665544,1.2));
+      _sTori.add(new THREE.DirectionalLight(0xffaa66,2.0)).position.set(2,3,4);
+      _sTori.add(new THREE.DirectionalLight(0x4488cc,.5)).position.set(-1,0,2);
+      _sTori.add(new THREE.DirectionalLight(0xff6b2b,.4)).position.set(-2,-1,-1);
+    }
+    // Kid panel renderer
+    var cvK=document.getElementById('cvKid');
+    if(cvK&&!_rKid){
+      _rKid=new THREE.WebGLRenderer({canvas:cvK,alpha:true,antialias:true});
+      _rKid.setPixelRatio(Math.min(window.devicePixelRatio,1.5));
+      _rKid.setSize(window.innerWidth/3,window.innerHeight);
+      _sKid=new THREE.Scene();
+      _cKid=new THREE.PerspectiveCamera(45,1,.1,20);
+      _cKid.position.set(0,.3,4.5);
+      _sKid.add(new THREE.AmbientLight(0xaaccff,1.4));
+      _sKid.add(new THREE.DirectionalLight(0xffffff,1.5)).position.set(0,4,3);
+      _sKid.add(new THREE.DirectionalLight(0x88bbff,.5)).position.set(0,0,3);
+    }
+    // Build objects
+    if(_sTori){
+      var to=mkToriyamaWukong();_sTori.add(to);
+      for(var i=0;i<4;i++){var cl=new THREE.Mesh(new THREE.SphereGeometry(.25+Math.random()*.4,5,5),new THREE.MeshStandardMaterial({color:0xffffff,transparent:true,opacity:.08}));cl.position.set((Math.random()-.5)*5,(Math.random()-.5)*3,-1);_sTori.add(cl)}
+      animateTori();
+    }
+    if(_sKid){
+      var kd=mkKidWukong();_sKid.add(kd);
+      for(var i=0;i<3;i++){var cl=new THREE.Mesh(new THREE.SphereGeometry(.2+Math.random()*.3,5,5),new THREE.MeshStandardMaterial({color:0xffffff,transparent:true,opacity:.1}));cl.position.set((Math.random()-.5)*4,(Math.random()-.5)*3,-1);_sKid.add(cl)}
+      animateKid();
+    }
+  }catch(e){console.warn('allfaces 3D:',e.message)}
+}
+
+function animateTori(){
+  if(!_rTori)return;
+  requestAnimationFrame(animateTori);
+  var t=performance.now()*.001;
+  _sTori.children.forEach(function(c){if(c.ud&&c.ud.ry)c.rotation.y+=c.ud.ry*.8;if(c.ud&&c.ud.fl)c.position.y+=Math.sin(t*1.5+c.ud.of)*.005});
+  _rTori.render(_sTori,_cTori);
+}
+
+function animateKid(){
+  if(!_rKid)return;
+  requestAnimationFrame(animateKid);
+  var t=performance.now()*.001;
+  _sKid.children.forEach(function(c){if(c.ud&&c.ud.ry)c.rotation.y+=c.ud.ry;if(c.ud&&c.ud.fl)c.position.y+=Math.sin(t*1.8+c.ud.of)*.006});
+  _rKid.render(_sKid,_cKid);
 }
 
 // ===== DATA =====
@@ -601,7 +817,7 @@ var CHS=[
   {id:'scene1',num:'壹'},{id:'scene2',num:'贰'},{id:'scene3',num:'叁'},{id:'scene4',num:'肆'},
   {id:'scene5',num:'伍'},{id:'scene6',num:'陆'},{id:'scene7',num:'柒'},{id:'scene8',num:'捌'},
   {id:'scene9',num:'玖'},{id:'scene10',num:'拾'},{id:'scene11',num:'拾壹'},{id:'scene12',num:'拾贰'},
-  {id:'scene13',num:'拾叁'},{id:'scene14',num:'拾肆'},{id:'scene-finale',num:'终'}
+  {id:'scene13',num:'拾叁'},{id:'scene14',num:'拾肆'},{id:'scene-allfaces',num:'拾伍'},{id:'scene-finale',num:'终'}
 ];
 var SD=[
   {title:'石破天惊',emoji:'🌋',color:'#c0392b'},{title:'灵台方寸',emoji:'☯',color:'#e8a820'},
@@ -610,7 +826,7 @@ var SD=[
   {title:'灵山在脚下',emoji:'🪷',color:'#1e8568'},{title:'西天棋局',emoji:'♟',color:'#f5d890'},
   {title:'影神图',emoji:'👹',color:'#c0392b'},{title:'黑神话',emoji:'🎮',color:'#e8a820'},
   {title:'大圣有泪',emoji:'💧',color:'#4a90b8'},{title:'自由之魂',emoji:'🌪',color:'#c0392b'},
-  {title:'师徒羁绊',emoji:'🧡',color:'#e8a820'},{title:'大圣哲思',emoji:'💎',color:'#1e8568'}
+  {title:'师徒羁绊',emoji:'🧡',color:'#e8a820'},{title:'大圣哲思',emoji:'💎',color:'#1e8568'},{title:'万相大圣',emoji:'🌏',color:'#ff6b2b'}
 ];
 var QS={
   '石破天惊':{h:'混沌开天地\n灵石迸裂出大圣\n从此不平凡',m:'每一个中国人心中，都有一只等待破石而出的猴子。',f:'觉醒'},
@@ -650,6 +866,38 @@ var CD=['问得好！答案早就在你心里了。','哈哈有意思。俺活�
 var ci=0,tr=false;
 var audioCtx=null,musicPlaying=false,melodyTimer=null;
 
+
+// Toriyama energetic melody (fast, pentatonic with Dragon Ball energy)
+var TORIMELODY=[
+  [523,659,784,1047,880,784,659,523,784,880,1047,1318,1047,880,784,659],
+  [784,880,1047,1318,1568,1318,1047,880,784,1047,880,784,659,523,440,392],
+];
+// Kid Goku light melody (higher, bouncy, playful)
+var KIDMELODY=[
+  [523,588,659,784,880,784,659,588,523,440,523,588,659,784,659,523],
+  [784,880,988,1047,1175,1047,988,880,784,659,784,880,988,1047,880,784],
+];
+
+function playToriMelody(){
+  if(!audioCtx)return;
+  var mel=TORIMELODY[Math.floor(Math.random()*TORIMELODY.length)];
+  var now=audioCtx.currentTime,noteDur=.22;
+  for(var i=0;i<mel.length;i++){
+    var t=now+i*noteDur;
+    playNote(mel[i],t,noteDur*1.1,.04,'square',0);
+    if(i%2===0)playNote(mel[i]*.5,t,noteDur*1.5,.015,'sine',-.3);
+  }
+}
+function playKidMelody(){
+  if(!audioCtx)return;
+  var mel=KIDMELODY[Math.floor(Math.random()*KIDMELODY.length)];
+  var now=audioCtx.currentTime,noteDur=.28;
+  for(var i=0;i<mel.length;i++){
+    var t=now+i*noteDur;
+    playNote(mel[i],t,noteDur*1.1,.03,'triangle',.2);
+    if(i%3===0)playNote(mel[i]*1.5,t,noteDur*.8,.01,'sine',.5);
+  }
+}
 // ===== DOM =====
 var ls=document.getElementById('loadingScreen'),lt=document.getElementById('loadingTitle'),lc=document.getElementById('loadingCanvas');
 var sc=document.getElementById('scrollContainer'),tov=document.getElementById('transitionOverlay'),cn=document.getElementById('chapterNav');
@@ -865,7 +1113,7 @@ document.addEventListener('scroll',autoMusic,{once:true});
       setTimeout(function(){
         ls.classList.add('hidden');document.body.classList.add('loaded');
         setTimeout(function(){try{ls.remove()}catch(e){}},800);
-        initScroll();initStars();initChat();
+        initAllFaces();initScroll();initStars();initChat();
       },1200);
     }
   }
